@@ -16,9 +16,9 @@ local function layout()
     if isElement(labelFont) then destroyElement(labelFont) end
     if isElement(unitFont) then destroyElement(unitFont) end
     if isElement(fuelFont) then destroyElement(fuelFont) end
-    labelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(10, math.floor(11 * scale + 0.5)), false, "antialiased")
-    unitFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(12, math.floor(14 * scale + 0.5)), false, "antialiased")
-    fuelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(15, math.floor(20 * scale + 0.5)), false, "antialiased")
+    labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(9, math.floor(11 * scale + 0.5)), false, "antialiased")
+    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(10, math.floor(13 * scale + 0.5)), false, "antialiased")
+    fuelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(14, math.floor(18 * scale + 0.5)), false, "antialiased")
     numberFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(64 * scale)), false, "cleartype")
 end
 
