@@ -905,7 +905,10 @@ local function handleVehicleControlKey(keyName, sourceName)
             debugKey("Lock event sent: YES")
             return true
         end
-        debugKey("Lock event sent: NO")
+        -- The server can find the nearest owned car when camera aim misses.
+        triggerServerEvent(CarConfig.events.toggleLock, localPlayer)
+        debugKey("Lock event sent: YES (server target lookup)")
+        return true
     end
 
     return false

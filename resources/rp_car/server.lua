@@ -1703,6 +1703,37 @@ addEventHandler(CarConfig.events.toggleHandbrake, root, function()
     notify(player, "Ручник включён.", true)
 end)
 
+-- Resolve against server-owned rows: client aim can hit a neighbour/showroom car.
+local function resolveLockVehicle(player, requested)
+    local px, py, pz = getElementPosition(player)
+    local limit = tonumber(CarConfig.lockServerDistance) or 16
+    local function eligible(vehicle)
+        if not isElement(vehicle) or showcaseByElement[vehicle] then return false end
+        if getElementInterior(vehicle) ~= getElementInterior(player) or getElementDimension(vehicle) ~= getElementDimension(player) then return false end
+        local data = getPersonalRuntime(vehicle)
+        local row = data and RPCarDB.vehicles[data.vehicleId]
+        if not ownsVehicleRow(player, row) then return false end
+        local x, y, z = getElementPosition(vehicle)
+        local distance = getDistanceBetweenPoints3D(px, py, pz, x, y, z)
+        if distance > limit then return false end
+        return distance, row
+    end
+    local distance, row = eligible(requested)
+    if distance then setPersonalRuntime(requested, row);return requested end
+    local best, bestDistance
+    for vehicle in pairs(personalByElement) do
+        local candidateDistance = eligible(vehicle)
+        if candidateDistance and (not bestDistance or candidateDistance < bestDistance) then
+            best, bestDistance = vehicle, candidateDistance
+        end
+    end
+    if best then
+        local data = getPersonalRuntime(best)
+        setPersonalRuntime(best, RPCarDB.vehicles[data.vehicleId])
+    end
+    return best
+end
+
 addEvent(CarConfig.events.toggleLock, true)
 addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     debugLock("Lock request received")
@@ -1710,6 +1741,11 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     local player = client
     if not CarInteraction.canToggleLock(player) then return end
     if tuningSessions[player] then return end
+    vehicle = resolveLockVehicle(player, vehicle)
+    if not vehicle then
+        notify(player, "Рядом нет доступного личного автомобиля. Подойдите ближе к своей машине.", false)
+        return
+    end
     debugLock("Vehicle valid: " .. (isElement(vehicle) and "YES" or "NO"))
     if not isElement(vehicle) then
         return
@@ -1723,7 +1759,7 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     outputDebugString("[RP CAR] Vehicle owner account ID: " .. tostring(runtime and runtime.ownerAccountId or "nil"), 3)
     debugLock("Owner account ID: " .. tostring(runtime and runtime.ownerAccountId or row and row.owner_account_id or "nil"))
     debugLock("Player account ID: " .. tostring(accountId(player) or "nil"))
-    local ownerOk = row and ownsVehicleRuntime(player, runtime) or false
+    local ownerOk = ownsVehicleRow(player, row) or false
     outputDebugString("[RP CAR] Owner check: " .. (ownerOk and "YES" or "NO"), 3)
     debugLock("Owner check: " .. (ownerOk and "YES" or "NO"))
 
