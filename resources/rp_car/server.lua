@@ -905,9 +905,11 @@ local function scheduleParkingFreeze(vehicle, vehicleId)
             syncVehicleToner(targetVehicle, row)
             setElementVelocity(targetVehicle, 0, 0, 0)
             setElementAngularVelocity(targetVehicle, 0, 0, 0)
+            handbrakeVehicles[targetVehicle] = true
+            setElementData(targetVehicle, "car:handbrake", true, true)
             setElementFrozen(targetVehicle, true)
         end
-    end, tonumber(CarConfig.parkingSettleDelay) or 1200, 1, vehicle, vehicleId)
+    end, tonumber(CarConfig.parkingSettleDelay) or 1000, 1, vehicle, vehicleId)
 end
 
 local function createPersonalVehicle(row, parkingSpawn, parkingPoint)
