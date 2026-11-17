@@ -1,0 +1,21 @@
+<meta>
+    <info author="OpenAI" name="RP Home" version="1.0.0" type="script" />
+
+    <script src="config.lua" type="shared" />
+    <script src="home/config.lua" type="shared" />
+    <script src="hotel/config.lua" type="shared" />
+    <script src="database.lua" type="server" />
+    <script src="server.lua" type="server" />
+    <script src="client.lua" type="client" />
+
+    <export function="getPlayerHouse" type="server" />
+    <export function="getHouseByNumber" type="server" />
+    <export function="getHouseData" type="server" />
+    <export function="getPlayerHotel" type="server" />
+    <export function="getHotelData" type="server" />
+    <export function="getHouseParkingSpaces" type="server" />
+    <export function="getFreeHouseParkingSpace" type="server" />
+    <export function="isHouseParkingSpaceAvailable" type="server" />
+    <export function="getPlayerSpawnHousePosition" type="server" />
+    <export function="isPlayerHouseOwner" type="server" />
+</meta>

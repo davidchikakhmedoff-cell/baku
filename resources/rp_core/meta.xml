@@ -1,0 +1,78 @@
+<meta>
+    <info author="OpenAI" name="RP Core" version="1.2.0" type="script" />
+
+    <script src="systems/auth/config.lua" type="shared" />
+    <script src="systems/nametag/config.lua" type="shared" />
+    <script src="systems/admin/config.lua" type="shared" />
+    <script src="systems/bans/config.lua" type="shared" />
+    <script src="systems/chat/config.lua" type="shared" />
+    <script src="systems/notifications/config.lua" type="shared" />
+    <script src="systems/hud/config.lua" type="client" />
+    <script src="systems/testbot/config.lua" type="shared" />
+
+    <script src="systems/auth/utils.lua" type="client" />
+    <script src="systems/auth/dx_button.lua" type="client" />
+    <script src="systems/auth/dx_input.lua" type="client" />
+    <script src="systems/auth/camera.lua" type="client" />
+    <script src="systems/auth/ui.lua" type="client" />
+    <script src="systems/nametag/client.lua" type="client" />
+    <script src="systems/scoreboard/client.lua" type="client" />
+    <script src="systems/admin/actions_client.lua" type="client" />
+    <script src="systems/admin/ui.lua" type="client" />
+    <script src="systems/admin/client.lua" type="client" />
+    <script src="systems/admin/reports/client.lua" type="client" />
+    <script src="systems/chat/client.lua" type="client" />
+    <script src="systems/notifications/client.lua" type="client" />
+    <script src="systems/bans/client.lua" type="client" />
+    <script src="systems/hud/client.lua" type="client" />
+    <script src="systems/visual/client.lua" type="client" />
+    <script src="systems/auth/client.lua" type="client" />
+
+    <file src="CompactC.ttf" />
+
+    <script src="systems/playerid/server.lua" type="server" />
+    <script src="systems/notifications/server.lua" type="server" />
+    <script src="systems/scoreboard/server.lua" type="server" />
+    <script src="systems/nametag/server.lua" type="server" />
+    <script src="systems/levels/server.lua" type="server" />
+    <script src="systems/bans/database.lua" type="server" />
+    <script src="systems/bans/server.lua" type="server" />
+    <script src="systems/auth/server.lua" type="server" />
+    <script src="systems/hud/server.lua" type="server" />
+    <script src="systems/admin/bans.lua" type="server" />
+    <script src="systems/admin/vehicles.lua" type="server" />
+    <script src="systems/admin/actions.lua" type="server" />
+    <script src="systems/admin/server.lua" type="server" />
+    <script src="systems/chat/database.lua" type="server" />
+    <script src="systems/chat/server.lua" type="server" />
+    <script src="systems/admin/reports/server.lua" type="server" />
+    <script src="systems/chat/commands.lua" type="server" />
+    <script src="systems/testbot/server.lua" type="server" />
+
+    <export function="isPlayerBanned" type="server" />
+    <export function="banPlayer" type="server" />
+    <export function="unbanPlayerByIdentity" type="server" />
+    <export function="logAdminAction" type="server" />
+    <export function="AuthDBQuery" type="server" />
+    <export function="AuthDBExec" type="server" />
+    <export function="getAuthPlayerId" type="server" />
+    <export function="getAuthPlayerHouseId" type="server" />
+    <export function="getAuthAccountHouseId" type="server" />
+    <export function="getAuthHouseOwnerAccountId" type="server" />
+    <export function="getAuthAccountName" type="server" />
+    <export function="setAuthPlayerHouseId" type="server" />
+    <export function="addAuthAccountMoney" type="server" />
+    <export function="getAuthPlayerBalance" type="server" />
+    <export function="giveAuthPlayerMoney" type="server" />
+    <export function="takeAuthPlayerMoney" type="server" />
+    <export function="getCoreAdminLevel" type="server" />
+    <export function="hasAdminPermission" type="server" />
+    <export function="sendCoreNotification" type="server" />
+    <export function="showCoreNotification" type="client" />
+    <export function="canOpenUI" type="client" />
+    <export function="openUI" type="client" />
+    <export function="closeUI" type="client" />
+    <export function="getActiveUIName" type="client" />
+    <export function="isAnyBlockingUIOpen" type="client" />
+    <export function="isTextInputActive" type="client" />
+</meta>

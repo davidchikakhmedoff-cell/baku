@@ -1,0 +1,14 @@
+<meta>
+    <file src="files/toner.fx" />
+    <script src="toner_client.lua" type="client" cache="false"/>
+    <script src="toner_server.lua" type="server" />
+        <file src="files/toner/t1.tga" />
+        <file src="files/toner/t2.tga" />
+        <file src="files/toner/t3.tga" />
+        <file src="files/toner/t4.tga" />
+        <file src="files/toner/t5.tga" />
+        <file src="files/toner/t6.tga" />
+        <file src="files/toner/t7.tga" />
+        <file src="files/toner/t8.tga" />
+        <file src="files/toner/t9.tga" />
+</meta>
