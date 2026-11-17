@@ -346,7 +346,7 @@ local function openCreateHotel(entrance)
 end
 
 local function openExtendHotel(hotel)
-    if not beginWindow("extendHotel", hotel) then return end
+    if not beginWindow("extendHotel", hotel, windowContext) then return end
     formValues.extendDays = "1"
 end
 
@@ -570,12 +570,12 @@ drawHouseMenu = function()
     local actions = {}
     if isHotel(house) then
         if inside then
+            actions[#actions + 1] = { "exitHouse", "Выйти из отеля" }
             if ownHotel then
-                actions[#actions + 1] = { "extendHotel", "Продлить аренду" }
                 actions[#actions + 1] = { "leaveHotel", "Съехать из отеля", HomeConfig.colors.red }
                 actions[#actions + 1] = { "lock", house.locked and "Открыть отель" or "Закрыть отель" }
+                actions[#actions + 1] = { "extendHotel", "Продлить аренду" }
             end
-            actions[#actions + 1] = { "exitHouse", "Выйти из отеля" }
         else
             if house.status == "free" then
                 actions[#actions + 1] = { "rentHotel", "Арендовать" }
@@ -1088,7 +1088,7 @@ local function clickButton(id)
     elseif id == "buy" then beginWindow("buy", selectedHouse)
     elseif id == "houseInfo" then beginWindow("buy", selectedHouse, { ownerInfo = true })
     elseif id == "confirmBuy" then triggerServerEvent("home:buy", localPlayer, selectedHouse.id); closeWindow()
-    elseif id == "backHouse" then beginWindow("house", selectedHouse)
+    elseif id == "backHouse" then beginWindow("house", selectedHouse, window == "extendHotel" and windowContext or nil)
     elseif id == "backHouseInfo" then beginWindow("buy", selectedHouse, { ownerInfo = true })
     elseif id == "rentHotel" then triggerServerEvent("hotel:rent", localPlayer, selectedHouse.id); closeWindow()
     elseif id == "enter" then triggerServerEvent(isHotel(selectedHouse) and "hotel:enter" or "home:enter", localPlayer, selectedHouse.id); closeWindow()
