@@ -10,7 +10,7 @@ local vehicles={[own]=10,[foreign]=11}
 local rows={[10]={id=10,owner_account_id=1,house_id=0,status='no_parking'},[11]={id=11,owner_account_id=2}}
 local env={CarConfig={lockServerDistance=16},personalByElement=vehicles,showcaseByElement={[showcase]=true},RPCarDB={vehicles=rows}}
 setmetatable(env,{__index=_G})
-env.isElement=function(v) return type(v)=='table' end
+env.isElement=function(v) return v==player or v==own or v==foreign or v==showcase end
 env.getElementPosition=function(v) return v.x,0,0 end
 env.getElementDimension=function(v) return v.dimension end
 env.getElementInterior=function(v) return v.interior end
@@ -22,6 +22,7 @@ local fn=assert(loadstring(resolver..'\nreturn resolveLockVehicle'));setfenv(fn,
 assert(not resolve(player,foreign),'foreign target cannot substitute another car')
 assert(not resolve(player,showcase),'showroom target rejected')
 assert(not resolve(player,nil),'camera miss does not toggle an arbitrary car')
+assert(resolve(player,{foreign,own})==own,'server skips foreign aimed car and selects first owned target')
 assert(resolve(player,own)==own and own.ownerCache==1,'cache refreshed from actual database owner')
 rows[10].house_id=20;rows[10].status='active'
 assert(resolve(player,own)==own,'reassigning house keeps lock access')

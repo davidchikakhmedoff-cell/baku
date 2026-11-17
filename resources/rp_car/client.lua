@@ -821,30 +821,15 @@ addEventHandler(CarConfig.events.receiveOffer, resourceRoot, function(offerId, d
     open("offer", {})
 end)
 
-local pendingLockAim = false
-addEvent("car:lockIdentity", true)
-addEventHandler("car:lockIdentity", resourceRoot, function(accountId)
-    CarLockAccountId = tonumber(accountId)
-    if pendingLockAim then
-        pendingLockAim = false
-        if CarLockAccountId and CarInteraction.canToggleLock(localPlayer) and not isInputBlocked() then
-            local vehicle = getLookedVehicle()
-            if vehicle then triggerServerEvent(CarConfig.events.toggleLock, localPlayer, vehicle) end
-        end
-    end
-end)
-
 function getLookedVehicle()
-    if not CarLockAccountId then return false end
     local cx, cy, cz = getCameraMatrix()
     local sw, sh = guiGetScreenSize()
     local px, py, pz = getElementPosition(localPlayer)
     local limit = tonumber(CarConfig.lockAimDistance) or 25
     local radius = math.min(sw, sh) * 0.22
-    local best, bestOffset, bestDistance
+    local candidates = {}
     for _,vehicle in ipairs(getElementsByType("vehicle")) do
-        local owner = tonumber(getElementData(vehicle, "car:ownerAccountId"))
-        if owner == CarLockAccountId and not getElementData(vehicle, "car:showcase")
+        if not getElementData(vehicle, "car:showcase")
             and getElementInterior(vehicle) == getElementInterior(localPlayer)
             and getElementDimension(vehicle) == getElementDimension(localPlayer) then
             local x,y,z = getElementPosition(vehicle)
@@ -852,20 +837,28 @@ function getLookedVehicle()
             local sx,sy = getScreenFromWorldPosition(x,y,z+0.7)
             if distance <= limit and sx and sy then
                 local offset = (sx-sw/2)^2 + (sy-sh/2)^2
-                if offset <= radius^2 and isLineOfSightClear(cx,cy,cz,x,y,z+0.7,true,false,false,true,false,false,false,localPlayer)
-                    and (not bestOffset or offset < bestOffset or (offset == bestOffset and distance < bestDistance)) then
-                    best,bestOffset,bestDistance = vehicle,offset,distance
+                if offset <= radius^2 and isLineOfSightClear(cx,cy,cz,x,y,z+0.7,true,false,false,true,false,false,false,localPlayer) then
+                    candidates[#candidates+1] = {vehicle=vehicle,offset=offset,distance=distance}
                 end
             end
         end
     end
-    return best or false
+    table.sort(candidates,function(a,b)
+        if a.offset == b.offset then return a.distance < b.distance end
+        return a.offset < b.offset
+    end)
+    local targets = {}
+    for index=1,math.min(64,#candidates) do targets[index]=candidates[index].vehicle end
+    return targets[1] or false, targets
 end
 
 local function handleVehicleControlKey(keyName, sourceName)
     local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
         or (keyName ~= "n" and CarInteraction.ready(localPlayer))
-    if not ready then return false end
+    if not ready then
+        if keyName == "n" then outputChatBox("Замок: дождитесь завершения посадки или выхода из машины.",239,166,74) end
+        return false
+    end
     if keyName == "n" then
         outputDebugString("[RP CAR CLIENT] N pressed", 3)
     end
@@ -884,7 +877,10 @@ local function handleVehicleControlKey(keyName, sourceName)
     end
     local blocked = isInputBlocked()
     debugKey("Blocked by UI: " .. (blocked and "YES" or "NO"))
-    if blocked then return false end
+    if blocked then
+        if keyName == "n" then outputChatBox("Замок: закройте открытое окно или поле ввода.",239,166,74) end
+        return false
+    end
 
     if keyName == "2" then
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
@@ -899,22 +895,18 @@ local function handleVehicleControlKey(keyName, sourceName)
         triggerServerEvent(CarConfig.events.toggleHandbrake, localPlayer)
         return true
     elseif keyName == "n" then
-        if not CarLockAccountId then
-            pendingLockAim = true
-            triggerServerEvent("car:requestSpeedometerSession", resourceRoot)
-            return true
-        end
-        local vehicle = getLookedVehicle()
+        local vehicle, targets = getLookedVehicle()
         debugKey("Target vehicle found: " .. (vehicle and "YES" or "NO"))
         if vehicle then
             local px, py, pz = getElementPosition(localPlayer)
             local vx, vy, vz = getElementPosition(vehicle)
             debugKey("Distance: " .. string.format("%.2f", getDistanceBetweenPoints3D(px, py, pz, vx, vy, vz)))
-            triggerServerEvent(CarConfig.events.toggleLock, localPlayer, vehicle)
+            triggerServerEvent(CarConfig.events.toggleLock, localPlayer, targets)
             debugKey("Lock event sent: YES")
             return true
         end
-        debugKey("Lock event sent: NO (no owned car near screen centre)")
+        outputChatBox("Замок: наведите центр экрана на машину в пределах 25 метров.",239,166,74)
+        debugKey("Lock event sent: NO (no car near screen centre)")
         return false
     end
 
@@ -1077,6 +1069,7 @@ addEventHandler("onClientKey", root, function(key, press)
             debugKey("Active UI name: " .. tostring(activeName))
         end
         debugKey("Blocked by UI: YES")
+        if key == "n" then outputChatBox("Замок: сначала закройте меню автомобиля.",239,166,74) end
         if key == "2" then
             cancelEvent()
         end

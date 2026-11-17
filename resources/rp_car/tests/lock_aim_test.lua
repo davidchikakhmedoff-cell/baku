@@ -4,7 +4,7 @@ localPlayer={};CarLockAccountId=7;CarConfig={lockAimDistance=25}
 local centred={owner=7,x=9,sx=960,sy=540}
 local near={owner=7,x=2,sx=1020,sy=540}
 local foreign={owner=8,x=1,sx=960,sy=540}
-local cars={near,centred,foreign}
+local cars={near,centred}
 function getCameraMatrix() return 0,0,1 end
 function guiGetScreenSize() return 1920,1080 end
 function getElementPosition(v) return v.x or 0,0,0 end
@@ -22,5 +22,28 @@ centred.blockedX=nil;centred.x=24;assert(getLookedVehicle()==centred,'centred ca
 centred.x=26;assert(getLookedVehicle()==near,'car beyond 25 metres ignored')
 near.sx=1500;assert(not getLookedVehicle(),'outside aim area does not select a neighbour')
 near.sx=960;near.dimension=1;assert(not getLookedVehicle(),'different world ignored')
-CarLockAccountId=nil;assert(not getLookedVehicle(),'no session identity means no selection')
-print('Lock aim: 5 screen-centre, visibility and ownership checks passed')
+CarLockAccountId=nil;near.dimension=0;near.sx=960;assert(getLookedVehicle()==near,'missing client identity must not block the request')
+foreign.sx=958;cars={near,foreign};local first,list=getLookedVehicle();assert(first==near and list[2]==foreign,'ordered target list is sent for authoritative ownership checks')
+print('Lock aim: screen-centre ordering, visibility, 25m range and identity-independent selection passed')
+-- Exercise the real N handler too; earlier tests stopped at selecting a target.
+local handle=assert(code:match('local function handleVehicleControlKey%(.-\nend'))
+local sent,feedback
+CarConfig.events={toggleLock='car:toggleLock'}
+CarInteraction={ready=function() return true end,canToggleLock=function() return true end}
+function getCoreUIState() return false,false,nil end
+local blocked=false
+function isInputBlocked() return blocked end
+function debugKey() end
+function outputDebugString() end
+function outputChatBox(message) feedback=message end
+local ticks=0
+function getTickCount() ticks=ticks+1000;return ticks end
+function triggerServerEvent(event,element,targets) sent={event=event,targets=targets} end
+local press=assert(loadstring('local keyDebounce={}\n'..handle..'\nreturn handleVehicleControlKey'))()
+CarLockAccountId=nil
+assert(press('n','test') and sent.event=='car:toggleLock' and #sent.targets==2,'N sends server request without client account identity or a house')
+blocked=true;feedback=nil;sent=nil
+assert(not press('n','test') and feedback and not sent,'UI block must give visible feedback')
+blocked=false;cars={};feedback=nil
+assert(not press('n','test') and feedback,'no aim target must give visible feedback')
+print('N handler: actual request path without client identity plus visible failure messages passed')
