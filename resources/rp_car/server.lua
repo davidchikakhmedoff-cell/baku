@@ -291,6 +291,11 @@ local function isVehicleStoredWithoutParking(row)
     return status == VehicleStatuses.noParking or status == VehicleStatuses.stored
 end
 
+local function isUnparkedActiveVehicle(row)
+    return row and tostring(row.status) == VehicleStatuses.active
+        and (tonumber(row.house_id) or 0) == 0 and (tonumber(row.parking_slot) or 0) == 0
+end
+
 local function findFreeParking(houseId)
     local spaces = getHouseParkingSpaces(houseId)
     local occupied = findOccupiedSlots(houseId)
@@ -969,6 +974,15 @@ local function clearVehicleParking(vehicleId, status, keepElement)
         status = status or VehicleStatuses.noParking
     }
     if isElement(vehicle) then
+        if keepElement then
+            -- Losing real estate removes a parking assignment, not car ownership
+            -- or the ability to use a car that is already in the world.
+            update.status = VehicleStatuses.active
+            update.health = getElementHealth(vehicle)
+            update.engine_on = getVehicleEngineState(vehicle) and 1 or 0
+            update.locked = isVehicleLocked(vehicle) and 1 or 0
+            update.lights_on = row.lights_on
+        end
         local x, y, z = getElementPosition(vehicle)
         local rx, ry, rz = getElementRotation(vehicle)
         update.x, update.y, update.z = x, y, z
@@ -1146,6 +1160,8 @@ local function spawnAllPersonalVehicles()
             local parking = validateVehicleParking(row)
             if parking then
                 createPersonalVehicle(row, tostring(row.status or "") == VehicleStatuses.parked or isRowNearParkingPoint(row, parking), parking)
+            elseif isUnparkedActiveVehicle(row) then
+                createPersonalVehicle(row)
             else
                 clearVehicleParking(row.id, VehicleStatuses.noParking)
             end
@@ -2957,6 +2973,8 @@ function spawnPlayerVehicles(player)
             local parking = validateVehicleParking(row)
             if parking then
                 vehicle = createPersonalVehicle(row, tostring(row.status or "") == VehicleStatuses.parked or isRowNearParkingPoint(row, parking), parking)
+            elseif isUnparkedActiveVehicle(row) then
+                vehicle = createPersonalVehicle(row)
             else
                 clearVehicleParking(row.id, VehicleStatuses.noParking)
             end
