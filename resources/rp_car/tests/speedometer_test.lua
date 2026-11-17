@@ -21,6 +21,7 @@ function getElementVelocity() return state.vx,0,0 end
 function getTickCount() return state.time end
 function getElementData() return state.brake end
 function getPedControlState() return state.control end
+function isVehicleLocked() return state.locked ~= false end
 function getVehicleDoorState(v,id) return state.missing==id and 4 or 0 end
 function getVehicleDoorOpenRatio(v,id) return state.doors[id] or 0 end
 function getVehicleOverrideLights() return state.lights end
@@ -47,6 +48,10 @@ state.brake=true;render();check(hasColor(tocolor(239,83,80)),'custom handbrake')
 state.brake=false;state.control=true;render();check(hasColor(tocolor(239,83,80)),'standard handbrake')
 state.control=false;state.doors[3]=0.5;render();check(hasColor(tocolor(242,166,74)),'open passenger door')
 state.missing=3;render();check(not hasColor(tocolor(242,166,74)),'missing door ignored')
+state.doors={};state.missing=nil;state.locked=false;render();check(hasColor(tocolor(242,166,74)),'unlocked doors highlighted')
+state.locked=true;render();check(not hasColor(tocolor(242,166,74)),'locked closed doors muted')
+state.doors[2]=0.5;render();check(hasColor(tocolor(242,166,74)),'physically open locked door highlighted')
+state.doors={}
 state.lights=2;render();check(hasColor(tocolor(103,196,216)),'forced headlights on')
 state.lights=1;render();check(not hasColor(tocolor(103,196,216)),'forced headlights off')
 state.lights=0;state.hour=23;render();check(hasColor(tocolor(103,196,216)),'automatic night headlights')

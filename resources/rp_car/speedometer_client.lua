@@ -1,8 +1,8 @@
 -- Minimal vehicle HUD. No changes to controls, handling or persistent vehicle data.
 local authorized = false
 local lastVehicle, displayedSpeed, lastTick = nil, 0, nil
-local screenW, screenH, scale, numberFont
-local white, muted = tocolor(245, 247, 250), tocolor(130, 137, 146, 210)
+local screenW, screenH, scale, numberFont, labelFont, unitFont
+local white, muted = tocolor(245, 247, 250), tocolor(155, 163, 173, 255)
 local brakeColor, doorColor, lightColor = tocolor(239, 83, 80), tocolor(242, 166, 74), tocolor(103, 196, 216)
 
 local function reset()
@@ -13,14 +13,20 @@ local function layout()
     screenW, screenH = guiGetScreenSize()
     scale = math.min(screenW / 1920, screenH / 1080)
     if isElement(numberFont) then destroyElement(numberFont) end
+    if isElement(labelFont) then destroyElement(labelFont) end
+    if isElement(unitFont) then destroyElement(unitFont) end
+    labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(10, math.floor(12 * scale + 0.5)), true, "cleartype")
+    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(11, math.floor(15 * scale + 0.5)), true, "cleartype")
     numberFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(64 * scale)), false, "cleartype")
 end
 
 local function line(x1, y1, x2, y2, color)
-    dxDrawLine(x1, y1, x2, y2, color, math.max(1, 1.5 * scale))
+    dxDrawLine(math.floor(x1 + 0.5), math.floor(y1 + 0.5), math.floor(x2 + 0.5), math.floor(y2 + 0.5), color, math.max(2, math.floor(2.5 * scale + 0.5)))
 end
 
 local function text(value, x, y, w, h, color, size, font, align)
+    x, y = math.floor(x + 0.5), math.floor(y + 0.5)
+    w, h = math.floor(w + 0.5), math.floor(h + 0.5)
     -- Small shadow keeps white digits legible against bright roads without a panel.
     dxDrawText(value, x + 1, y + 1, x + w + 1, y + h + 1, tocolor(0, 0, 0, 150), size, font, align, "center")
     dxDrawText(value, x, y, x + w, y + h, color, size, font, align, "center")
@@ -54,17 +60,18 @@ local function drawIndicators(vehicle, x, y)
     text("P", x, y - 3 * unit, 22 * unit, 24 * unit, color, unit, "default-bold", "center")
     line(x - 3 * unit, y, x - 3 * unit, y + 17 * unit, color)
     line(x + 25 * unit, y, x + 25 * unit, y + 17 * unit, color)
-    text("BRAKE", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, muted, 0.7 * unit, "default-bold", "center")
+    text("BRAKE", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 
     x = x + 73 * unit
-    color = doorsOpen(vehicle) and doorColor or muted
+    -- The existing door control toggles the lock, not the door angle.
+    color = (not isVehicleLocked(vehicle) or doorsOpen(vehicle)) and doorColor or muted
     line(x, y + 18 * unit, x, y, color)
     line(x, y, x + 17 * unit, y + 3 * unit, color)
     line(x + 17 * unit, y + 3 * unit, x + 22 * unit, y + 18 * unit, color)
     line(x + 22 * unit, y + 18 * unit, x, y + 18 * unit, color)
     line(x + 5 * unit, y + 5 * unit, x + 14 * unit, y + 7 * unit, color)
     line(x + 13 * unit, y + 12 * unit, x + 17 * unit, y + 12 * unit, color)
-    text("DOOR", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, muted, 0.7 * unit, "default-bold", "center")
+    text("DOOR", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 
     x = x + 73 * unit
     color = lightsOn(vehicle) and lightColor or muted
@@ -75,7 +82,7 @@ local function drawIndicators(vehicle, x, y)
     for beam = 0, 2 do
         line(x, y + (3 + beam * 6) * unit, x + 7 * unit, y + (3 + beam * 6) * unit, color)
     end
-    text("LIGHT", x - 11 * unit, y + 25 * unit, 48 * unit, 14 * unit, muted, 0.7 * unit, "default-bold", "center")
+    text("LIGHT", x - 11 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 end
 
 local function render()
@@ -102,7 +109,7 @@ local function render()
     local x, y = screenW - 258 * scale, screenH - 205 * scale
     text(string.format("%03d", math.floor(displayedSpeed + 0.5)), x, y, 210 * scale, 90 * scale,
         white, numberFont and 1 or 3.8 * scale, numberFont or "default-bold", "right")
-    text("KM/H", x, y + 88 * scale, 208 * scale, 20 * scale, muted, 0.85 * scale, "default-bold", "right")
+    text("KM/H", x, y + 88 * scale, 208 * scale, 20 * scale, muted, 1, unitFont or "default-bold", "right")
     line(x + 8 * scale, y + 123 * scale, x + 210 * scale, y + 123 * scale, tocolor(170, 180, 190, 55))
     drawIndicators(vehicle, x + 27 * scale, y + 139 * scale)
 end
@@ -121,5 +128,7 @@ addEventHandler("onClientRender", root, render)
 addEventHandler("onClientResourceStop", resourceRoot, function()
     removeEventHandler("onClientRender", root, render)
     if isElement(numberFont) then destroyElement(numberFont) end
-    numberFont = nil
+    if isElement(labelFont) then destroyElement(labelFont) end
+    if isElement(unitFont) then destroyElement(unitFont) end
+    numberFont, labelFont, unitFont = nil, nil, nil
 end)
