@@ -79,7 +79,7 @@ end
 
 local function debugKey(message)
     local text = tostring(message)
-    if CarConfig.DebugMode or text:find("L pressed", 1, true) or text:find("Any UI open", 1, true)
+    if CarConfig.DebugMode or text:find("N pressed", 1, true) or text:find("Any UI open", 1, true)
         or text:find("Text input active", 1, true) or text:find("Active UI name", 1, true)
         or text:find("Target vehicle", 1, true) or text:find("Distance", 1, true)
         or text:find("Lock event sent", 1, true) then
@@ -850,20 +850,20 @@ function getLookedVehicle()
 end
 
 local function handleVehicleControlKey(keyName, sourceName)
-    local ready = keyName == "l" and CarInteraction.canToggleLock(localPlayer)
-        or (keyName ~= "l" and CarInteraction.ready(localPlayer))
+    local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
+        or (keyName ~= "n" and CarInteraction.ready(localPlayer))
     if not ready then return false end
-    if keyName == "l" then
-        outputDebugString("[RP CAR CLIENT] L pressed", 3)
+    if keyName == "n" then
+        outputDebugString("[RP CAR CLIENT] N pressed", 3)
     end
     local now = getTickCount()
-    local debounceDelay = keyName == "l" and 650 or 250
+    local debounceDelay = keyName == "n" and 650 or 250
     if keyDebounce[keyName] and now - keyDebounce[keyName] < debounceDelay then return false end
     keyDebounce[keyName] = now
 
     local label = keyName == "2" and "2" or string.upper(keyName)
-    debugKey(keyName == "l" and "L pressed" or ("Key " .. label .. " pressed"))
-    if keyName == "l" then
+    debugKey(keyName == "n" and "N pressed" or ("Key " .. label .. " pressed"))
+    if keyName == "n" then
         local anyOpen, textActive, activeName = getCoreUIState()
         debugKey("Any UI open: " .. tostring(anyOpen))
         debugKey("Text input active: " .. tostring(textActive))
@@ -877,7 +877,7 @@ local function handleVehicleControlKey(keyName, sourceName)
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleEngine, localPlayer)
         return true
-    elseif keyName == "n" then
+    elseif keyName == "l" then
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleLights, localPlayer)
         return true
@@ -885,7 +885,7 @@ local function handleVehicleControlKey(keyName, sourceName)
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleHandbrake, localPlayer)
         return true
-    elseif keyName == "l" then
+    elseif keyName == "n" then
         local vehicle = getLookedVehicle()
         debugKey("Target vehicle found: " .. (vehicle and "YES" or "NO"))
         if vehicle then
@@ -905,11 +905,11 @@ end
 
 local function bindVehicleKeys()
     bindKey("2", "down", function() handleVehicleControlKey("2", "bind") end)
-    bindKey("l", "down", function()
-        outputDebugString("[RP CAR CLIENT] L pressed", 3)
-        handleVehicleControlKey("l", "bind")
+    bindKey("n", "down", function()
+        outputDebugString("[RP CAR CLIENT] N pressed", 3)
+        handleVehicleControlKey("n", "bind")
     end)
-    bindKey("n", "down", function() handleVehicleControlKey("n", "bind") end)
+    bindKey("l", "down", function() handleVehicleControlKey("l", "bind") end)
     bindKey("b", "down", function() handleVehicleControlKey("b", "bind") end)
 end
 
@@ -1037,12 +1037,12 @@ end)
 
 addEventHandler("onClientKey", root, function(key, press)
     if not press then return end
-    if key == "l" then
-        outputDebugString("[RP CAR CLIENT] L pressed", 3)
+    if key == "n" then
+        outputDebugString("[RP CAR CLIENT] N pressed", 3)
     end
 
     if not UI.mode then
-        if key == "2" or key == "n" or key == "l" or key == "b" then
+        if key == "2" or key == "l" or key == "n" or key == "b" then
             if handleVehicleControlKey(key, "key") then cancelEvent() end
             if key == "2" and not isInputBlocked() then cancelEvent() end
             return
@@ -1050,9 +1050,9 @@ addEventHandler("onClientKey", root, function(key, press)
         return
     end
 
-    if key == "2" or key == "n" or key == "l" or key == "b" then
-        debugKey(key == "l" and "L pressed" or ("Key " .. string.upper(key) .. " pressed"))
-        if key == "l" then
+    if key == "2" or key == "l" or key == "n" or key == "b" then
+        debugKey(key == "n" and "N pressed" or ("Key " .. string.upper(key) .. " pressed"))
+        if key == "n" then
             local anyOpen, textActive, activeName = getCoreUIState()
             debugKey("Any UI open: " .. tostring(anyOpen))
             debugKey("Text input active: " .. tostring(textActive))

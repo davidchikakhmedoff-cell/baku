@@ -43,7 +43,7 @@ progress is journaled and projected each server tick. The clients receive only
 display values; client element-data changes cannot alter authoritative fuel.
 
 The speedometer retains its design, adds a larger white litres readout and
-an engine silhouette (ENG) showing actual engine state. B and L indicators keep
+an engine silhouette (ENG) showing actual engine state. B and N indicators keep
 their previous custom-handbrake and locked-door meanings.
 
 Validation from repository root:
