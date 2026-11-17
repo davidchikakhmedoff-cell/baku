@@ -1,6 +1,6 @@
 local file=assert(io.open('resources/rp_car/client.lua','rb'));local code=file:read('*a');file:close()
 local selector=assert(code:match('function getLookedVehicle%(%)%s*.-\nend'))
-localPlayer={};CarLockAccountId=7;CarConfig={lockAimDistance=12}
+localPlayer={};CarLockAccountId=7;CarConfig={lockAimDistance=25}
 local centred={owner=7,x=9,sx=960,sy=540}
 local near={owner=7,x=2,sx=1020,sy=540}
 local foreign={owner=8,x=1,sx=960,sy=540}
@@ -18,6 +18,8 @@ function isLineOfSightClear(cx,cy,cz,x) return x~=centred.blockedX end
 assert(loadstring(selector))()
 assert(getLookedVehicle()==centred,'screen centre outranks physical distance')
 centred.blockedX=9;assert(getLookedVehicle()==near,'occluded car ignored')
+centred.blockedX=nil;centred.x=24;assert(getLookedVehicle()==centred,'centred car at 24 metres can be selected')
+centred.x=26;assert(getLookedVehicle()==near,'car beyond 25 metres ignored')
 near.sx=1500;assert(not getLookedVehicle(),'outside aim area does not select a neighbour')
 near.sx=960;near.dimension=1;assert(not getLookedVehicle(),'different world ignored')
 CarLockAccountId=nil;assert(not getLookedVehicle(),'no session identity means no selection')

@@ -1739,7 +1739,7 @@ end)
 -- Resolve against server-owned rows: client aim can hit a neighbour/showroom car.
 local function resolveLockVehicle(player, requested)
     local px, py, pz = getElementPosition(player)
-    local limit = tonumber(CarConfig.lockServerDistance) or 16
+    local limit = tonumber(CarConfig.lockServerDistance) or 25
     local function eligible(vehicle)
         if not isElement(vehicle) or showcaseByElement[vehicle] then return false end
         if getElementInterior(vehicle) ~= getElementInterior(player) or getElementDimension(vehicle) ~= getElementDimension(player) then return false end
@@ -1789,7 +1789,7 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     local px, py, pz = getElementPosition(player)
     local vx, vy, vz = getElementPosition(vehicle)
     if not row or showcaseByElement[vehicle] or not ownerOk or getElementInterior(player) ~= getElementInterior(vehicle) or getElementDimension(player) ~= getElementDimension(vehicle)
-        or getDistanceBetweenPoints3D(px, py, pz, vx, vy, vz) > (tonumber(CarConfig.lockServerDistance) or 16) then
+        or getDistanceBetweenPoints3D(px, py, pz, vx, vy, vz) > (tonumber(CarConfig.lockServerDistance) or 25) then
         debugLock("Permission granted: NO")
         return
     end

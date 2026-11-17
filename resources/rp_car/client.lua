@@ -821,12 +821,25 @@ addEventHandler(CarConfig.events.receiveOffer, resourceRoot, function(offerId, d
     open("offer", {})
 end)
 
+local pendingLockAim = false
+addEvent("car:lockIdentity", true)
+addEventHandler("car:lockIdentity", resourceRoot, function(accountId)
+    CarLockAccountId = tonumber(accountId)
+    if pendingLockAim then
+        pendingLockAim = false
+        if CarLockAccountId and CarInteraction.canToggleLock(localPlayer) and not isInputBlocked() then
+            local vehicle = getLookedVehicle()
+            if vehicle then triggerServerEvent(CarConfig.events.toggleLock, localPlayer, vehicle) end
+        end
+    end
+end)
+
 function getLookedVehicle()
     if not CarLockAccountId then return false end
     local cx, cy, cz = getCameraMatrix()
     local sw, sh = guiGetScreenSize()
     local px, py, pz = getElementPosition(localPlayer)
-    local limit = tonumber(CarConfig.lockAimDistance) or 12
+    local limit = tonumber(CarConfig.lockAimDistance) or 25
     local radius = math.min(sw, sh) * 0.22
     local best, bestOffset, bestDistance
     for _,vehicle in ipairs(getElementsByType("vehicle")) do
@@ -886,6 +899,11 @@ local function handleVehicleControlKey(keyName, sourceName)
         triggerServerEvent(CarConfig.events.toggleHandbrake, localPlayer)
         return true
     elseif keyName == "n" then
+        if not CarLockAccountId then
+            pendingLockAim = true
+            triggerServerEvent("car:requestSpeedometerSession", resourceRoot)
+            return true
+        end
         local vehicle = getLookedVehicle()
         debugKey("Target vehicle found: " .. (vehicle and "YES" or "NO"))
         if vehicle then
