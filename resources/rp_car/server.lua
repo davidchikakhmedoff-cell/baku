@@ -806,6 +806,7 @@ local function saveVehiclePosition(vehicle)
         x = x, y = y, z = z, rx = rx, ry = ry, rz = rz,
         interior = getElementInterior(vehicle),
         dimension = getElementDimension(vehicle),
+        fuel = FuelSystem and FuelSystem.get(vehicle) or row.fuel,
         health = getElementHealth(vehicle),
         color_r = r or row.color_r,
         color_g = g or row.color_g,
@@ -820,7 +821,7 @@ end
 local function applyPersonalVehicleState(vehicle, row)
     if not isElement(vehicle) or not row then return end
     local locked = tonumber(row.locked) == 1
-    local engineOn = tonumber(row.engine_on) == 1
+    local engineOn = tonumber(row.engine_on) == 1 and (not FuelSystem or FuelSystem.canStart(vehicle))
     local lightsOn = tonumber(row.lights_on) == 1
     setVehicleEngineState(vehicle, engineOn)
     setVehicleLocked(vehicle, locked)
@@ -925,6 +926,7 @@ local function createPersonalVehicle(row, parkingSpawn, parkingPoint)
     applyConfiguredHandling(vehicle, row)
     local cacheCreated = setPersonalRuntime(vehicle, row)
     syncVehicleToner(vehicle, row)
+    if FuelSystem then FuelSystem.attach(vehicle, row) end
     applyPersonalVehicleState(vehicle, row)
     outputDebugString("[RP CAR] Vehicle spawned", 3)
     outputDebugString("[RP CAR] Vehicle DB ID: " .. tostring(row.id), 3)
@@ -943,6 +945,7 @@ local function destroyPersonalVehicle(id, saveFirst)
     local vehicle = id and elementByVehicleId[id]
     if vehicle then
         if isElement(vehicle) and saveFirst then saveVehiclePosition(vehicle) end
+        if FuelSystem then FuelSystem.detach(vehicle) end
         clearPersonalRuntime(vehicle, id)
         if isElement(vehicle) then destroyElement(vehicle) end
     end
@@ -1367,7 +1370,7 @@ addEventHandler(CarConfig.events.buyVehicle, root, function(dealershipId, vehicl
         gov_price = price,
         color_r = 255, color_g = 255, color_b = 255,
         health = 1000,
-        fuel = 100,
+        fuel = FuelConfig.initial,
         mileage = 0,
         engine_on = 1,
         locked = 0,
@@ -1472,7 +1475,7 @@ addEventHandler(CarConfig.events.buyVehicleRequest, root, function(dealershipId,
         gov_price = price,
         color_r = 255, color_g = 255, color_b = 255,
         health = 1000,
-        fuel = 100,
+        fuel = FuelConfig.initial,
         mileage = 0,
         engine_on = 1,
         locked = 0,
@@ -1631,6 +1634,10 @@ addEventHandler(CarConfig.events.toggleEngine, root, function()
 
     local owner = ownsVehicleRuntime(player, runtime)
     local engineOn = owner and (tonumber(row.engine_on) == 1 and 0 or 1) or 0
+    if engineOn == 1 and FuelSystem and not FuelSystem.canStart(vehicle) then
+        notify(player, FuelSystem.get(vehicle) == 0 and "В автомобиле закончилось топливо" or "Дождитесь окончания заправки", false)
+        return
+    end
     if RPCarDB.updateVehicle(vehicleId, { engine_on = engineOn }) then
         row = RPCarDB.vehicles[vehicleId]
         syncVehicleRuntimeState(vehicle, row)
@@ -1934,6 +1941,7 @@ local function settleSuspensionPreviewVehicle(vehicle)
     local x, y, z = getElementPosition(vehicle)
     local rx, ry, rz = getElementRotation(vehicle)
     setElementFrozen(vehicle, false)
+    if FuelSystem then FuelSystem.resetSample(vehicle) end
     setElementPosition(vehicle, x, y, z + 0.04)
     setElementRotation(vehicle, rx or 0, ry or 0, rz or 0)
     setElementVelocity(vehicle, 0, 0, -0.08)
@@ -1963,6 +1971,7 @@ local function restoreTuningVehicle(player, session)
     setElementFrozen(vehicle, false)
     setElementInterior(vehicle, p.interior or 0)
     setElementDimension(vehicle, p.dimension or 0)
+    if FuelSystem then FuelSystem.resetSample(vehicle) end
     setElementPosition(vehicle, p.x, p.y, (tonumber(p.z) or 0) + 0.08)
     setElementRotation(vehicle, 0, 0, p.rotation or 0)
     setElementVelocity(vehicle, 0, 0, 0)
@@ -2058,6 +2067,7 @@ local function beginTuningSession(player, vehicle, shop)
     setVehicleEngineState(vehicle, false)
     setElementInterior(vehicle, interior)
     setElementDimension(vehicle, dimension)
+    if FuelSystem then FuelSystem.resetSample(vehicle) end
     setElementPosition(vehicle, p.x, p.y, (tonumber(p.z) or 0) + (tonumber(cfg.teleportZOffset) or 0.15))
     setElementRotation(vehicle, p.rx or 0, p.ry or 0, p.rz or p.rotation or 0)
     setElementVelocity(vehicle, 0, 0, 0)

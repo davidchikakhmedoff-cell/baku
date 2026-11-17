@@ -11,8 +11,11 @@
     <script src="handling/acceleration.lua" type="shared" />
     <script src="handling/maxspeed.lua" type="shared" />
     <script src="tuning_shops.lua" type="shared" />
+    <script src="fuel_config.lua" type="shared" />
     <script src="database.lua" type="server" />
     <script src="server.lua" type="server" />
+    <script src="fuel_server.lua" type="server" />
+    <script src="fuel_client.lua" type="client" />
     <script src="toner/client.lua" type="client" cache="false" />
     <script src="client.lua" type="client" />
     <script src="speedometer_server.lua" type="server" />
@@ -33,6 +36,7 @@
     <file src="toner/files/toner/t9.tga" />
     <file src="siqnald.mp3" />
 
+    <export function="resetVehicleFuelSample" type="server" />
     <export function="getPlayerVehicles" type="server" />
     <export function="getVehicleOwner" type="server" />
     <export function="getVehicleDatabaseId" type="server" />

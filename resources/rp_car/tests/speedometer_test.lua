@@ -34,6 +34,7 @@ local tests=0
 local function check(ok, message) tests=tests+1; assert(ok,message) end
 local function render() draws={};lines={}; handlers.onClientRender() end
 local function digit() for _,d in ipairs(draws) do if d.value:match('^%d+$') then return tonumber(d.value) end end end
+local function labelColor(label, color) for _,d in ipairs(draws) do if d.value==label and d.color==color then return true end end return false end
 local function hasColor(color) for _,l in ipairs(lines) do if l.color==color then return true end end return false end
 render(); check(#draws==0,'hidden before login')
 handlers['car:speedometerSession'](true)
@@ -51,10 +52,12 @@ state.doors={};state.locked=true;render();check(hasColor(tocolor(242,166,74)),'N
 state.doors[2]=0.5;render();check(hasColor(tocolor(242,166,74)),'door angle does not override lock indicator')
 state.locked=false;render();check(not hasColor(tocolor(242,166,74)),'unlock clears indicator')
 state.doors={}
-state.lights=2;render();check(hasColor(tocolor(103,196,216)),'forced headlights on')
-state.lights=1;render();check(not hasColor(tocolor(103,196,216)),'forced headlights off')
-state.lights=0;state.hour=23;render();check(hasColor(tocolor(103,196,216)),'automatic night headlights')
-state.hour=12;render();check(not hasColor(tocolor(103,196,216)),'automatic daytime headlights')
+state.lights=2;render();check(labelColor("LIGHT",tocolor(103,196,216)),'forced headlights on')
+state.lights=1;render();check(not labelColor("LIGHT",tocolor(103,196,216)),'forced headlights off')
+state.lights=0;state.hour=23;render();check(labelColor("LIGHT",tocolor(103,196,216)),'automatic night headlights')
+state.hour=12;render();check(not labelColor("LIGHT",tocolor(103,196,216)),'automatic daytime headlights')
+state.engine=true;render();check(labelColor("ENG",tocolor(103,196,216)),'engine running indicator')
+state.engine=false;render();check(not labelColor("ENG",tocolor(103,196,216)),'engine off indicator')
 for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
  state.w,state.h=size[1],size[2];render()
  local inside=true

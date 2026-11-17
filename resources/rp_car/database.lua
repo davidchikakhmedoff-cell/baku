@@ -41,7 +41,7 @@ local function normalize(row)
     row.model = tonumber(row.model) or 400
     row.gov_price = tonumber(row.gov_price) or 0
     row.health = tonumber(row.health) or 1000
-    row.fuel = tonumber(row.fuel) or 100
+    row.fuel = FuelConfig.clamp(row.fuel, FuelConfig.capacity(row.model))
     row.mileage = tonumber(row.mileage) or 0
     row.house_id = tonumber(row.house_id) or 0
     row.parking_slot = tonumber(row.parking_slot) or 0
@@ -110,7 +110,7 @@ function RPCarDB.init()
             locked INTEGER DEFAULT 0,
             lights_on INTEGER DEFAULT 0,
             health REAL DEFAULT 1000,
-            fuel REAL DEFAULT 100,
+            fuel REAL DEFAULT 30,
             mileage REAL DEFAULT 0,
             house_id INTEGER DEFAULT 0,
             parking_slot INTEGER DEFAULT 0,
@@ -128,7 +128,12 @@ function RPCarDB.init()
         )
     ]])
 
-    addColumn("personal_vehicles", "fuel", "REAL DEFAULT 100")
+    addColumn("personal_vehicles", "fuel", "REAL DEFAULT 30")
+    -- Preserve pre-fuel-system values, including the old unused value 100.
+    if not columnExists("personal_vehicles", "fuel_legacy") then
+        addColumn("personal_vehicles", "fuel_legacy", "REAL")
+    end
+    RPCarDB.exec("UPDATE personal_vehicles SET fuel_legacy = fuel WHERE fuel_legacy IS NULL")
     addColumn("personal_vehicles", "mileage", "REAL DEFAULT 0")
     addColumn("personal_vehicles", "status", "TEXT DEFAULT 'active'")
     addColumn("personal_vehicles", "plate", "TEXT DEFAULT ''")
@@ -169,7 +174,7 @@ function RPCarDB.createVehicle(data)
         data.color_r or 255, data.color_g or 255, data.color_b or 255, data.plate or "", data.upgrades or "",
         data.visual_tuning or "", data.toner_percent or 0, data.toner_lob_percent or 0, data.toner_front_percent or 0, data.toner_rear_percent or data.toner_percent or 0,
         data.suspension_level or 0, data.acceleration_level or 0, data.max_speed_level or 0,
-        data.engine_on or 0, data.locked or 0, data.lights_on or 0, data.health or 1000, data.fuel or 100, data.mileage or 0,
+        data.engine_on or 0, data.locked or 0, data.lights_on or 0, data.health or 1000, data.fuel or FuelConfig.initial, data.mileage or 0,
         data.house_id or 0, data.parking_slot or 0, data.x, data.y, data.z, data.rx or 0, data.ry or 0, data.rz or 0,
         data.interior or 0, data.dimension or 0, data.status or VehicleStatuses.active, nowStamp, nowStamp)
 
@@ -185,6 +190,10 @@ function RPCarDB.updateVehicle(id, data)
     if not id then return false end
     local current = RPCarDB.vehicles[id]
     if not current then return false end
+    -- Other vehicle updates must not replace unsaved consumption with a stale row.
+    if FuelSystem and FuelSystem.byIdFuel and data.fuel == nil then
+        data.fuel = FuelSystem.byIdFuel(id) or current.fuel
+    end
 
     local ok = RPCarDB.exec([[
         UPDATE personal_vehicles SET

@@ -51,7 +51,7 @@ local function drawIndicators(vehicle, x, y)
     line(x + 25 * unit, y, x + 25 * unit, y + 17 * unit, color)
     text("BRAKE", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 
-    x = x + 73 * unit
+    x = x + 54 * unit
     -- N toggles the actual lock; door angles do not affect this indicator.
     color = isVehicleLocked(vehicle) and doorColor or muted
     line(x, y + 18 * unit, x, y, color)
@@ -62,7 +62,7 @@ local function drawIndicators(vehicle, x, y)
     line(x + 13 * unit, y + 12 * unit, x + 17 * unit, y + 12 * unit, color)
     text("DOOR", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 
-    x = x + 73 * unit
+    x = x + 54 * unit
     color = lightsOn(vehicle) and lightColor or muted
     line(x + 12 * unit, y, x + 12 * unit, y + 18 * unit, color)
     line(x + 12 * unit, y, x + 24 * unit, y + 5 * unit, color)
@@ -72,6 +72,20 @@ local function drawIndicators(vehicle, x, y)
         line(x, y + (3 + beam * 6) * unit, x + 7 * unit, y + (3 + beam * 6) * unit, color)
     end
     text("LIGHT", x - 11 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
+
+    x = x + 54 * unit
+    color = getVehicleEngineState(vehicle) and lightColor or muted
+    -- Engine block silhouette, with intake and shaft.
+    line(x + 3 * unit, y + 5 * unit, x + 8 * unit, y, color)
+    line(x + 8 * unit, y, x + 17 * unit, y, color)
+    line(x + 17 * unit, y, x + 20 * unit, y + 5 * unit, color)
+    line(x + 20 * unit, y + 5 * unit, x + 24 * unit, y + 5 * unit, color)
+    line(x + 24 * unit, y + 5 * unit, x + 24 * unit, y + 17 * unit, color)
+    line(x + 24 * unit, y + 17 * unit, x + 3 * unit, y + 17 * unit, color)
+    line(x + 3 * unit, y + 17 * unit, x + 3 * unit, y + 5 * unit, color)
+    line(x - 1 * unit, y + 8 * unit, x + 3 * unit, y + 8 * unit, color)
+    line(x - 1 * unit, y + 13 * unit, x + 3 * unit, y + 13 * unit, color)
+    text("ENG", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 end
 
 local function render()
@@ -95,12 +109,21 @@ local function render()
         if math.abs(target - displayedSpeed) < 0.1 then displayedSpeed = target end
     end
     lastTick = now
-    local x, y = screenW - 258 * scale, screenH - 205 * scale
+    local x, y = screenW - 258 * scale, screenH - 225 * scale
     text(string.format("%03d", math.floor(displayedSpeed + 0.5)), x, y, 210 * scale, 90 * scale,
         white, numberFont and 1 or 3.8 * scale, numberFont or "default-bold", "right")
     text("KM/H", x, y + 88 * scale, 208 * scale, 20 * scale, muted, 1, unitFont or "default-bold", "right")
-    line(x + 8 * scale, y + 123 * scale, x + 210 * scale, y + 123 * scale, tocolor(170, 180, 190, 55))
-    drawIndicators(vehicle, x + 27 * scale, y + 139 * scale)
+    local fuel = tonumber(getElementData(vehicle, "car:fuel"))
+    local capacity = tonumber(getElementData(vehicle, "car:fuelCapacity"))
+    local fuelColor = muted
+    if fuel and capacity and capacity > 0 then
+        if fuel / capacity < 0.05 then fuelColor = brakeColor
+        elseif fuel / capacity < 0.15 then fuelColor = doorColor end
+    end
+    text(fuel and string.format("FUEL  %.1f L", fuel) or "FUEL  -- L", x, y + 114 * scale, 208 * scale, 20 * scale,
+        fuelColor, 1, labelFont or "default-bold", "right")
+    line(x + 8 * scale, y + 143 * scale, x + 210 * scale, y + 143 * scale, tocolor(170, 180, 190, 55))
+    drawIndicators(vehicle, x + 27 * scale, y + 159 * scale)
 end
 
 addEvent("car:speedometerSession", true)
