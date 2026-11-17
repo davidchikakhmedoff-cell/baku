@@ -1708,7 +1708,7 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     debugLock("Lock request received")
     if client ~= source then return end
     local player = client
-    if not CarInteraction.ready(player) then return end
+    if not CarInteraction.canToggleLock(player) then return end
     if tuningSessions[player] then return end
     debugLock("Vehicle valid: " .. (isElement(vehicle) and "YES" or "NO"))
     if not isElement(vehicle) then

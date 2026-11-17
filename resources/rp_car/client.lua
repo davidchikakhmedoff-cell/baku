@@ -859,7 +859,9 @@ function getLookedVehicle()
 end
 
 local function handleVehicleControlKey(keyName, sourceName)
-    if not CarInteraction.ready(localPlayer) then return false end
+    local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
+        or (keyName ~= "n" and CarInteraction.ready(localPlayer))
+    if not ready then return false end
     if keyName == "n" then
         outputDebugString("[RP CAR CLIENT] N pressed", 3)
     end

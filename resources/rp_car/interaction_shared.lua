@@ -21,3 +21,10 @@ function CarInteraction.ready(player)
     return isPedInVehicle(player) and seat ~= false and seat ~= nil
         and getVehicleOccupant(vehicle, seat) == player
 end
+
+function CarInteraction.canToggleLock(player)
+    if not isElement(player) or isPedDead(player) then return false end
+    -- The remote lock remains usable outside, including while approaching a door.
+    if not getPedOccupiedVehicle(player) and not isPedInVehicle(player) then return true end
+    return CarInteraction.ready(player)
+end
