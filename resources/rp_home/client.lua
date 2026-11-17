@@ -34,7 +34,7 @@ local function hotelPublicId(hotelId) return -(tonumber(hotelId) or 0) end
 local function isPlayerInsideHotelInstance(hotel)
     if not isHotel(hotel) then return false end
     local hotelId = tonumber(hotel.hotel_id) or math.abs(tonumber(hotel.id) or 0)
-    local hotelBase = (HotelSystemConfig and tonumber(HotelSystemConfig.dimensionBase)) or tonumber(HomeConfig.hotelDimensionBase) or 70000
+    local hotelBase = (HotelSystemConfig and tonumber(HotelSystemConfig.dimensionBase)) or tonumber(HomeConfig.hotelDimensionBase) or 30000
     local expectedDimension = tonumber(hotel.inside_dimension) or (hotelBase + hotelId)
     local expectedInterior = HotelSystemConfig and HotelSystemConfig.interior and tonumber(HotelSystemConfig.interior.interior) or nil
     return getElementDimension(localPlayer) == expectedDimension and (not expectedInterior or getElementInterior(localPlayer) == expectedInterior)
@@ -1178,6 +1178,7 @@ addEventHandler("onClientMarkerHit", root, function(player, matchingDimension)
     if hotelControlId then
         local house = houses[hotelPublicId(hotelControlId)]
         if house then
+            if not isPlayerInsideHotelInstance(house) then return end
             if HomeConfig.DebugMode then
                 outputDebugString("[RP HOME] Hotel interior marker hit", 3)
                 outputDebugString("[RP HOME] Opening hotel menu", 3)

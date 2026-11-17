@@ -348,7 +348,7 @@ local function makeDimension(houseId)
 end
 
 makeHotelDimension = function(hotelId)
-    return (tonumber(hotelConfig().dimensionBase) or tonumber(HomeConfig.hotelDimensionBase) or 70000) + (tonumber(hotelId) or 0)
+    return (tonumber(hotelConfig().dimensionBase) or tonumber(HomeConfig.hotelDimensionBase) or 30000) + (tonumber(hotelId) or 0)
 end
 
 propertyPublicId = function(kind, id)
@@ -435,6 +435,10 @@ local function createHotelInteriorMarker(hotel)
     if not c then return end
     local key = markerKey("hotel", hotel.id)
     local dimension = makeHotelDimension(hotel.id)
+    if dimension < 1 or dimension >= (tonumber(homeConfig().dimensionBase) or 60000) or dimension > 65535 then
+        outputDebugString("[RP Home] Invalid hotel dimension for hotel ID " .. tostring(hotel.id), 1)
+        return
+    end
     if isElement(controlMarkers[key]) then destroyElement(controlMarkers[key]) end
     debugHome("Creating hotel interior marker")
     debugHome("Hotel ID: " .. tostring(hotel.id))
@@ -1082,6 +1086,10 @@ local function enterHotel(player, publicId)
     local p = interior.playerSpawn or interior.spawn
     if not p then return end
     local dimension = makeHotelDimension(hotel.id)
+    if dimension < 1 or dimension >= (tonumber(homeConfig().dimensionBase) or 60000) or dimension > 65535 then
+        outputDebugString("[RP Home] Invalid hotel dimension for hotel ID " .. tostring(hotel.id), 1)
+        return
+    end
     local key = markerKey("hotel", hotel.id)
     if not isElement(controlMarkers[key]) then
         createHotelInteriorMarker(hotel)
@@ -1120,20 +1128,15 @@ local function enterHouse(player, houseId)
 end
 
 local function exitHotel(player, publicId)
+    if not isLogged(player) then return false end
     local dim = getElementDimension(player)
-    local account = accountId(player)
-    local hotel = publicId and (hotelFromPublicId(publicId) or RPHomeDB.hotels[tonumber(publicId) or 0]) or false
-    local hotelId = dim - (tonumber(hotelConfig().dimensionBase) or tonumber(HomeConfig.hotelDimensionBase) or 70000)
-    if not hotel then hotel = RPHomeDB.hotels[hotelId] end
-    if not hotel then
-        hotel = getActiveHotelByAccount(account)
-    end
-    if not hotel then return false end
-    local hotelInterior = tonumber((hotelInteriorConfig() or {}).interior) or getElementInterior(player)
-    local inHotelDimension = dim == makeHotelDimension(hotel.id)
-    local inHotelInterior = getElementInterior(player) == hotelInterior
-    local canExitSelectedHotel = publicId and tonumber(hotel.tenant_account_id) == account
-    if not canExitSelectedHotel and not inHotelDimension and not inHotelInterior then return false end
+    -- All hotels share a GTA interior. Only the actual dimension identifies
+    -- which hotel's outside exit is valid; never trust the client's selection.
+    local hotelId = dim - (tonumber(hotelConfig().dimensionBase) or tonumber(HomeConfig.hotelDimensionBase) or 30000)
+    local hotel = RPHomeDB.hotels[hotelId]
+    if not hotel or dim ~= makeHotelDimension(hotel.id) then return false end
+    local hotelInterior = tonumber((hotelInteriorConfig() or {}).interior)
+    if hotelInterior and getElementInterior(player) ~= hotelInterior then return false end
     local p = getHotelOutsidePosition(hotel)
     if not p then return false end
     setElementInterior(player, p.interior or 0)
