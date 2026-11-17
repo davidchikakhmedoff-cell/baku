@@ -78,7 +78,7 @@ local function zone(vehicle)
 end
 local function valid(player, vehicle, station)
     local state=F.vehicles[vehicle]
-    return isElement(player) and not isPedDead(player) and account(player) and isElement(vehicle)
+    return isElement(player) and CarInteraction.ready(player) and account(player) and isElement(vehicle)
         and getPedOccupiedVehicle(player)==vehicle and getPedOccupiedVehicleSeat(player)==0
         and state and RPCarDB.vehicles[state.id] and RPCarDB.vehicles[state.id].owner_account_id==account(player)
         and zone(vehicle)==station and speed(vehicle)<1 and not getVehicleEngineState(vehicle)

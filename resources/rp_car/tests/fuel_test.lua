@@ -1,3 +1,4 @@
+CarInteraction = {ready=function() return true end}
 -- Run from repository root using Lua 5.1. Deterministic MTA server simulation.
 assert(loadfile('resources/rp_car/fuel_config.lua'))()
 local tests=0

@@ -1623,6 +1623,7 @@ addEvent(CarConfig.events.toggleEngine, true)
 addEventHandler(CarConfig.events.toggleEngine, root, function()
     if client ~= source then return end
     local player = client
+    if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
     local runtime = vehicle and getPersonalRuntime(vehicle)
@@ -1648,6 +1649,7 @@ addEvent(CarConfig.events.toggleLights, true)
 addEventHandler(CarConfig.events.toggleLights, root, function()
     if client ~= source then return end
     local player = client
+    if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
     local runtime = vehicle and getPersonalRuntime(vehicle)
@@ -1667,9 +1669,10 @@ addEvent(CarConfig.events.toggleHandbrake, true)
 addEventHandler(CarConfig.events.toggleHandbrake, root, function()
     if client ~= source then return end
     local player = client
+    if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
-    if not isElement(vehicle) or getPedOccupiedVehicleSeat(player) ~= 0 or showcaseByElement[vehicle] then return end
+    if not isElement(vehicle) or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) or showcaseByElement[vehicle] then return end
     local runtime = getPersonalRuntime(vehicle)
     local vehicleId = runtime and runtime.vehicleId
     local row = vehicleId and RPCarDB.vehicles[vehicleId]
@@ -1705,6 +1708,7 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     debugLock("Lock request received")
     if client ~= source then return end
     local player = client
+    if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     debugLock("Vehicle valid: " .. (isElement(vehicle) and "YES" or "NO"))
     if not isElement(vehicle) then
@@ -1785,7 +1789,7 @@ local function handleUsedMarketHit(element)
         player = element
         vehicle = getPedOccupiedVehicle(player)
     end
-    if not player or not vehicle or getPedOccupiedVehicleSeat(player) ~= 0 then return end
+    if not player or not vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then return end
     if not isPersonalVehicle(vehicle) then notify(player, "Это не личный автомобиль.", false); return end
     if not isPlayerVehicleOwner(player, vehicle) then notify(player, "Вы не владелец этого автомобиля.", false); return end
     openUsedMarket(player, vehicle)
@@ -2116,7 +2120,7 @@ local function handleTuningShopHit(element, matchingDimension)
         player = element
         vehicle = getPedOccupiedVehicle(player)
     end
-    if not isElement(player) or not isElement(vehicle) or getPedOccupiedVehicle(player) ~= vehicle or getPedOccupiedVehicleSeat(player) ~= 0 then return end
+    if not isElement(player) or not isElement(vehicle) or getPedOccupiedVehicle(player) ~= vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then return end
     if showcaseByElement[vehicle] or not isPersonalVehicle(vehicle) or not isPlayerVehicleOwner(player, vehicle) then return end
     local shop = getActiveTuningShop(player, vehicle)
     if not shop then return end
@@ -2154,7 +2158,7 @@ addEventHandler(CarConfig.events.usedMarketAction, root, function(action)
     if client ~= source then return end
     local player = client
     local vehicle = getPedOccupiedVehicle(player)
-    if not vehicle or getPedOccupiedVehicleSeat(player) ~= 0 or not isPlayerVehicleOwner(player, vehicle) then
+    if not vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) or not isPlayerVehicleOwner(player, vehicle) then
         notify(player, "Вы должны быть за рулём своего автомобиля.", false)
         return
     end
@@ -2185,7 +2189,7 @@ addEventHandler(CarConfig.events.previewTuning, root, function(selectedLevels)
     local session = tuningSessions[player]
     if not session or session.shopMode ~= "performance" then return end
     local vehicle = session and session.vehicle
-    if not isElement(vehicle) or getPedOccupiedVehicle(player) ~= vehicle or getPedOccupiedVehicleSeat(player) ~= 0 then return end
+    if not isElement(vehicle) or getPedOccupiedVehicle(player) ~= vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then return end
     if showcaseByElement[vehicle] or not isPersonalVehicle(vehicle) or not isPlayerVehicleOwner(player, vehicle) then return end
 
     local vehicleId = session.vehicleId or getVehicleDatabaseId(vehicle)
@@ -2233,7 +2237,7 @@ addEventHandler(CarConfig.events.tuningAction, root, function(selectedLevels)
     if type(selectedLevels) ~= "table" then return finish("Некорректные уровни улучшений.", false) end
 
     local vehicle = getPedOccupiedVehicle(player)
-    if not isElement(vehicle) or getPedOccupiedVehicleSeat(player) ~= 0 then
+    if not isElement(vehicle) or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then
         return finish("Вы должны быть за рулём личного автомобиля.", false)
     end
     if showcaseByElement[vehicle] or not isPersonalVehicle(vehicle) or not isPlayerVehicleOwner(player, vehicle) then
@@ -2305,7 +2309,7 @@ end)
 
 local function getValidatedTuningVehicle(player)
     local vehicle = getPedOccupiedVehicle(player)
-    if not isElement(vehicle) or getPedOccupiedVehicleSeat(player) ~= 0 then return false, false end
+    if not isElement(vehicle) or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then return false, false end
     if showcaseByElement[vehicle] or not isPersonalVehicle(vehicle) or not isPlayerVehicleOwner(player, vehicle) then return false, false end
     local session = tuningSessions[player]
     if not session or session.vehicle ~= vehicle then return false, false end
@@ -2436,7 +2440,7 @@ addEventHandler(CarConfig.events.sellStateVehicle, root, function()
     if not isLogged(player) then notify(player, "Авторизуйтесь для продажи автомобиля.", false); return end
 
     local vehicle = getPedOccupiedVehicle(player)
-    if not vehicle or getPedOccupiedVehicleSeat(player) ~= 0 then
+    if not vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then
         notify(player, "Вы должны быть за рулём своего автомобиля.", false)
         return
     end
@@ -2497,7 +2501,7 @@ end
 local function ejectPassengerCommand(player, targetId)
     if not isLogged(player) then return end
     local vehicle = getPedOccupiedVehicle(player)
-    if not vehicle or getPedOccupiedVehicleSeat(player) ~= 0 then
+    if not vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then
         notify(player, "Вы должны быть водителем транспорта.", false)
         return
     end
@@ -2543,7 +2547,7 @@ addEventHandler(CarConfig.events.offerVehicle, root, function(targetId, price)
     price = math.floor(tonumber(price) or 0)
     if price <= 0 then notify(seller, "Введите корректную цену.", false); return end
     local vehicle = getPedOccupiedVehicle(seller)
-    if not vehicle or getPedOccupiedVehicleSeat(seller) ~= 0 or not isPlayerVehicleOwner(seller, vehicle) then
+    if not vehicle or (not CarInteraction.ready(seller) or getPedOccupiedVehicleSeat(seller) ~= 0) or not isPlayerVehicleOwner(seller, vehicle) then
         notify(seller, "Вы должны быть за рулём своего автомобиля.", false)
         return
     end

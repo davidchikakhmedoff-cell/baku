@@ -1,3 +1,4 @@
+CarInteraction = {ready=function() return true end}
 -- Run from repository root with Lua 5.1; exercise the actual dxDraw UI handlers.
 local handlers, commands, texts={}, {}, {}
 local car={};local player={}

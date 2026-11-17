@@ -22,6 +22,7 @@ local function allowed()
         and getElementInterior(vehicle)==0 and getElementDimension(vehicle)==0
 end
 local function requestMenu()
+    if not CarInteraction.ready(localPlayer) then return end
     if menu or isChatBoxInputActive() or isConsoleActive() or isMainMenuActive() or isMTAWindowActive() then return end
     if core() and exports.rp_core:isAnyBlockingUIOpen() then return end
     local v=getPedOccupiedVehicle(localPlayer)
