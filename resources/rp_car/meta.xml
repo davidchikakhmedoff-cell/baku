@@ -35,6 +35,7 @@
     <file src="toner/files/toner/t8.tga" />
     <file src="toner/files/toner/t9.tga" />
     <file src="siqnald.mp3" />
+    <file src="fonts/DejaVuSans.ttf" />
 
     <export function="resetVehicleFuelSample" type="server" />
     <export function="getPlayerVehicles" type="server" />

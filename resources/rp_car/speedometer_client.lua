@@ -1,7 +1,7 @@
 -- Minimal vehicle HUD. No changes to controls, handling or persistent vehicle data.
 local authorized = false
 local lastVehicle, displayedSpeed, lastTick = nil, 0, nil
-local screenW, screenH, scale, numberFont, labelFont, unitFont
+local screenW, screenH, scale, numberFont, labelFont, unitFont, fuelFont
 local white, muted = tocolor(245, 247, 250), tocolor(155, 163, 173, 255)
 local brakeColor, doorColor, lightColor = tocolor(239, 83, 80), tocolor(242, 166, 74), tocolor(103, 196, 216)
 
@@ -15,8 +15,10 @@ local function layout()
     if isElement(numberFont) then destroyElement(numberFont) end
     if isElement(labelFont) then destroyElement(labelFont) end
     if isElement(unitFont) then destroyElement(unitFont) end
-    labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(10, math.floor(12 * scale + 0.5)), false, "cleartype")
-    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(11, math.floor(15 * scale + 0.5)), false, "cleartype")
+    if isElement(fuelFont) then destroyElement(fuelFont) end
+    labelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(10, math.floor(11 * scale + 0.5)), false, "antialiased")
+    unitFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(12, math.floor(14 * scale + 0.5)), false, "antialiased")
+    fuelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(15, math.floor(20 * scale + 0.5)), false, "antialiased")
     numberFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(64 * scale)), false, "cleartype")
 end
 
@@ -27,8 +29,10 @@ end
 local function text(value, x, y, w, h, color, size, font, align)
     x, y = math.floor(x + 0.5), math.floor(y + 0.5)
     w, h = math.floor(w + 0.5), math.floor(h + 0.5)
-    -- Small shadow keeps white digits legible against bright roads without a panel.
-    dxDrawText(value, x + 1, y + 1, x + w + 1, y + h + 1, tocolor(0, 0, 0, 150), size, font, align, "center")
+    -- Keep the shadow on large digits only; small labels render in one clean pass.
+    if value:match("^%d+$") then
+        dxDrawText(value, x + 1, y + 1, x + w + 1, y + h + 1, tocolor(0, 0, 0, 150), size, font, align, "center")
+    end
     dxDrawText(value, x, y, x + w, y + h, color, size, font, align, "center")
 end
 
@@ -46,7 +50,7 @@ local function drawIndicators(vehicle, x, y)
     local unit = scale
     local brake = getElementData(vehicle, "car:handbrake") == true
     local color = brake and brakeColor or muted
-    text("P", x, y - 3 * unit, 22 * unit, 24 * unit, color, unit, "default-bold", "center")
+    text("P", x, y - 3 * unit, 22 * unit, 24 * unit, color, 1, unitFont or "default", "center")
     line(x - 3 * unit, y, x - 3 * unit, y + 17 * unit, color)
     line(x + 25 * unit, y, x + 25 * unit, y + 17 * unit, color)
     text("BRAKE", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
@@ -114,14 +118,8 @@ local function render()
         white, numberFont and 1 or 3.8 * scale, numberFont or "default-bold", "right")
     text("KM/H", x, y + 88 * scale, 208 * scale, 20 * scale, muted, 1, unitFont or "default-bold", "right")
     local fuel = tonumber(getElementData(vehicle, "car:fuel"))
-    local capacity = tonumber(getElementData(vehicle, "car:fuelCapacity"))
-    local fuelColor = muted
-    if fuel and capacity and capacity > 0 then
-        if fuel / capacity < 0.05 then fuelColor = brakeColor
-        elseif fuel / capacity < 0.15 then fuelColor = doorColor end
-    end
-    text(fuel and string.format("FUEL  %.1f L", fuel) or "FUEL  -- L", x, y + 114 * scale, 208 * scale, 20 * scale,
-        fuelColor, 1, labelFont or "default-bold", "right")
+    text(fuel and string.format("FUEL  %.1f L", fuel) or "FUEL  -- L", x, y + 112 * scale, 208 * scale, 26 * scale,
+        tocolor(255, 255, 255, 255), 1, fuelFont or "default-bold", "right")
     line(x + 8 * scale, y + 143 * scale, x + 210 * scale, y + 143 * scale, tocolor(170, 180, 190, 55))
     drawIndicators(vehicle, x + 27 * scale, y + 159 * scale)
 end
@@ -142,5 +140,6 @@ addEventHandler("onClientResourceStop", resourceRoot, function()
     if isElement(numberFont) then destroyElement(numberFont) end
     if isElement(labelFont) then destroyElement(labelFont) end
     if isElement(unitFont) then destroyElement(unitFont) end
-    numberFont, labelFont, unitFont = nil, nil, nil
+    if isElement(fuelFont) then destroyElement(fuelFont) end
+    numberFont, labelFont, unitFont, fuelFont = nil, nil, nil, nil
 end)
