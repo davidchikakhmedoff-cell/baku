@@ -15,13 +15,13 @@ local function layout()
     if isElement(numberFont) then destroyElement(numberFont) end
     if isElement(labelFont) then destroyElement(labelFont) end
     if isElement(unitFont) then destroyElement(unitFont) end
-    labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(10, math.floor(12 * scale + 0.5)), true, "cleartype")
-    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(11, math.floor(15 * scale + 0.5)), true, "cleartype")
+    labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(10, math.floor(12 * scale + 0.5)), false, "cleartype")
+    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(11, math.floor(15 * scale + 0.5)), false, "cleartype")
     numberFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(64 * scale)), false, "cleartype")
 end
 
 local function line(x1, y1, x2, y2, color)
-    dxDrawLine(math.floor(x1 + 0.5), math.floor(y1 + 0.5), math.floor(x2 + 0.5), math.floor(y2 + 0.5), color, math.max(2, math.floor(2.5 * scale + 0.5)))
+    dxDrawLine(math.floor(x1 + 0.5), math.floor(y1 + 0.5), math.floor(x2 + 0.5), math.floor(y2 + 0.5), color, math.max(1, 1.75 * scale))
 end
 
 local function text(value, x, y, w, h, color, size, font, align)
@@ -30,17 +30,6 @@ local function text(value, x, y, w, h, color, size, font, align)
     -- Small shadow keeps white digits legible against bright roads without a panel.
     dxDrawText(value, x + 1, y + 1, x + w + 1, y + h + 1, tocolor(0, 0, 0, 150), size, font, align, "center")
     dxDrawText(value, x, y, x + w, y + h, color, size, font, align, "center")
-end
-
-local function doorsOpen(vehicle)
-    -- IDs 2..5 are passenger doors; bonnet and boot are deliberately excluded.
-    for door = 2, 5 do
-        -- State 4 means missing: a missing door must not count as open.
-        if getVehicleDoorState(vehicle, door) ~= 4 and (getVehicleDoorOpenRatio(vehicle, door) or 0) > 0.05 then
-            return true
-        end
-    end
-    return false
 end
 
 local function lightsOn(vehicle)
@@ -55,7 +44,7 @@ end
 
 local function drawIndicators(vehicle, x, y)
     local unit = scale
-    local brake = getElementData(vehicle, "car:handbrake") == true or getPedControlState(localPlayer, "handbrake")
+    local brake = getElementData(vehicle, "car:handbrake") == true
     local color = brake and brakeColor or muted
     text("P", x, y - 3 * unit, 22 * unit, 24 * unit, color, unit, "default-bold", "center")
     line(x - 3 * unit, y, x - 3 * unit, y + 17 * unit, color)
@@ -63,8 +52,8 @@ local function drawIndicators(vehicle, x, y)
     text("BRAKE", x - 13 * unit, y + 25 * unit, 48 * unit, 14 * unit, color, 1, labelFont or "default-bold", "center")
 
     x = x + 73 * unit
-    -- The existing door control toggles the lock, not the door angle.
-    color = (not isVehicleLocked(vehicle) or doorsOpen(vehicle)) and doorColor or muted
+    -- N toggles the actual lock; door angles do not affect this indicator.
+    color = isVehicleLocked(vehicle) and doorColor or muted
     line(x, y + 18 * unit, x, y, color)
     line(x, y, x + 17 * unit, y + 3 * unit, color)
     line(x + 17 * unit, y + 3 * unit, x + 22 * unit, y + 18 * unit, color)
