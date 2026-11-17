@@ -17,7 +17,7 @@ local function layout()
     if isElement(unitFont) then destroyElement(unitFont) end
     if isElement(fuelFont) then destroyElement(fuelFont) end
     labelFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(11, math.floor(13 * scale + 0.5)), false, "antialiased")
-    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(15 * scale + 0.5)), false, "antialiased")
+    unitFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(13, math.floor(16 * scale + 0.5)), false, "antialiased")
     fuelFont = dxCreateFont("fonts/DejaVuSans.ttf", math.max(14, math.floor(18 * scale + 0.5)), false, "antialiased")
     numberFont = dxCreateFont(":rp_core/CompactC.ttf", math.max(12, math.floor(69 * scale)), false, "cleartype")
 end
@@ -118,9 +118,33 @@ local function render()
         white, numberFont and 1 or 3.8 * scale, numberFont or "default-bold", "right")
     text("KM/H", x, y + 88 * scale, 208 * scale, 20 * scale, muted, 1, unitFont or "default-bold", "right")
     local fuel = tonumber(getElementData(vehicle, "car:fuel"))
-    text(fuel and string.format("FUEL  %.1f L", fuel) or "FUEL  -- L", x, y + 112 * scale, 208 * scale, 26 * scale,
-        tocolor(255, 255, 255, 255), 1, fuelFont or "default-bold", "right")
-    line(x + 8 * scale, y + 143 * scale, x + 210 * scale, y + 143 * scale, tocolor(170, 180, 190, 55))
+    local capacity = tonumber(getElementData(vehicle, "car:fuelCapacity"))
+    local fuelWhite = tocolor(255, 255, 255, 255)
+    -- Outline pump replaces the plain FUEL label, keeping the readout light.
+    local px, py = x + 15 * scale, y + 116 * scale
+    line(px, py, px + 12 * scale, py, fuelWhite)
+    line(px + 12 * scale, py, px + 12 * scale, py + 19 * scale, fuelWhite)
+    line(px + 12 * scale, py + 19 * scale, px, py + 19 * scale, fuelWhite)
+    line(px, py + 19 * scale, px, py, fuelWhite)
+    line(px + 3 * scale, py + 5 * scale, px + 9 * scale, py + 5 * scale, fuelWhite)
+    line(px + 12 * scale, py + 8 * scale, px + 17 * scale, py + 11 * scale, fuelWhite)
+    line(px + 17 * scale, py + 11 * scale, px + 17 * scale, py + 17 * scale, fuelWhite)
+    line(px + 17 * scale, py + 17 * scale, px + 21 * scale, py + 17 * scale, fuelWhite)
+    line(px + 21 * scale, py + 17 * scale, px + 21 * scale, py + 4 * scale, fuelWhite)
+    line(px + 21 * scale, py + 4 * scale, px + 17 * scale, py, fuelWhite)
+    text(fuel and string.format("%.1f L", fuel) or "-- L", x + 45 * scale, y + 112 * scale, 163 * scale, 26 * scale,
+        fuelWhite, 1, fuelFont or "default-bold", "right")
+    local ratio = fuel and capacity and capacity > 0 and math.max(0, math.min(1, fuel / capacity)) or 0
+    -- Ten slim segments give an at-a-glance tank level without a background panel.
+    for segment = 0, 9 do
+        local left = x + (8 + segment * 20.2) * scale
+        local right = left + 16.2 * scale
+        line(left, y + 144 * scale, right, y + 144 * scale, tocolor(255, 255, 255, 45))
+        local fill = math.max(0, math.min(1, ratio * 10 - segment))
+        if fill > 0 then
+            line(left, y + 144 * scale, left + (right - left) * fill, y + 144 * scale, fuelWhite)
+        end
+    end
     drawIndicators(vehicle, x + 27 * scale, y + 159 * scale)
 end
 

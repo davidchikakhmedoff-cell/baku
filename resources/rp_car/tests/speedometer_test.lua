@@ -19,7 +19,10 @@ function isPedDead() return state.dead end
 function getVehicleType() return 'Automobile' end
 function getElementVelocity() return state.vx,0,0 end
 function getTickCount() return state.time end
-function getElementData() return state.brake end
+function getElementData(element,key)
+ if key=="car:fuel" then return state.fuel elseif key=="car:fuelCapacity" then return state.capacity end
+ return state.brake
+end
 function getPedControlState() return state.control end
 function isVehicleLocked() return state.locked ~= false end
 function getVehicleDoorState(v,id) return state.missing==id and 4 or 0 end
@@ -58,6 +61,8 @@ state.lights=0;state.hour=23;render();check(labelColor("LIGHT",tocolor(103,196,2
 state.hour=12;render();check(not labelColor("LIGHT",tocolor(103,196,216)),'automatic daytime headlights')
 state.engine=true;render();check(labelColor("ENG",tocolor(103,196,216)),'engine running indicator')
 state.engine=false;render();check(not labelColor("ENG",tocolor(103,196,216)),'engine off indicator')
+state.fuel=30;state.capacity=60;render();check(labelColor("30.0 L",tocolor(255,255,255,255)),'fuel litres stay white')
+state.fuel=1;render();check(labelColor("1.0 L",tocolor(255,255,255,255)),'low fuel stays white')
 for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
  state.w,state.h=size[1],size[2];render()
  local inside=true
