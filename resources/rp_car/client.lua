@@ -208,9 +208,13 @@ local function button(id, text, x, y, w, h, enabled)
     cx, cy = cx and cx * UI.screen[1] or -1, cy and cy * UI.screen[2] or -1
     local hover = enabled and inBox(cx, cy, { x = x, y = y, w = w, h = h })
     x, y, w, h = crisp(x), crisp(y), crisp(w), crisp(h)
-    roundedRect(x, y, w, h, s(6), enabled and (hover and rgba("buttonHover") or rgba("button")) or tocolor(27, 31, 36, 210))
-    dxDrawRectangle(x, y + h - s(2), w, s(2), enabled and (hover and rgba("primary", 230) or tocolor(70, 78, 88, 210)) or tocolor(55, 60, 66, 170))
-    dxDrawText(text, x, y, x + w, y + h, enabled and rgba("text") or rgba("muted"), 1, "default-bold", "center", "center", true)
+    local background = enabled and (hover and tocolor(17, 17, 17, 255) or tocolor(14, 14, 14, 255)) or tocolor(14, 14, 14, 255)
+    local textColor = enabled and tocolor(245, 245, 245, 255) or tocolor(47, 47, 47, 255)
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 255))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, background)
+    dxDrawRectangle(x + s(3), y + 1, w - s(6), 1, tocolor(18, 18, 18, 255))
+    dxDrawRectangle(x + s(3), y + h - 2, w - s(6), 1, tocolor(5, 5, 5, 255))
+    dxDrawText(text, x + s(5), y, x + w - s(5), y + h, textColor, 1, "default-bold", "center", "center", true)
     if enabled then
         UI.hitboxes[id] = { x = x, y = y, w = w, h = h }
     end
@@ -276,21 +280,7 @@ local function compactPanel(title, width, height)
 end
 
 local function compactButton(id, text, x, y, w, h, enabled)
-    enabled = enabled ~= false
-    local cx, cy = getCursorPosition()
-    cx, cy = cx and cx * UI.screen[1] or -1, cy and cy * UI.screen[2] or -1
-    local hover = enabled and inBox(cx, cy, { x = x, y = y, w = w, h = h })
-    x, y, w, h = crisp(x), crisp(y), crisp(w), crisp(h)
-    local background = enabled and (hover and tocolor(17, 17, 17, 255) or tocolor(14, 14, 14, 255)) or tocolor(14, 14, 14, 255)
-    local textColor = enabled and tocolor(245, 245, 245, 255) or tocolor(47, 47, 47, 255)
-    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 255))
-    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, background)
-    dxDrawRectangle(x + s(3), y + 1, w - s(6), 1, tocolor(18, 18, 18, 255))
-    dxDrawRectangle(x + s(3), y + h - 2, w - s(6), 1, tocolor(5, 5, 5, 255))
-    dxDrawText(text, x + s(5), y, x + w - s(5), y + h, textColor, 1, "default-bold", "center", "center", true)
-    if enabled then
-        UI.hitboxes[id] = { x = x, y = y, w = w, h = h }
-    end
+    button(id, text, x, y, w, h, enabled)
 end
 
 local function compactGroup(label, value, left, top, right)
@@ -596,8 +586,7 @@ local function drawTuningSelector(key, title, x, y, w)
     local d = UI.data or {}
     local current = tonumber(d.levels and d.levels[key]) or 0
     if key == "suspension" and d.suspensionAvailable == false then
-        roundedRect(crisp(x), crisp(y), crisp(w), s(34), s(6), rgba("button"))
-        dxDrawText(title .. ": Недоступно", x + s(12), y, x + w - s(12), y + s(34), rgba("muted"), 1, "default-bold", "center", "center", true)
+        button("unavailable:" .. key, title .. ": Недоступно", x, y, w, s(34), false)
         return
     end
     local selected = getSelectedTuningLevel(key)
@@ -606,7 +595,8 @@ local function drawTuningSelector(key, title, x, y, w)
     local arrowW = s(44)
     button("tuneDec:" .. key, "<<", x, y, arrowW, s(34))
     button("tuneInc:" .. key, ">>", x + w - arrowW, y, arrowW, s(34))
-    roundedRect(crisp(x + arrowW + s(8)), crisp(y), crisp(w - arrowW * 2 - s(16)), s(34), s(6), rgba("button"))
+    dxDrawRectangle(crisp(x + arrowW + s(8)), crisp(y), crisp(w - arrowW * 2 - s(16)), s(34), tocolor(0, 0, 0, 255))
+    dxDrawRectangle(crisp(x + arrowW + s(8)) + 1, crisp(y) + 1, crisp(w - arrowW * 2 - s(16)) - 2, s(34) - 2, tocolor(14, 14, 14, 255))
     dxDrawText(label, x + arrowW + s(12), y, x + w - arrowW - s(12), y + s(34), rgba("text"), 1, "default-bold", "center", "center", true)
 end
 
@@ -616,9 +606,9 @@ local function drawTuningSectionMenu(data)
     local y = crisp((UI.screen[2] - h) / 2)
     UI.tuningPanel = { x = x, y = y, w = w, h = h }
 
-    roundedRect(x, y, w, h, s(CarConfig.ui.radius), rgba("window", 238))
-    dxDrawText("ТЮНИНГ-АТЕЛЬЕ", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1.12, "default-bold", "left", "center", true)
-    dxDrawRectangle(x + s(22), y + s(50), w - s(44), s(2), rgba("primary", 190))
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
+    dxDrawText("ТЮНИНГ-АТЕЛЬЕ", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1, carMenuFont or "default-bold", "left", "center", true)
     dxDrawText(tostring(data.name or "Автомобиль"), x + s(22), y + s(58), x + w - s(22), y + s(82), rgba("muted"), 1, "default-bold", "left", "center", true)
 
     drawActions({
@@ -634,21 +624,22 @@ local function drawTonerSelector(zone, title, x, y, w)
     local arrowW = s(44)
     button("tonerDec:" .. zone, "<<", x, y, arrowW, s(34))
     button("tonerInc:" .. zone, ">>", x + w - arrowW, y, arrowW, s(34))
-    roundedRect(crisp(x + arrowW + s(8)), crisp(y), crisp(w - arrowW * 2 - s(16)), s(34), s(6), rgba("button"))
+    dxDrawRectangle(crisp(x + arrowW + s(8)), crisp(y), crisp(w - arrowW * 2 - s(16)), s(34), tocolor(0, 0, 0, 255))
+    dxDrawRectangle(crisp(x + arrowW + s(8)) + 1, crisp(y) + 1, crisp(w - arrowW * 2 - s(16)) - 2, s(34) - 2, tocolor(14, 14, 14, 255))
     dxDrawText(label, x + arrowW + s(12), y, x + w - arrowW - s(12), y + s(34), rgba("text"), 1, "default-bold", "center", "center", true)
 end
 
 local function drawToner()
     local d = UI.data or {}
     local toner = getTonerData()
-    local w, h = s(428), s(442)
+    local w, h = s(428), s(540)
     local x = crisp(UI.screen[1] - w - s(34))
     local y = crisp((UI.screen[2] - h) / 2)
     UI.tuningPanel = { x = x, y = y, w = w, h = h }
 
-    roundedRect(x, y, w, h, s(CarConfig.ui.radius), rgba("window", 238))
-    dxDrawText("ТОНИРОВКА", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1.18, "default-bold", "left", "center", true)
-    dxDrawRectangle(x + s(22), y + s(50), w - s(44), s(2), rgba("primary", 190))
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
+    dxDrawText("ТОНИРОВКА", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1, carMenuFont or "default-bold", "left", "center", true)
     dxDrawText(tostring(d.name or "Автомобиль"), x + s(22), y + s(58), x + w - s(22), y + s(82), rgba("muted"), 1, "default-bold", "left", "center", true)
 
     local yy = y + s(98)
@@ -685,9 +676,9 @@ local function drawTuning()
     local y = crisp((UI.screen[2] - h) / 2)
     UI.tuningPanel = { x = x, y = y, w = w, h = h }
 
-    roundedRect(x, y, w, h, s(CarConfig.ui.radius), rgba("window", 238))
-    dxDrawText("ТЮНИНГ", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1.18, "default-bold", "left", "center", true)
-    dxDrawRectangle(x + s(22), y + s(50), w - s(44), s(2), rgba("primary", 190))
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
+    dxDrawText("ТЮНИНГ", x + s(22), y + s(12), x + w - s(22), y + s(42), rgba("text"), 1, carMenuFont or "default-bold", "left", "center", true)
     dxDrawText(tostring(d.name or "Автомобиль"), x + s(22), y + s(58), x + w - s(22), y + s(82), rgba("muted"), 1, "default-bold", "left", "center", true)
 
     local yyNew = y + s(92)
@@ -705,8 +696,8 @@ end
 local function drawTuningHint()
     local w, h = s(484), s(62)
     local x, y = s(34), UI.screen[2] - h - s(34)
-    roundedRect(x, y, w, h, s(7), rgba("window", 232))
-    dxDrawRectangle(x, y + h - s(3), w, s(3), rgba("primary", 235))
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
     dxDrawText("Зажмите #4FC3F7ЛКМ#FFFFFF и двигайте мышь - вращение камеры", x + s(14), y + s(8), x + w - s(14), y + s(32), rgba("text"), 1.05, "default-bold", "left", "center", true, false, false, true)
     dxDrawText("#4FC3F7Колесо мыши#FFFFFF - приближение", x + s(14), y + s(31), x + w - s(14), y + s(55), rgba("text"), 1.05, "default-bold", "left", "center", true, false, false, true)
     do return end

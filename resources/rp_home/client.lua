@@ -285,13 +285,13 @@ local function addButton(id, text, x, y, w, h, color, enabled, style)
         h = h,
         color = color or HomeConfig.colors.primary,
         enabled = enabled ~= false,
-        style = style
+        style = style or ((window == "create" or window == "admin") and "propertyMenu" or nil)
     }
 end
 
 local function addInput(id, label, value, x, y, w, h, style)
     if formValues[id] == nil then formValues[id] = tostring(value or "") end
-    inputs[#inputs + 1] = { id = id, label = label, value = formValues[id], x = x, y = y, w = w, h = h or s(40), style = style }
+    inputs[#inputs + 1] = { id = id, label = label, value = formValues[id], x = x, y = y, w = w, h = h or s(40), style = style or ((window == "create" or window == "admin") and "propertyInfo" or nil) }
 end
 
 local function inputValue(id)
@@ -392,9 +392,8 @@ end
 
 local function drawPanel(x, y, w, h)
     x, y, w, h = crisp(x), crisp(y), crisp(w), crisp(h)
-    shadow(x, y, w, h, s(10))
-    roundedRect(x, y, w, h, s(10), rgba(HomeConfig.colors.panel, 238))
-    dxDrawRectangle(x + s(22), y + s(58), w - s(44), 1, tocolor(HomeConfig.colors.primary[1], HomeConfig.colors.primary[2], HomeConfig.colors.primary[3], 95))
+    dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
+    dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
 end
 
 local function drawButton(button)
@@ -514,7 +513,7 @@ local function drawHouseMenu()
     local h = s(92) + #lines * s(27) + s(18) + #actions * s(44) + s(22)
     local x, y = crisp((sx - w) / 2), crisp((sy - h) / 2)
     drawPanel(x, y, w, h)
-    dxDrawText("Дом №" .. tostring(house.number), x + s(22), y + s(14), x + w - s(22), y + s(42), rgba(HomeConfig.colors.white), 1.2, "default-bold", "left", "center")
+    dxDrawText("Дом №" .. tostring(house.number), x + s(22), y + s(14), x + w - s(22), y + s(42), rgba(HomeConfig.colors.white), homeMenuFont and 1 or 0.9, homeMenuFont or "default-bold", "left", "center", true)
     dxDrawText(house.district, x + s(22), y + s(38), x + w - s(22), y + s(60), rgba(HomeConfig.colors.primary), 1, "default-bold", "left", "center", true)
 
     local yy = y + s(78)
@@ -714,7 +713,7 @@ local function drawCreateLike(isAdminEdit)
     local h = math.min(s(720), s(82) + contentH + actionH + s(26))
     local x, y = crisp((sx - w) / 2), crisp((sy - h) / 2)
     drawPanel(x, y, w, h)
-    dxDrawText(isAdminEdit and ("Редактирование дома #" .. tostring(selectedHouse.number)) or "Создание дома", x + s(22), y + s(16), x + w - s(22), y + s(48), rgba(HomeConfig.colors.white), 1.2, "default-bold", "left", "center")
+    dxDrawText(isAdminEdit and ("Редактирование дома #" .. tostring(selectedHouse.number)) or "Создание дома", x + s(22), y + s(16), x + w - s(22), y + s(48), rgba(HomeConfig.colors.white), homeMenuFont and 1 or 0.9, homeMenuFont or "default-bold", "left", "center", true)
 
     local startY = y + s(82)
     addInput("number", "Номер дома", isAdminEdit and selectedHouse.number or "", x + s(24), startY, s(240))
@@ -779,7 +778,7 @@ drawCreateLike = function(isAdminEdit)
     else
         title = hotelMode and "Создание отеля" or "Создание дома"
     end
-    dxDrawText(title, x + s(22), y + s(16), x + w - s(22), y + s(48), rgba(HomeConfig.colors.white), 1.2, "default-bold", "left", "center")
+    dxDrawText(title, x + s(22), y + s(16), x + w - s(22), y + s(48), rgba(HomeConfig.colors.white), homeMenuFont and 1 or 0.9, homeMenuFont or "default-bold", "left", "center", true)
 
     local startY = y + s(82)
     addInput("number", hotelMode and "Номер отеля" or "Номер дома", isAdminEdit and selectedHouse.number or "", x + s(24), startY, s(240))
