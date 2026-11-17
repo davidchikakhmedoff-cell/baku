@@ -1,3 +1,4 @@
+local recoverPlayerVehicleParking
 local showcaseByElement = {}
 local personalByElement = {}
 local elementByVehicleId = {}
@@ -1150,6 +1151,11 @@ local function spawnAllPersonalVehicles()
             end
         end
     end
+    -- Reattach owned cars orphaned by earlier property sales when space exists.
+    for _,player in ipairs(getElementsByType("player")) do
+        if isLogged(player) then recoverPlayerVehicleParking(player) end
+    end
+
 end
 
 local function openDealershipFor(player, vehicle)
@@ -1343,6 +1349,11 @@ addEventHandler(CarConfig.events.buyVehicle, root, function(dealershipId, vehicl
 
     local house = getPlayerHouse(player)
     if not house or not house.id then notify(player, "Для покупки автомобиля необходимо иметь дом.", false); return end
+    if not accountOwnsHouse(id, house.id) then
+        notify(player, "Привязка к дому устарела. Покупка отменена без списания денег.", false)
+        purchaseLocks[player] = nil
+        return
+    end
     local spaces = getHouseParkingSpaces(house.id)
     if #spaces <= 0 then notify(player, "У вашего дома нет парковочных мест.", false); return end
     if countPlayerVehicles(id) >= #spaces then notify(player, "Все парковочные места вашего дома заняты.", false); return end
@@ -1398,8 +1409,13 @@ addEventHandler(CarConfig.events.buyVehicle, root, function(dealershipId, vehicl
         setCameraTarget(player, player)
         triggerClientEvent(player, CarConfig.events.resetCamera, resourceRoot)
     else
+        RPCarDB.deleteVehicle(vehicleDbId)
+        changePlayerMoney(player, price)
+        purchaseLocks[player] = nil
         setElementPosition(player, delivery.x + 2, delivery.y, delivery.z)
         resetPlayerCamera(player)
+        notify(player, "Не удалось создать личный автомобиль. Деньги возвращены.", false)
+        return
     end
     purchaseLocks[player] = nil
     notify(player, "Автомобиль " .. tostring(config.customName) .. " куплен.", true)
@@ -1452,6 +1468,7 @@ addEventHandler(CarConfig.events.buyVehicleRequest, root, function(dealershipId,
     local house = getPlayerHouse(player)
     if not house or not house.id then return fail("Для покупки автомобиля нужен дом.") end
 
+    if not accountOwnsHouse(id, house.id) then return fail("Привязка к дому устарела. Покупка отменена.") end
     local spaces = getHouseParkingSpaces(house.id)
     if #spaces <= 0 then return fail("У вашего дома нет парковочных мест.") end
     if countPlayerVehicles(id) >= #spaces then return fail("У дома нет свободных парковочных мест.") end
@@ -2924,7 +2941,15 @@ function savePersonalVehicle(vehicle)
     return saveVehiclePosition(vehicle)
 end
 
+recoverPlayerVehicleParking = function(player)
+    local ownerId = accountId(player)
+    local house = getPlayerHouse(player)
+    if not ownerId or not house or not accountOwnsHouse(ownerId, house.id) then return 0 end
+    return assignHouseVehicles(ownerId, house.id, "restore_owned_parking")
+end
+
 function spawnPlayerVehicles(player)
+    recoverPlayerVehicleParking(player)
     local spawned = {}
     for _, row in ipairs(getPlayerVehicles(player)) do
         local vehicle = false

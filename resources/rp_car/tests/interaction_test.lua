@@ -1,4 +1,7 @@
 local player,vehicle={},{}
+localPlayer=player;root={}
+local events={}
+function addEventHandler(event,element,fn) events[event]=fn end
 local task,occupied,fullySeated,dead=nil,true,true,false
 function isElement(el) return el==player or el==vehicle end
 function isPedDead() return dead end
@@ -20,4 +23,9 @@ occupied=true;fullySeated=false;assert(not CarInteraction.canToggleLock(player),
 task=nil;fullySeated=true;assert(CarInteraction.canToggleLock(player),'seated lock allowed')
 task=nil;dead=true;assert(not CarInteraction.ready(player),'dead player rejected')
 assert(not CarInteraction.canToggleLock(player),'dead player cannot lock')
-print('Vehicle interaction: seating and exterior lock exception checks passed')
+dead=false;occupied=true;fullySeated=true;task='TASK_COMPLEX_ENTER_CAR_AS_DRIVER'
+source=vehicle;events.onClientVehicleEnter(player)
+assert(CarInteraction.ready(player),'completed dealership warp overrides a lingering entry task')
+events.onClientVehicleStartExit(player)
+assert(not CarInteraction.ready(player),'starting exit removes the completed-entry exception')
+print('Vehicle interaction: seating, exterior locks and dealership warp checks passed')

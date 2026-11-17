@@ -163,7 +163,8 @@ end
 
 function RPCarDB.createVehicle(data)
     local nowStamp = stamp()
-    local ok = RPCarDB.exec([[
+    if not RPCarDB.connection then return false end
+    local handle = dbQuery(RPCarDB.connection, [[
         INSERT INTO personal_vehicles (
             owner_account_id, model, custom_name, gov_price,
             color_r, color_g, color_b, plate, upgrades, visual_tuning, toner_percent, toner_lob_percent, toner_front_percent, toner_rear_percent, suspension_level, acceleration_level, max_speed_level, engine_on, locked, lights_on, health, fuel, mileage,
@@ -178,11 +179,24 @@ function RPCarDB.createVehicle(data)
         data.house_id or 0, data.parking_slot or 0, data.x, data.y, data.z, data.rx or 0, data.ry or 0, data.rz or 0,
         data.interior or 0, data.dimension or 0, data.status or VehicleStatuses.active, nowStamp, nowStamp)
 
-    if not ok then return false end
-    local row = rows("SELECT id FROM personal_vehicles WHERE owner_account_id = ? AND created_at = ? ORDER BY id DESC LIMIT 1", data.owner_account_id, nowStamp)[1]
-    if not row then return false end
+    if not handle then return false end
+    local result, affected, insertedId = dbPoll(handle, -1)
+    insertedId = tonumber(insertedId)
+    if result == false or tonumber(affected) ~= 1 or not insertedId or insertedId <= 0 then
+        outputDebugString("[RPCar] Vehicle INSERT failed; purchase must be refunded.", 1)
+        return false
+    end
     RPCarDB.reload()
-    return tonumber(row.id)
+    local row = RPCarDB.vehicles[insertedId]
+    if not row or tonumber(row.owner_account_id) ~= tonumber(data.owner_account_id)
+        or tonumber(row.house_id) ~= tonumber(data.house_id or 0)
+        or tonumber(row.parking_slot) ~= tonumber(data.parking_slot or 0) then
+        RPCarDB.exec("DELETE FROM personal_vehicles WHERE id = ?", insertedId)
+        RPCarDB.reload()
+        outputDebugString("[RPCar] Vehicle ownership/parking verification failed.", 1)
+        return false
+    end
+    return insertedId
 end
 
 function RPCarDB.updateVehicle(id, data)

@@ -1,7 +1,14 @@
 -- Reject controls during entry/exit tasks, even if an occupied vehicle is already reported.
 CarInteraction = {}
+local completedEntries = setmetatable({}, {__mode="k"})
 function CarInteraction.ready(player)
     if not isElement(player) or isPedDead(player) then return false end
+    local occupied = getPedOccupiedVehicle(player)
+    local occupiedSeat = occupied and getPedOccupiedVehicleSeat(player)
+    if occupied and completedEntries[player] == occupied and isPedInVehicle(player)
+        and occupiedSeat ~= nil and occupiedSeat ~= false and getVehicleOccupant(occupied, occupiedSeat) == player then
+        return true
+    end
     -- Task inspection is client-only on MTA versions without a server API.
     if type(getPedTask) == "function" then
     for _,taskType in ipairs({"primary", "secondary"}) do
@@ -27,4 +34,21 @@ function CarInteraction.canToggleLock(player)
     -- The remote lock remains usable outside, including while approaching a door.
     if not getPedOccupiedVehicle(player) and not isPedInVehicle(player) then return true end
     return CarInteraction.ready(player)
+end
+
+-- A completed entry event is authoritative even when a dealership warp leaves
+-- an old GTA entry task visible for a while. Start-exit removes this exception.
+if localPlayer then
+    addEventHandler("onClientVehicleEnter", root, function(player)
+        if player == localPlayer then completedEntries[player] = source end
+    end)
+    addEventHandler("onClientVehicleStartEnter", root, function(player)
+        if player == localPlayer then completedEntries[player] = nil end
+    end)
+    addEventHandler("onClientVehicleStartExit", root, function(player)
+        if player == localPlayer then completedEntries[player] = nil end
+    end)
+    addEventHandler("onClientVehicleExit", root, function(player)
+        if player == localPlayer then completedEntries[player] = nil end
+    end)
 end
