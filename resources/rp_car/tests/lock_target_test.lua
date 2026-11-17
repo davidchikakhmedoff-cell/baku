@@ -19,10 +19,10 @@ env.getPersonalRuntime=function(v) return {vehicleId=v.id,ownerAccountId=v.owner
 env.ownsVehicleRow=function(p,row) return row and p.owner==row.owner_account_id end
 env.setPersonalRuntime=function(v,row) v.ownerCache=row.owner_account_id end
 local fn=assert(loadstring(resolver..'\nreturn resolveLockVehicle'));setfenv(fn,env);local resolve=fn()
-assert(resolve(player,foreign)==own,'foreign aimed car must not block owned neighbour')
-assert(resolve(player,showcase)==own,'showroom aimed car must not block owner')
-assert(resolve(player,nil)==own,'camera miss falls back to owned car')
-assert(own.ownerCache==1,'cache refreshed from actual database owner')
+assert(not resolve(player,foreign),'foreign target cannot substitute another car')
+assert(not resolve(player,showcase),'showroom target rejected')
+assert(not resolve(player,nil),'camera miss does not toggle an arbitrary car')
+assert(resolve(player,own)==own and own.ownerCache==1,'cache refreshed from actual database owner')
 rows[10].house_id=20;rows[10].status='active'
 assert(resolve(player,own)==own,'reassigning house keeps lock access')
 rows[10].house_id=0;rows[10].status='no_parking'

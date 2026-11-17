@@ -149,7 +149,8 @@ local function render()
 end
 
 addEvent("car:speedometerSession", true)
-addEventHandler("car:speedometerSession", resourceRoot, function(loggedIn)
+addEventHandler("car:speedometerSession", resourceRoot, function(loggedIn, accountId)
+    CarLockAccountId = loggedIn == true and tonumber(accountId) or nil
     authorized = loggedIn == true
     reset()
 end)

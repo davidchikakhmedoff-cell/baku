@@ -79,7 +79,7 @@ end
 
 local function debugKey(message)
     local text = tostring(message)
-    if CarConfig.DebugMode or text:find("N pressed", 1, true) or text:find("Any UI open", 1, true)
+    if CarConfig.DebugMode or text:find("L pressed", 1, true) or text:find("Any UI open", 1, true)
         or text:find("Text input active", 1, true) or text:find("Active UI name", 1, true)
         or text:find("Target vehicle", 1, true) or text:find("Distance", 1, true)
         or text:find("Lock event sent", 1, true) then
@@ -822,57 +822,48 @@ addEventHandler(CarConfig.events.receiveOffer, resourceRoot, function(offerId, d
 end)
 
 function getLookedVehicle()
-    local cx, cy, cz, lx, ly, lz = getCameraMatrix()
-    if not cx or not lx then return false end
-    local dx, dy, dz = lx - cx, ly - cy, lz - cz
-    local length = math.sqrt(dx * dx + dy * dy + dz * dz)
-    if length <= 0 then return false end
-    local distance = tonumber(CarConfig.lockAimDistance) or 12
-    local ex, ey, ez = cx + dx / length * distance, cy + dy / length * distance, cz + dz / length * distance
-    local hit, hitX, hitY, hitZ, element = processLineOfSight(cx, cy, cz, ex, ey, ez, true, true, false, true, false, false, false, false, localPlayer)
-    if hit and isElement(element) and getElementType(element) == "vehicle" then
-        return element
-    end
-    local bestVehicle, bestScore
-    local playerInterior = getElementInterior(localPlayer)
-    local playerDimension = getElementDimension(localPlayer)
-    for _, vehicle in ipairs(getElementsByType("vehicle")) do
-        if getElementInterior(vehicle) == playerInterior
-            and getElementDimension(vehicle) == playerDimension then
-            local vx, vy, vz = getElementPosition(vehicle)
-            local tx, ty, tz = vx - cx, vy - cy, (vz + 0.7) - cz
-            local targetLength = math.sqrt(tx * tx + ty * ty + tz * tz)
-            if targetLength > 0.01 and targetLength <= distance then
-                local dot = (dx / length) * (tx / targetLength) + (dy / length) * (ty / targetLength) + (dz / length) * (tz / targetLength)
-                local side = math.sqrt(math.max(0, 1 - dot * dot)) * targetLength
-                if dot > 0.88 and side <= 4.0 then
-                    local score = dot * 100 - targetLength
-                    if not bestScore or score > bestScore then
-                        bestVehicle, bestScore = vehicle, score
-                    end
+    if not CarLockAccountId then return false end
+    local cx, cy, cz = getCameraMatrix()
+    local sw, sh = guiGetScreenSize()
+    local px, py, pz = getElementPosition(localPlayer)
+    local limit = tonumber(CarConfig.lockAimDistance) or 12
+    local radius = math.min(sw, sh) * 0.22
+    local best, bestOffset, bestDistance
+    for _,vehicle in ipairs(getElementsByType("vehicle")) do
+        local owner = tonumber(getElementData(vehicle, "car:ownerAccountId"))
+        if owner == CarLockAccountId and not getElementData(vehicle, "car:showcase")
+            and getElementInterior(vehicle) == getElementInterior(localPlayer)
+            and getElementDimension(vehicle) == getElementDimension(localPlayer) then
+            local x,y,z = getElementPosition(vehicle)
+            local distance = getDistanceBetweenPoints3D(px,py,pz,x,y,z)
+            local sx,sy = getScreenFromWorldPosition(x,y,z+0.7)
+            if distance <= limit and sx and sy then
+                local offset = (sx-sw/2)^2 + (sy-sh/2)^2
+                if offset <= radius^2 and isLineOfSightClear(cx,cy,cz,x,y,z+0.7,true,false,false,true,false,false,false,localPlayer)
+                    and (not bestOffset or offset < bestOffset or (offset == bestOffset and distance < bestDistance)) then
+                    best,bestOffset,bestDistance = vehicle,offset,distance
                 end
             end
         end
     end
-    if bestVehicle then return bestVehicle end
-    return false
+    return best or false
 end
 
 local function handleVehicleControlKey(keyName, sourceName)
-    local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
-        or (keyName ~= "n" and CarInteraction.ready(localPlayer))
+    local ready = keyName == "l" and CarInteraction.canToggleLock(localPlayer)
+        or (keyName ~= "l" and CarInteraction.ready(localPlayer))
     if not ready then return false end
-    if keyName == "n" then
-        outputDebugString("[RP CAR CLIENT] N pressed", 3)
+    if keyName == "l" then
+        outputDebugString("[RP CAR CLIENT] L pressed", 3)
     end
     local now = getTickCount()
-    local debounceDelay = keyName == "n" and 650 or 250
+    local debounceDelay = keyName == "l" and 650 or 250
     if keyDebounce[keyName] and now - keyDebounce[keyName] < debounceDelay then return false end
     keyDebounce[keyName] = now
 
     local label = keyName == "2" and "2" or string.upper(keyName)
-    debugKey(keyName == "n" and "N pressed" or ("Key " .. label .. " pressed"))
-    if keyName == "n" then
+    debugKey(keyName == "l" and "L pressed" or ("Key " .. label .. " pressed"))
+    if keyName == "l" then
         local anyOpen, textActive, activeName = getCoreUIState()
         debugKey("Any UI open: " .. tostring(anyOpen))
         debugKey("Text input active: " .. tostring(textActive))
@@ -886,7 +877,7 @@ local function handleVehicleControlKey(keyName, sourceName)
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleEngine, localPlayer)
         return true
-    elseif keyName == "l" then
+    elseif keyName == "n" then
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleLights, localPlayer)
         return true
@@ -894,7 +885,7 @@ local function handleVehicleControlKey(keyName, sourceName)
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleHandbrake, localPlayer)
         return true
-    elseif keyName == "n" then
+    elseif keyName == "l" then
         local vehicle = getLookedVehicle()
         debugKey("Target vehicle found: " .. (vehicle and "YES" or "NO"))
         if vehicle then
@@ -905,10 +896,8 @@ local function handleVehicleControlKey(keyName, sourceName)
             debugKey("Lock event sent: YES")
             return true
         end
-        -- The server can find the nearest owned car when camera aim misses.
-        triggerServerEvent(CarConfig.events.toggleLock, localPlayer)
-        debugKey("Lock event sent: YES (server target lookup)")
-        return true
+        debugKey("Lock event sent: NO (no owned car near screen centre)")
+        return false
     end
 
     return false
@@ -916,11 +905,11 @@ end
 
 local function bindVehicleKeys()
     bindKey("2", "down", function() handleVehicleControlKey("2", "bind") end)
-    bindKey("n", "down", function()
-        outputDebugString("[RP CAR CLIENT] N pressed", 3)
-        handleVehicleControlKey("n", "bind")
+    bindKey("l", "down", function()
+        outputDebugString("[RP CAR CLIENT] L pressed", 3)
+        handleVehicleControlKey("l", "bind")
     end)
-    bindKey("l", "down", function() handleVehicleControlKey("l", "bind") end)
+    bindKey("n", "down", function() handleVehicleControlKey("n", "bind") end)
     bindKey("b", "down", function() handleVehicleControlKey("b", "bind") end)
 end
 
@@ -1048,12 +1037,12 @@ end)
 
 addEventHandler("onClientKey", root, function(key, press)
     if not press then return end
-    if key == "n" then
-        outputDebugString("[RP CAR CLIENT] N pressed", 3)
+    if key == "l" then
+        outputDebugString("[RP CAR CLIENT] L pressed", 3)
     end
 
     if not UI.mode then
-        if key == "2" or key == "l" or key == "n" or key == "b" then
+        if key == "2" or key == "n" or key == "l" or key == "b" then
             if handleVehicleControlKey(key, "key") then cancelEvent() end
             if key == "2" and not isInputBlocked() then cancelEvent() end
             return
@@ -1061,9 +1050,9 @@ addEventHandler("onClientKey", root, function(key, press)
         return
     end
 
-    if key == "2" or key == "l" or key == "n" or key == "b" then
-        debugKey(key == "n" and "N pressed" or ("Key " .. string.upper(key) .. " pressed"))
-        if key == "n" then
+    if key == "2" or key == "n" or key == "l" or key == "b" then
+        debugKey(key == "l" and "L pressed" or ("Key " .. string.upper(key) .. " pressed"))
+        if key == "l" then
             local anyOpen, textActive, activeName = getCoreUIState()
             debugKey("Any UI open: " .. tostring(anyOpen))
             debugKey("Text input active: " .. tostring(textActive))

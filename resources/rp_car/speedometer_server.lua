@@ -1,7 +1,7 @@
 -- Auth data in rp_core is intentionally server-only. Return only this player's status.
 local function sendSession(player)
     triggerClientEvent(player, "car:speedometerSession", resourceRoot,
-        getElementData(player, "auth:loggedIn") == true)
+        getElementData(player, "auth:loggedIn") == true, tonumber(getElementData(player, "auth:playerId")))
 end
 
 addEvent("car:requestSpeedometerSession", true)

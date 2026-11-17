@@ -1737,18 +1737,8 @@ local function resolveLockVehicle(player, requested)
     end
     local distance, row = eligible(requested)
     if distance then setPersonalRuntime(requested, row);return requested end
-    local best, bestDistance
-    for vehicle in pairs(personalByElement) do
-        local candidateDistance = eligible(vehicle)
-        if candidateDistance and (not bestDistance or candidateDistance < bestDistance) then
-            best, bestDistance = vehicle, candidateDistance
-        end
-    end
-    if best then
-        local data = getPersonalRuntime(best)
-        setPersonalRuntime(best, RPCarDB.vehicles[data.vehicleId])
-    end
-    return best
+    return false -- Never substitute another car for the selected screen target.
+
 end
 
 addEvent(CarConfig.events.toggleLock, true)
