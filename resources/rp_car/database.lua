@@ -163,8 +163,8 @@ function RPCarDB.reload()
 end
 
 function RPCarDB.createVehicle(data)
-    local nowStamp = stamp()
     if not isElement(RPCarDB.connection) then return false end
+    local nowStamp = stamp()
     local handle = dbQuery(RPCarDB.connection, [[
         INSERT INTO personal_vehicles (
             owner_account_id, model, custom_name, gov_price,
