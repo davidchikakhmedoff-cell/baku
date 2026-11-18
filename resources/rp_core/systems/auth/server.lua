@@ -19,6 +19,16 @@ local function passwordHash(password, serial)
     return hash("sha256", tostring(password) .. ":" .. tostring(serial) .. ":" .. salt)
 end
 
+local function verifyAccountPassword(row,password,currentSerial)
+    -- Login device and the serial used to salt the credential are independent.
+    -- The current-device candidate can recover a legacy credential whose serial
+    -- was overwritten by a previous login from another computer.
+    for _, serial in ipairs({row.password_serial or row.serial,row.serial,currentSerial}) do
+        if row.password == passwordHash(password,serial) then return true,serial end
+    end
+    return false
+end
+
 local function now()
     return getRealTime().timestamp
 end
@@ -172,6 +182,8 @@ local function initDatabase()
     addColumn("house_id", "INTEGER DEFAULT 0")
     dbExec(db, "UPDATE players SET rp_name = REPLACE(rp_name, ' ', '_') WHERE rp_name LIKE '% %'")
     migrateLegacyLoginColumn()
+    addColumn("password_serial", "TEXT")
+    dbExec(db, "UPDATE players SET password_serial = serial WHERE password_serial IS NULL OR password_serial = ''")
     addColumn("last_position_at", "INTEGER DEFAULT 0")
     addColumn("house_id", "INTEGER DEFAULT 0")
     return true
@@ -458,13 +470,28 @@ addEventHandler("auth:login", root, function(rpName, password, remember)
 
     local row = queryOne("SELECT * FROM players WHERE rp_name = ? LIMIT 1", rpName)
     if not row then triggerClientEvent(client, "auth:response", resourceRoot, false, "Аккаунт не найден."); return end
-    if row.password ~= passwordHash(password, row.serial) then triggerClientEvent(client, "auth:response", resourceRoot, false, "Неверное имя персонажа или пароль."); return end
+    local valid,credentialSerial=verifyAccountPassword(row,password,getPlayerSerial(client))
+    if not valid then triggerClientEvent(client, "auth:response", resourceRoot, false, "Неверное имя персонажа или пароль."); return end
 
-    dbExec(db, "UPDATE players SET last_login = ?, serial = ?, rp_name = ? WHERE id = ?", now(), getPlayerSerial(client), rpName, row.id)
+    dbExec(db, "UPDATE players SET last_login = ?, serial = ?, rp_name = ?, password_serial = ? WHERE id = ?", now(), getPlayerSerial(client), rpName, credentialSerial, row.id)
     row.rp_name = rpName
     setSessionData(client, row)
     pendingSpawns[client] = row
     triggerClientEvent(client, "auth:response", resourceRoot, true, "Добро пожаловать!", remember and rpName or false)
+end)
+
+-- Recovery requires access to the server console, never an in-game client.
+addCommandHandler('authreset',function(player,_,rpName,password)
+    if isElement(player) then return end
+    if not validRPName(rpName) or not validPassword(password) then
+        outputServerLog('Usage: authreset Name_Surname NEW_PASSWORD (server console only)');return
+    end
+    local row=queryOne('SELECT * FROM players WHERE rp_name=? LIMIT 1',rpName)
+    if not row then outputServerLog('[Auth] Account not found');return end
+    if not AuthDBExec('UPDATE players SET password=?,password_serial=? WHERE id=?',passwordHash(password,row.serial),row.serial,row.id) then
+        outputServerLog('[Auth] Password recovery failed');return
+    end
+    outputServerLog('[Auth] Password updated for '..rpName..'. Account ID and game data preserved.')
 end)
 
 addEvent("auth:register", true)

@@ -2,6 +2,7 @@
 local handlers={}
 root,resourceRoot={},{}
 function addEvent() end
+function addCommandHandler() end
 function addEventHandler(name,element,fn)
  handlers[name]=handlers[name] or {};table.insert(handlers[name],fn)
 end
