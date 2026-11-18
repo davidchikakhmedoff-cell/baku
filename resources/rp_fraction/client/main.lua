@@ -52,13 +52,15 @@ local function button(id,label,x,y,w,h)
  dxDrawRectangle(x+3,y+1,w-6,1,tocolor(18,18,18,255));dxDrawRectangle(x+3,y+h-2,w-6,1,tocolor(5,5,5,255))
  text(label,x+4,y,w-8,h,nil,nil,'center');hits[#hits+1]={id=id,x=x,y=y,w=w,h=h}
 end
+local function visibleRows() return window=='members' and 17 or 7 end
 local function renderMenu()
  if not window then return end
  alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
  if window=='duty' or window=='armory' or window=='keys' or window=='members' then
   local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
-  local visible=math.min(7,#rows)
+  local limit=visibleRows()
+  local visible=window=='members' and limit or math.min(limit,#rows)
   local w=s(window=='duty' and 340 or (window=='armory' and 480 or (window=='members' and 540 or 660)))
   local h=s(window=='duty' and 130 or (visible*32+88))
   local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
@@ -70,8 +72,8 @@ local function renderMenu()
    button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),s(170),s(30))
    button('close','Закрыть',x+w-s(100),y+h-s(42),s(90),s(30))
   else
-   scroll=math.max(0,math.min(scroll,math.max(0,#rows-7)))
-   for i=scroll+1,math.min(#rows,scroll+7) do
+   scroll=math.max(0,math.min(scroll,math.max(0,#rows-limit)))
+   for i=scroll+1,math.min(#rows,scroll+limit) do
     local row=rows[i];local yy=y+s(35+(i-scroll-1)*32)
     local picked=window=='armory' and weaponSelection[row.id] or ((window=='keys' or window=='members') and selected==i)
     dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
@@ -88,10 +90,10 @@ local function renderMenu()
    end
    local trackH=s(visible*32);local tx,ty=x+w-s(15),y+s(35)
    dxDrawRectangle(tx,ty,s(5),trackH,tocolor(69,74,76,255))
-   if #rows>7 then
-    local thumb=math.max(s(24),trackH*7/#rows)
-    dxDrawRectangle(tx,ty+(trackH-thumb)*scroll/(#rows-7),s(5),thumb,tocolor(245,245,245,255))
-    scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-7}
+   if #rows>limit then
+    local thumb=math.max(s(24),trackH*limit/#rows)
+    dxDrawRectangle(tx,ty+(trackH-thumb)*scroll/(#rows-limit),s(5),thumb,tocolor(245,245,245,255))
+    scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-limit}
    end
    if window=='members' then
     button('close','Закрыть',x+w-s(130),y+h-s(40),s(120),s(30))
@@ -230,7 +232,7 @@ addEventHandler('onClientKey',root,function(key,down)
  if not down or not window then return end
  if key=='escape' then cancelEvent();close()
  elseif key=='backspace' and input then edit=utf8 and utf8.sub and utf8.sub(edit,1,-2) or edit:sub(1,-2);cancelEvent()
- elseif key=='mouse_wheel_down' then scroll=math.min(math.max(0,#(window=='armory' and (data.weapons or {}) or (data.rows or {}))-7),scroll+1);cancelEvent()
+ elseif key=='mouse_wheel_down' then scroll=math.min(math.max(0,#(window=='armory' and (data.weapons or {}) or (data.rows or {}))-visibleRows()),scroll+1);cancelEvent()
  elseif key=='mouse_wheel_up' then scroll=math.max(0,scroll-1);cancelEvent()
  elseif key=='enter' and input then input=false;cancelEvent()
  elseif input and not key:find('mouse_',1,true) then cancelEvent() end

@@ -53,7 +53,7 @@ for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
     assert(not d.text:find('аккаунт',1,true) and not d.text:find('/invite',1,true) and not d.text:find('Управление составом',1,true) and not d.text:find('Строки',1,true),'members has no account numbers or footer hints')
    end
    assert(rank and nickname and rank.y==nickname.y and nickname.x>rank.right and nickname.x-rank.right<=20,'members shows rank then nickname with a small gap')
-   assert(title.right-title.x<600 and close.bottom-title.y<200,'members uses compact content-sized window')
+   assert(title.right-title.x<600 and close.bottom-title.y>350 and close.bottom-title.y<650,'members uses a narrow vertical list window')
   end
   if name=='duty' then
    local question=false
@@ -103,6 +103,26 @@ draws={};handlers.onClientRender();local bottom=false
 for _,d in ipairs(draws) do if d.text:find('Car 12',1,true) then bottom=true end end
 assert(bottom,'dragging right scrollbar reaches end of key list')
 handlers['fraction:closeKeys']()
+local members={faction=2,rows={}}
+for i=1,35 do members.rows[i]={rank=2,rp_name='Member_'..i} end
+local function memberVisible(name)
+ for _,d in ipairs(draws) do if d.text==name then return true end end
+ return false
+end
+handlers['fraction:menu']('members',members);draws={};handlers.onClientRender()
+assert(memberVisible('Member_1') and memberVisible('Member_17') and not memberVisible('Member_18'),'members shows 17 rows like TAB')
+handlers.onClientKey('mouse_wheel_down',true);draws={};handlers.onClientRender()
+assert(not memberVisible('Member_1') and memberVisible('Member_18'),'wheel scrolls the members list')
+for i=1,50 do handlers.onClientKey('mouse_wheel_down',true) end
+draws={};handlers.onClientRender()
+assert(memberVisible('Member_19') and memberVisible('Member_35') and not memberVisible('Member_18'),'wheel stops at the last complete page')
+handlers['fraction:menu']('members',members);draws={};handlers.onClientRender()
+handlers.onClientClick('left','down',1215,260)
+handlers.onClientCursorMove(0,0,1215,803)
+handlers.onClientClick('left','up',1215,803)
+draws={};handlers.onClientRender()
+assert(memberVisible('Member_35') and not memberVisible('Member_1'),'right scrollbar reaches final member')
+handlers.onClientKey('escape',true)
 handlers['fraction:megaphone']({},'Megaphone test');handlers.onClientKey('escape',true)
 now=1001;draws={};handlers.onClientRender();local found=false
 for _,d in ipairs(draws) do if d.text=='Megaphone test' then found=true end end;assert(found,'megaphone appears')
