@@ -250,6 +250,7 @@ FractionFleetConfig = {
 -- keysPoint/dutyPoint/armory — ключи/смена/оружейная в интерьере.
 -- roof/garage: inside — маркер внутри, outside — маркер снаружи,
 -- arrival — появление снаружи, returnSpawn — появление после возврата внутрь.
+-- triggerRadius — радиус входа с крыши/гаража, по умолчанию 0.9 метра.
 -- interior/dimension относятся к внутренним точкам; снаружи всегда 0/0.
 -- Точки появления размещайте в стороне от маркеров, чтобы не было обратного телепорта.
 FractionLocationConfig = {
@@ -262,7 +263,7 @@ FractionLocationConfig = {
         keysPoint={x=827.0016,y=5.9404,z=1004.1797,rotation=0.00},
         dutyPoint={x=830.6016,y=10.3404,z=1004.1797,rotation=0.00},
         outsideSpawn={x=1175.5000,y=-1323.3000,z=15.4000,rotation=0.00},
-        roof={slot=3, inside={x=834.0016,y=10.3404,z=1004.1797,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
+        roof={triggerRadius=0.9, slot=3, inside={x=834.0016,y=10.3404,z=1004.1797,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
             arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=830.6016,y=5.9404,z=1004.1797,rotation=0.00}},
     },
     -- Los Santos Police Department
@@ -271,12 +272,12 @@ FractionLocationConfig = {
         entrance={x=1554.9000,y=-1675.5000,z=16.2000,rotation=0.00},
         inside={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00},
         exit={x=246.5000,y=62.6000,z=1003.6000,rotation=0.00},
-        keysPoint={x=248.5000,y=70.8000,z=1003.6000,rotation=0.00},
-        dutyPoint={x=254.5000,y=77.0800,z=1003.6000,rotation=0.00},
-        armory={x=257.7000,y=69.2000,z=1003.6000,rotation=0.00},
+        keysPoint={x=239.4000,y=73.6000,z=1004.6000,rotation=0.00},
+        dutyPoint={x=254.5000,y=77.0800,z=1003.3000,rotation=0.00},
+        armory={x=256.000,y=74.3000,z=1003.1000,rotation=0.00},
         outsideSpawn={x=1552.4000,y=-1675.5000,z=16.2000,rotation=90.00},
-        roof={slot=17, inside={x=253.5000,y=64.4000,z=1003.6000,rotation=0.00}, outside={x=1573.5000,y=-1694.0000,z=28.6000,rotation=90.00},
-            arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00}},
+        roof={triggerRadius=0.9, slot=17, inside={x=243.0500,y=66.4000,z=1003.6000,rotation=0.00}, outside={x=1565.0700,y=-1684.9000,z=28.4000,rotation=90.00},
+            arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=244.5000,y=66.4000,z=1003.6000,rotation=270.00}},
         garage={
             triggerRadius=0.9,
             inside={x=246.4,y=87.5,z=1003.6},
@@ -295,7 +296,7 @@ FractionLocationConfig = {
         keysPoint={x=2007.0000,y=1014.7948,z=33.0080,rotation=0.00},
         dutyPoint={x=2007.0000,y=1018.3948,z=33.0080,rotation=0.00},
         outsideSpawn={x=744.5000,y=-1334.0000,z=13.5000,rotation=0.00},
-        roof={slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=746.5000,y=-1348.0000,z=24.0000,rotation=90.00},
+        roof={triggerRadius=0.9, slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=746.5000,y=-1348.0000,z=24.0000,rotation=90.00},
             arrival={x=750.0000,y=-1348.0000,z=24.0000,rotation=0.00}, returnSpawn={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00}},
     },
     -- La Cosa Nostra

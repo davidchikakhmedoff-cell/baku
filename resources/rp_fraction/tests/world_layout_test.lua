@@ -77,10 +77,16 @@ for id,f in pairs(Fractions) do
   assert(roof.interior==f.interior and roof.dimension==f.dimension and back.interior==0 and back.dimension==0,'roof portal is paired across correct dimensions')
   F.member=function() return {faction_id=id} end
   tick=tick+2000;source=roof;handlers.onMarkerHit(p,true)
-  assert(p.x==f.roof.outside.x+3.5 and p.z==f.roof.outside.z and p.interior==0 and p.dimension==0,'roof portal reaches configured helicopter parking')
+  local arrival=f.roof.arrival
+  assert(p.x==arrival.x and p.y==arrival.y and p.z==arrival.z and p.interior==0 and p.dimension==0,'roof portal reaches configured helicopter parking')
+  p.x,p.y,p.z=f.roof.outside.x+1.2,f.roof.outside.y,f.roof.outside.z
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
-  assert(p.x==f.inside.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores own faction interior')
+  assert(p.dimension==0,'roof arrow does not trigger beyond small radius')
+  p.x=f.roof.outside.x+0.4
+  tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
+  assert(p.x==f.roof.returnSpawn.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores configured faction interior position')
   F.member=function() return nil end
+  p.x,p.y,p.z=f.roof.outside.x,f.roof.outside.y,f.roof.outside.z;p.interior,p.dimension=0,0
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
   assert(p.interior==f.interior and p.dimension==f.dimension,'dismissal cannot trap a player on a public faction roof')
  end
@@ -95,9 +101,14 @@ assert(cancelled and opened=='duty','clothes pickup opens shift menu without con
 
 for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fraction:marker'].kind=='roofBack' then
  local id=zone.data['fraction:marker'].id;local f=Fractions[id]
- assert(math.abs(f.roof.outside.x+3.5-zone.x)>zone.radius,'roof arrival stays outside return trigger')
+ assert(zone.radius==0.9,'roof auxiliary sphere matches the garage radius')
+ local arrival=f.roof.arrival
+ assert((arrival.x-zone.x)^2+(arrival.y-zone.y)^2>zone.radius^2,'roof arrival stays outside return trigger')
+ p.x,p.y,p.z=zone.x+1.2,zone.y,zone.z;p.interior,p.dimension=0,0
  tick=tick+2000;source=zone;handlers.onColShapeHit(p,true)
- assert(p.x==f.inside.x and p.dimension==f.dimension,'independent roof colshape returns to correct interior')
+ assert(p.dimension==0,'roof sphere cannot teleport players passing outside configured radius')
+ p.x=zone.x+0.4;tick=tick+2000;handlers.onColShapeHit(p,true)
+ assert(p.x==f.roof.returnSpawn.x and p.dimension==f.dimension,'independent roof colshape returns to configured interior position')
 end end
 
 local g=Fractions[2].garage

@@ -62,7 +62,7 @@ function F.createWorld()
    marker('roof:'..id,id,'roof',f.roof.inside,f.interior,f.dimension)
    marker('roofBack:'..id,id,'roofBack',f.roof.outside,0,0)
    local back=f.roof.outside
-   local zone=createColSphere(back.x,back.y,back.z,2.5)
+   local zone=createColSphere(back.x,back.y,back.z,f.roof.triggerRadius or 0.9)
    setElementData(zone,'fraction:marker',{id=id,kind='roofBack'},false)
   end
   if f.garage then
@@ -82,9 +82,10 @@ local function markerHit(p,matching)
  local info=getElementData(source,'fraction:marker');if not info then return end
  -- Arrow markers have their own collision volume. Apply the same small entry
  -- radius to both the visible marker and its auxiliary colshape.
- if info.kind=='garageBack' then
-  local garage=Fractions[info.id].garage;local pos=garage.outside
-  local x,y,z=getElementPosition(p);local radius=garage.triggerRadius or 0.9
+ if info.kind=='garageBack' or info.kind=='roofBack' then
+  local entrance=info.kind=='garageBack' and Fractions[info.id].garage or Fractions[info.id].roof
+  local pos=entrance.outside
+  local x,y,z=getElementPosition(p);local radius=entrance.triggerRadius or 0.9
   if (x-pos.x)^2+(y-pos.y)^2>radius^2 or math.abs(z-pos.z)>1.5 then return end
  end
  local now=getTickCount();if recent[p] and now-recent[p]<1500 then return end;recent[p]=now
