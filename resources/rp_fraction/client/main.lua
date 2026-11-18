@@ -1,9 +1,10 @@
 local window,data,selected,scroll,input,edit=nil,{},nil,0,nil,''
-local hits,alpha={},0
+local hits,alpha={},255
+local weaponSelection={}
 local stopping=false
 local screenW,screenH=guiGetScreenSize()
 local scale=math.min(screenW/1920,screenH/1080)
-local titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(15*scale)),false,'antialiased')
+local titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(13*1.05*scale+0.5)),false,'cleartype')
 local megaphones={}
 local function close()
  if window=='keys' and not stopping then triggerServerEvent('fraction:action',resourceRoot,'keysClose',{}) end
@@ -21,7 +22,8 @@ addEventHandler('fraction:menu',resourceRoot,function(kind,payload)
  if not exports.rp_core:openUI('fraction',true,'no_binds_when_editing') then return end
  local oldSlot=window=='keys' and kind=='keys' and selected and data.rows[selected] and data.rows[selected].slot
  local same=window=='keys' and kind=='keys'
- window,data=kind,payload or {};selected=nil;if not same then scroll=0;alpha=0 end;input=nil;edit=''
+ if kind=='armory' then weaponSelection={} end
+ window,data=kind,payload or {};selected=nil;if not same then scroll=0;alpha=255 end;input=nil;edit=''
  if oldSlot then for i,row in ipairs(data.rows or {}) do if row.slot==oldSlot then selected=i end end end
 end)
 addEvent('fraction:megaphone',true)
@@ -47,10 +49,11 @@ local function button(id,label,x,y,w,h)
 end
 local function renderMenu()
  if not window then return end
- alpha=math.min(255,alpha+22)
+ alpha=255
  local function s(v) return math.floor(v*scale+0.5) end
  local w,h=s(700),s(540);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230*alpha/255));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130*alpha/255))
+ dxDrawRectangle(x+s(5),y+s(35),w-s(10),h-s(40),tocolor(0,0,0,255))
  hits={};local titles={invite='ПРИГЛАШЕНИЕ',members='СОСТАВ ФРАКЦИИ',duty='РАБОЧАЯ СМЕНА',armory='ОРУЖЕЙНАЯ',news='LS NEWS — ОБЪЯВЛЕНИЯ',tickets='НЕОПЛАЧЕННЫЕ ШТРАФЫ',keys='КЛЮЧИ СЛУЖЕБНОГО ТРАНСПОРТА'}
  text(titles[window],x+s(18),y+s(8),w-s(36),s(32),nil,titleFont or 'default-bold')
  if window=='invite' then
@@ -63,9 +66,12 @@ local function renderMenu()
  elseif window=='armory' then
   local yy=y+s(65)
   for _,weapon in ipairs(data.weapons or {}) do
-   text((weapon.rank<=data.rank and '✓ ' or '— ')..getWeaponNameFromID(weapon.id)..' | '..weapon.ammo..' патр. | ранг '..weapon.rank,x+s(20),yy,w-s(40),s(30));yy=yy+s(34)
+   local picked=weaponSelection[weapon.id]
+   if picked then dxDrawRectangle(x+s(7),yy,w-s(20),s(30),tocolor(47,113,151,255)) end
+   text((picked and '[✓] ' or '[ ] ')..getWeaponNameFromID(weapon.id)..' | '..weapon.ammo..' патр. | ранг '..weapon.rank,x+s(20),yy,w-s(40),s(30))
+   hits[#hits+1]={id='weapon:'..weapon.id,x=x+s(7),y=yy,w=w-s(20),h=s(30)};yy=yy+s(34)
   end
-  button('armory','Получить комплект',x+s(20),y+h-s(100),w-s(40),s(36))
+  button('armory','Получить выбранное',x+s(20),y+h-s(100),w-s(40),s(36))
  else
   local rows=data.rows or {};local yy=y+s(52)
   for i=scroll+1,math.min(#rows,scroll+7) do
@@ -74,8 +80,19 @@ local function renderMenu()
    elseif window=='news' then label='#'..row.id..' '..row.author..': '..row.original
    elseif window=='keys' then label=row.name..' | ранг '..row.rank..' | '..(row.holder and ('Ключи: '..row.holder..(row.mine and ' (вы)' or '')) or (row.available and 'Свободен' or 'Возвращается / недоступен'))
    else label='#'..row.id..' | $'..row.amount..' | '..row.reason end
-   if selected==i then dxDrawRectangle(x+s(16),yy,w-s(32),s(32),tocolor(47,80,100,alpha)) end
+   if selected==i then dxDrawRectangle(x+s(16),yy,w-s(32),s(32),tocolor(47,113,151,255)) end
+   if selected==i then
+    local bx,by,bw,bh=x+s(7),yy,w-s(20),s(32)
+    dxDrawRectangle(bx,by,bw,1,tocolor(195,195,195,255));dxDrawRectangle(bx,by+bh-1,bw,1,tocolor(195,195,195,255))
+    dxDrawRectangle(bx,by,1,bh,tocolor(195,195,195,255));dxDrawRectangle(bx+bw-1,by,1,bh,tocolor(195,195,195,255))
+   end
    text(label,x+s(22),yy,w-s(44),s(32));hits[#hits+1]={id='row:'..i,x=x+s(16),y=yy,w=w-s(32),h=s(32)};yy=yy+s(35)
+  end
+  local trackX,trackY,trackH=x+w-s(12),y+s(52),s(245)
+  dxDrawRectangle(trackX,trackY,s(6),trackH,tocolor(69,74,76,255))
+  if #rows>7 then
+   local thumbH=math.max(s(36),trackH*7/#rows)
+   dxDrawRectangle(trackX,trackY+(trackH-thumbH)*scroll/(#rows-7),s(6),thumbH,tocolor(255,255,255,255))
   end
   text('Строки '..math.min(#rows,scroll+1)..'–'..math.min(#rows,scroll+7)..' / '..#rows..'  • колесо мыши',x+s(20),y+s(301),w-s(40),s(25),tocolor(155,163,173,alpha))
   if window=='members' then
@@ -129,7 +146,7 @@ addEventHandler('onClientRender',root,function()
  if w~=screenW or h~=screenH then
   screenW,screenH=w,h;scale=math.min(w/1920,h/1080)
   if isElement(titleFont) then destroyElement(titleFont) end
-  titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(15*scale)),false,'antialiased')
+  titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(13*1.05*scale+0.5)),false,'cleartype')
  end
  local px,py,pz=getElementPosition(localPlayer)
  drawMarkerLabels(px,py,pz)
@@ -146,7 +163,13 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
  if key~='left' or state~='down' or not window then return end
  for _,box in ipairs(hits) do if cx>=box.x and cx<=box.x+box.w and cy>=box.y and cy<=box.y+box.h then
   local id=box.id
-  if id:sub(1,4)=='row:' then selected=tonumber(id:sub(5));if window=='news' then edit=data.rows[selected].edited or data.rows[selected].original end
+  if id:sub(1,7)=='weapon:' then
+   local weaponId=tonumber(id:sub(8))
+   for _,w in ipairs(data.weapons or {}) do if w.id==weaponId and data.rank>=w.rank then weaponSelection[weaponId]=not weaponSelection[weaponId] end end
+  elseif id=='armory' then
+   local chosen={};for _,w in ipairs(data.weapons or {}) do if weaponSelection[w.id] then chosen[#chosen+1]=w.id end end
+   if #chosen>0 then action('armory',{weapons=chosen});close() end
+  elseif id:sub(1,4)=='row:' then selected=tonumber(id:sub(5));if window=='news' then edit=data.rows[selected].edited or data.rows[selected].original end
   elseif id=='edit' then input=true
   elseif id=='close' then if window=='invite' then action('decline') end;close()
   elseif id=='keysTake' then if selected then action(id,{slot=data.rows[selected].slot}) end

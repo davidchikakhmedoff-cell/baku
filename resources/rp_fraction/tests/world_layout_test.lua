@@ -8,6 +8,7 @@ local function element(kind,x,y,z)
  local e={kind=kind,x=x,y=y,z=z,interior=0,dimension=0,data={}};elements[#elements+1]=e;return e
 end
 function createObject(model,x,y,z) return element('object',x,y,z) end
+function createColSphere(x,y,z,r) local e=element('colshape',x,y,z);e.radius=r;return e end
 function createMarker(x,y,z) return element('marker',x,y,z) end
 function createBlip(x,y,z,icon,size,r,g,b,alpha,ordering,distance) local e=element('blip',x,y,z);e.icon,e.size,e.color,e.visibleDistance=icon,size,{r,g,b},distance;return e end
 function setElementData(e,key,value) e.data[key]=value end
@@ -73,12 +74,19 @@ for id,f in pairs(Fractions) do
   assert(roof.interior==f.interior and roof.dimension==f.dimension and back.interior==0 and back.dimension==0,'roof portal is paired across correct dimensions')
   F.member=function() return {faction_id=id} end
   tick=tick+2000;source=roof;handlers.onMarkerHit(p,true)
-  assert(p.x==f.roof.outside.x and p.z==f.roof.outside.z and p.interior==0 and p.dimension==0,'roof portal reaches configured helicopter parking')
+  assert(p.x==f.roof.outside.x+3.5 and p.z==f.roof.outside.z and p.interior==0 and p.dimension==0,'roof portal reaches configured helicopter parking')
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
-  assert(p.x==f.roof.inside.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores own faction interior')
+  assert(p.x==f.inside.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores own faction interior')
   F.member=function() return nil end
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
   assert(p.interior==f.interior and p.dimension==f.dimension,'dismissal cannot trap a player on a public faction roof')
  end
 end
 print('World: six map blips, requested hospital, News floor, markers, entry and saved-position repair passed')
+
+for _,zone in ipairs(elements) do if zone.kind=='colshape' then
+ local id=zone.data['fraction:marker'].id;local f=Fractions[id]
+ assert(math.abs(f.roof.outside.x+3.5-zone.x)>zone.radius,'roof arrival stays outside return trigger')
+ tick=tick+2000;source=zone;handlers.onColShapeHit(p,true)
+ assert(p.x==f.inside.x and p.dimension==f.dimension,'independent roof colshape returns to correct interior')
+end end

@@ -53,6 +53,7 @@ assert(#Fractions[1].vehicles==3 and #FractionFleetWarnings==1,'non-finite parki
 FractionFleetConfig={};build()
 function createObject() error('disabled fleets must not create a helipad') end
 function createBlip() return {} end
+function createColSphere() return {} end
 function createMarker() return {} end
 function setElementInterior() end
 function setElementDimension() end

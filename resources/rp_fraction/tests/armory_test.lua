@@ -23,6 +23,11 @@ Fraction.armory(p);assert(grants==5,'cooldown blocks immediate repeated kit')
 now=1700;Fraction.armory(p);assert(grants==5,'full ammo is never stacked')
 near=false;now=2400;Fraction.armory(p);assert(grants==5,'remote armory request rejected');near=true
 active=false;Fraction.armory(p);assert(grants==5,'off-duty request rejected')
+active=true;near=true;now=3000;member.armory_at=0;ammo={};grants=0
+Fraction.armory(p,{24});assert(grants==1 and ammo[24]==70 and not ammo[31],'only selected weapon issued')
+member.armory_at=0;Fraction.armory(p,{35});assert(grants==1 and member.armory_at==0,'unlisted weapon rejected without consuming cooldown')
+Fraction.armory(p,{});assert(grants==1,'empty selection rejected')
+member.rank=1;Fraction.armory(p,{31});assert(grants==1,'selected rank-restricted weapon rejected');member.rank=5
 print('Armory: rank loadout, persisted cooldown, no stacking, location and duty checks passed')
 
 -- The regular missing-slot scan must not bypass a destroyed car's respawn timer.

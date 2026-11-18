@@ -115,7 +115,7 @@ addEventHandler('fraction:action',resourceRoot,function(action,data)
  elseif action=='keysTake' then F.takeVehicleKeys(p,data.slot)
  elseif action=='keysReturn' then F.returnVehicleKeys(p,false)
  elseif action=='keysRefresh' then F.keysMenu(p)
- elseif action=='armory' then F.armory(p)
+ elseif action=='armory' and type(data.weapons)=='table' then F.armory(p,data.weapons)
  elseif action=='news' then F.newsMenu(p)
  elseif action=='publish' or action=='reject' then F.newsProcess(p,action,data.id,data.text)
  elseif action=='payticket' then F.payTicket(p,data.id) end

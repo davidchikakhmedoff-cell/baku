@@ -51,13 +51,16 @@ function F.createWorld()
   if f.roof and f.roof.outside then
    marker('roof:'..id,id,'roof',f.roof.inside,f.interior,f.dimension)
    marker('roofBack:'..id,id,'roofBack',f.roof.outside,0,0)
+   local back=f.roof.outside
+   local zone=createColSphere(back.x,back.y,back.z,2.5)
+   setElementData(zone,'fraction:marker',{id=id,kind='roofBack'},false)
   end
   if f.duty then marker('duty:'..id,id,'duty',f.dutyPoint,f.interior,f.dimension) end
   if f.armory then marker('armory:'..id,id,'armory',f.armory,f.interior,f.dimension) end
  end
 end
 local recent=setmetatable({}, {__mode="k"})
-addEventHandler('onMarkerHit',resourceRoot,function(p,matching)
+local function markerHit(p,matching)
  if not matching or not F.account(p) or isPedInVehicle(p) or F.jailed(p) or not F.near(p,source,3) then return end
  local info=getElementData(source,'fraction:marker');if not info then return end
  local now=getTickCount();if recent[p] and now-recent[p]<1500 then return end;recent[p]=now
@@ -66,19 +69,33 @@ addEventHandler('onMarkerHit',resourceRoot,function(p,matching)
   if info.id>=4 and (not m or m.faction_id~=info.id) then F.notify(p,'Вход доступен только участникам фракции');return end
   teleport(p,f.inside,f.interior,f.dimension)
  elseif info.kind=='exit' then teleport(p,f.entrance,0,0)
- elseif info.kind=='roofBack' then teleport(p,f.roof.inside,f.interior,f.dimension)
+ elseif info.kind=='roofBack' then teleport(p,f.inside,f.interior,f.dimension)
  elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
- elseif info.kind=='roof' then teleport(p,f.roof.outside,0,0)
+ elseif info.kind=='roof' then
+  local out=f.roof.outside
+  teleport(p,{x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)
  elseif info.kind=='keys' then F.keysMenu(p)
  elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name})
  elseif info.kind=='armory' then
   if not F.active(p,f.id) then F.notify(p,'Начните смену');return end
   triggerClientEvent(p,'fraction:menu',resourceRoot,'armory',{weapons=f.weapons,rank=m.rank,name=f.name})
  end
-end)
-function F.armory(p)
+end
+addEventHandler('onMarkerHit',resourceRoot,markerHit)
+addEventHandler('onColShapeHit',resourceRoot,markerHit)
+function F.armory(p,selection)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
  if not f or not f.weapons or not F.active(p,f.id) or not F.near(p,F.markers['armory:'..f.id],3) then return end
+ local chosen={}
+ if selection~=nil then
+  if type(selection)~='table' or #selection==0 or #selection>#f.weapons then return end
+  for _,id in ipairs(selection) do
+   local found=false
+   for _,w in ipairs(f.weapons) do if id==w.id and m.rank>=w.rank then found=true end end
+   if not found then return end
+   chosen[id]=true
+  end
+ else for _,w in ipairs(f.weapons) do chosen[w.id]=true end end
  if F.now()<m.armory_at then F.notify(p,'Следующий комплект доступен через '..(m.armory_at-F.now())..' сек.');return end
  if not FractionDB.change('UPDATE fraction_members SET armory_at=? WHERE account_id=? AND armory_at<=?',F.now()+FractionConfig.armoryCooldown,m.account_id,F.now()) then return end
  m.armory_at=F.now()+FractionConfig.armoryCooldown
@@ -87,7 +104,7 @@ function F.armory(p)
   m.gear_issued=1
   FractionDB.exec('UPDATE fraction_members SET gear_issued=1,civilian_weapons=? WHERE account_id=?',m.civilian_weapons or '[]',m.account_id)
  end
- for _,weapon in ipairs(f.weapons) do if m.rank>=weapon.rank then
+ for _,weapon in ipairs(f.weapons) do if chosen[weapon.id] and m.rank>=weapon.rank then
   local slot=getSlotFromWeapon(weapon.id);local current=getPedWeapon(p,slot)
   local ammo=current==weapon.id and getPedTotalAmmo(p,slot) or 0
   if ammo<weapon.ammo then giveWeapon(p,weapon.id,weapon.ammo-ammo,false) end
