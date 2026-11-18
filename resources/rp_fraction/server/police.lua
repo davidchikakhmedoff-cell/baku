@@ -88,11 +88,13 @@ function F.applyJustice(p)
  local s=F.state(p);if not s then return end
  if not F.applyJail(p,false) then setPlayerWantedLevel(p,tonumber(s.wanted) or 0) end
 end
-function F.arrest(target,minutes,reason)
+function F.arrest(target,minutes,reason,keepDuty)
  local s=F.state(target);if not s or tonumber(s.jail_remaining)>0 then return false end
  s.jail_remaining=minutes*60;s.jail_reason=reason
  FractionDB.exec('UPDATE fraction_state SET jail_remaining=?,jail_reason=?,last_jail=? WHERE account_id=?',s.jail_remaining,reason,F.now(),F.account(target))
- F.clearCuffs(target);F.endDuty(target);wanted(target,0);F.applyJail(target,false)
+ F.clearCuffs(target)
+ if not keepDuty then F.endDuty(target) end
+ wanted(target,0);F.applyJail(target,false)
  F.notify(target,'КПЗ: '..minutes..' мин. Причина: '..reason);return true
 end
 addCommandHandler('arrest',function(p,_,id,minutes,...)
@@ -134,7 +136,7 @@ addEventHandler('onPlayerWasted',root,function(ammo,killer)
  local police=killer
  if isElement(killer) and getElementType(killer)=='vehicle' then police=getVehicleOccupant(killer,0) end
  if stars>0 and isElement(police) and F.active(police,2,2) and not F.jailed(victim) then
-  F.arrest(victim,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Задержание при гибели от полиции')
+  F.arrest(victim,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Задержание при гибели от полиции',true)
  end
- F.endDuty(victim)
+ if F.returnVehicleKeys then F.returnVehicleKeys(victim,true) end
 end,true,'high+10')

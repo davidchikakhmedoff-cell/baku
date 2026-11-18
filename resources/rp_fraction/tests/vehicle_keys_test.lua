@@ -128,6 +128,7 @@ function getResourceFromName() return fractionResource end
 function getResourceState() return 'running' end
 function call(resource,method,player,vehicle) assert(method=='canDriveFactionVehicle');return canDriveFactionVehicle(player,vehicle) end
 function setTimer() end
+function addEvent() end
 function setElementAngularVelocity() end
 function getVehicleEngineState(v) return v.engine or false end
 function getVehicleOccupant(v,seat) return v.occupants[seat or 0] end

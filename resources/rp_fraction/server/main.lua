@@ -130,6 +130,10 @@ addEventHandler('auth:spawned',root,function(p)
  if client and client~=p then return end
  if isElement(p) then F.load(p) end
 end)
+addEventHandler('onPlayerSpawn',root,function()
+ local session=F.sessions[source]
+ if session and session.duty then F.sync(source) end
+end)
 addEventHandler('onPlayerQuit',root,function() F.disconnect(source) end,true,'high+20')
 addEventHandler('onElementDataChange',root,function(key)
  if key=='auth:loggedIn' and getElementType(source)=='player' and not getElementData(source,key) then F.disconnect(source) end

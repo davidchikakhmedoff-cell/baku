@@ -48,7 +48,7 @@ function F.takeVehicleKeys(p,slot)
  if not isElement(v) or not spec or spec.destroyAt or F.returningVehicles[key] then F.notify(p,'Транспорт пока недоступен или возвращается на парковку');return end
  F.keyHolders[key]={player=p,account=F.account(p),faction=m.faction_id,index=index}
  F.playerKeys[p]=key
- F.notify(p,'Ключи получены. N — открыть/закрыть транспорт',true)
+ F.notify(p,'Вы взяли ключи от '..getVehicleNameFromModel(cfg.model)..'.',true)
  F.keyMenus[p]=nil;triggerClientEvent(p,'fraction:closeKeys',resourceRoot)
  F.refreshKeyMenus(m.faction_id)
 end

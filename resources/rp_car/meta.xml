@@ -17,6 +17,7 @@
     <script src="server.lua" type="server" />
     <script src="fuel_server.lua" type="server" />
     <script src="faction_adapter.lua" type="server" />
+    <script src="parking_client.lua" type="client" />
     <script src="fuel_client.lua" type="client" />
     <script src="toner/client.lua" type="client" cache="false" />
     <script src="client.lua" type="client" />

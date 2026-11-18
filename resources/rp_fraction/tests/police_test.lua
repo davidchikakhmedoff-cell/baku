@@ -64,8 +64,10 @@ local original=states[2].jail_remaining;F.arrest(suspect,10,'again');assert(stat
 F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==120,'reconnect reads persisted sentence')
 F.jailTick(suspect,60000);assert(states[2].jail_remaining==60,'online time decrements sentence')
 F.jailTick(suspect,60000);assert(not F.jailed(suspect) and suspect.dimension==0,'sentence ends at release point')
-suspect.stars=2;suspect.dead=true;source=suspect
-events.onPlayerWasted(0,officer);assert(F.jailed(suspect) and states[2].jail_remaining==240,'police kill uses two minutes per star')
+suspect.stars=2;suspect.dead=true;suspect.duty=true;source=suspect
+events.onPlayerWasted(0,officer);assert(suspect.duty,'death and automatic arrest preserve shift');assert(F.jailed(suspect) and states[2].jail_remaining==240,'police kill uses two minutes per star')
 events.onPlayerWasted(0,officer);assert(states[2].jail_remaining==240,'repeated death does not double arrest')
 assert(applyFactionJail(suspect) and not suspect.dead,'core respawn adapter keeps sentenced players jailed')
+source=officer;officer.dead=true;events.onPlayerWasted(0,nil)
+assert(officer.duty,'ordinary death preserves shift')
 print('Police: wanted, cuff restoration, permissions, persisted jail, release and death-arrest checks passed')

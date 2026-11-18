@@ -8,13 +8,14 @@ end
 A.canAccess = permission
 function registerFactionVehicle(vehicle,key,fuel)
  if sourceResource~=getResourceFromName('rp_fraction') or not isElement(vehicle) or type(key)~='string' or not key:match('^fraction:%d+:%d+$') then return false end
- A.vehicles[vehicle]={key=key,engine=false,lights=false,brake=false}
+ A.vehicles[vehicle]={key=key,engine=false,lights=false,brake=false,parkingPending=true,settleAt=getTickCount()+(tonumber(CarConfig.parkingSettleDelay) or 1000)}
+ setElementFrozen(vehicle,false)
+ setElementData(vehicle,'car:parkingPending',true,true)
  FuelSystem.attachExternal(vehicle,key,fuel)
  setTimer(function(v)
   local state=A.vehicles[v]
-  if isElement(v) and state and not getVehicleEngineState(v) then
-   setElementVelocity(v,0,0,0);setElementAngularVelocity(v,0,0,0)
-   state.brake=true;setElementFrozen(v,true);setElementData(v,'car:handbrake',true,true)
+  if isElement(v) and state and state.parkingPending and not getVehicleEngineState(v) then
+   state.brake=true;setElementData(v,'car:handbrake',true,true)
   end
  end,tonumber(CarConfig.parkingSettleDelay) or 1000,1,vehicle)
  return true
@@ -42,12 +43,14 @@ function A.handle(p,kind,target)
  if kind=='engine' then
   if not getVehicleEngineState(vehicle) and not FuelSystem.canStart(vehicle) then return true end
   state.engine=not getVehicleEngineState(vehicle);setVehicleEngineState(vehicle,state.engine)
-  if state.engine and not state.brake then setElementFrozen(vehicle,false) end
+  if state.engine then state.parkingPending=false;setElementData(vehicle,'car:parkingPending',false,true) end
+  if state.engine then setElementFrozen(vehicle,state.brake) end
   setElementData(vehicle,'car:engineOn',state.engine,true)
  elseif kind=='lights' then CarLockFeedback.cancel(state.key);state.lights=not state.lights;setVehicleOverrideLights(vehicle,state.lights and 2 or 1)
  elseif kind=='brake' then
   local vx,vy,vz=getElementVelocity(vehicle)
   if not state.brake and (not isVehicleOnGround(vehicle) or vx*vx+vy*vy+vz*vz>0.0001) then return true end
+  state.parkingPending=false;setElementData(vehicle,'car:parkingPending',false,true)
   state.brake=not state.brake;setElementFrozen(vehicle,state.brake);setElementData(vehicle,'car:handbrake',state.brake,true)
  elseif kind=='lock' then
   setVehicleLocked(vehicle,not isVehicleLocked(vehicle))
@@ -65,4 +68,22 @@ addEventHandler('onVehicleEnter',root,function(player,seat)
  -- GTA's automatic engine start must not bypass the resource's 2 key or fuel.
  local running=getVehicleOccupant(source,0)==player and permission(player,source) and state.engine and FuelSystem.canStart(source) or false
  setVehicleEngineState(source,running)
+end)
+
+addEvent('car:parkingGrounded',true)
+addEventHandler('car:parkingGrounded',root,function()
+ local state=A.vehicles[source]
+ if not client or not state or not state.parkingPending or getElementSyncer(source)~=client then return end
+ if getTickCount()<state.settleAt or not state.brake or getVehicleEngineState(source) or not isVehicleOnGround(source) then return end
+ local vx,vy,vz=getElementVelocity(source)
+ if vx*vx+vy*vy+vz*vz>0.0004 then return end
+ state.parkingPending=false;setElementData(source,'car:parkingPending',false,true)
+ setElementVelocity(source,0,0,0);setElementAngularVelocity(source,0,0,0);setElementFrozen(source,true)
+end)
+
+addEventHandler('onElementDataChange',root,function(key)
+ local state=A.vehicles[source]
+ if client and state and key=='car:parkingPending' and getElementData(source,key)~=state.parkingPending then
+  setElementData(source,key,state.parkingPending,true)
+ end
 end)

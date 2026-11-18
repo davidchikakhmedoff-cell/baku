@@ -1,20 +1,21 @@
 FractionConfig = {
     dimensionBase=20000, inviteSeconds=60, proximity=5,
     healPrice=100, smsPrice=1, newsReward=150, textLimit=160,
-    cooldown={invite=5,heal=5,ticket=10,su=5,cuff=2,arrest=5,m=5,add=30,sms=3},
+    cooldown={radio=1,invite=5,heal=5,ticket=10,su=5,cuff=2,arrest=5,m=5,add=30,sms=3},
     ticket={min=10,max=50000,rank=2}, jail={min=1,max=120,perStar=2,radius=15,stationRange=40},
     megaphone={range=80,durationMs=10000,maxLength=100},
     cuffControls={'sprint','jump','fire','aim_weapon','vehicle_fire','vehicle_secondary_fire','enter_exit'},
     salaryHourMs=3600000, tickMs=5000, idleLimitMs=60000,
     armoryCooldown=600, vehicleRespawnMs=5000, blipVisibleDistance=250, helipadModel=3934,
     markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
+    radio={fractionColor={90,155,255},departmentColor={240,135,195},department={[1]=true,[2]=true,[3]=true}},
     interactionIconZOffset=0.5, -- Clothes and keys: height above the configured point.
     roofDeckModel=3095,
     salaries={500,650,800,950,1100,1300,1500,1750,2000,2500},
     release={x=1544.5,y=-1675.5,z=13.6,rotation=90,interior=0,dimension=0},
     jailCells={{x=264.5,y=77.5,z=1001.1},{x=264.5,y=81.0,z=1001.1},{x=264.5,y=85,z=1001.1}},
-    policeWeapons={{id=3,ammo=1,rank=1},{id=24,ammo=70,rank=2},{id=29,ammo=180,rank=3},{id=31,ammo=200,rank=5},{id=34,ammo=20,rank=5}},
-    mafiaWeapons={{id=5,ammo=1,rank=1},{id=23,ammo=70,rank=2},{id=28,ammo=180,rank=3},{id=30,ammo=200,rank=5},{id=34,ammo=20,rank=5}}
+    policeWeapons={{id=3,name='Дубинка',ammo=1,rank=1},{id=24,name='Desert Eagle',ammo=70,rank=2},{id=29,name='MP5',ammo=180,rank=3},{id=31,name='M4',ammo=200,rank=5},{id=34,name='Снайперская винтовка',ammo=20,rank=5},{id='armor',name='Бронежилет',armor=100,rank=1}},
+    mafiaWeapons={{id=5,name='Бита',ammo=1,rank=1},{id=23,name='Пистолет с глушителем',ammo=70,rank=2},{id=28,name='Uzi',ammo=180,rank=3},{id=30,name='AK-47',ammo=200,rank=5},{id=34,name='Снайперская винтовка',ammo=20,rank=5},{id='armor',name='Бронежилет',armor=100,rank=1}}
 }
 local function point(x,y,z,r) return {x=x,y=y,z=z,rotation=r or 0} end
 local mafiaRanks={"Новичок","Боец","Проверенный","Старший боец","Авторитет","Бригадир","Советник","Правая рука","Заместитель босса","Босс"}

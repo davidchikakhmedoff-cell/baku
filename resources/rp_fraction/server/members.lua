@@ -94,7 +94,7 @@ end)
 
 -- The project's custom chat does not execute native command handlers itself.
 -- Accept only our known commands, and only from that authenticated core route.
-local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvite=true,giverank=true,members=true,f=true,setleader=true,
+local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvite=true,giverank=true,members=true,f=true,r=true,rb=true,d=true,db=true,setleader=true,
  heal=true,sms=true,add=true,news=true,ticket=true,tickets=true,payticket=true,su=true,clearwanted=true,cuff=true,arrest=true,m=true}
 function executeFractionCommand(p,command,args)
  if sourceResource~=getResourceFromName('rp_core') or not chatCommands[command] then return false end

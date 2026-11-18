@@ -1,6 +1,11 @@
 local fractionResource={};local p={rank=2,duty=true};local v={};local outsider={rank=1,duty=true}
 root={};sourceResource=fractionResource
-function addEventHandler() end
+local handlers={}
+function addEvent() end
+function addEventHandler(name,element,fn) handlers[name]=fn end
+local clock=0
+function getTickCount() return clock end
+function getElementSyncer() return p end
 local settle,settleMs
 local timers={}
 function setTimer(fn,ms,count,...) settle=fn;settleMs=ms;timers[#timers+1]={fn=fn,ms=ms,args={...}} end
@@ -20,6 +25,7 @@ function getVehicleEngineState(e) return e.engine or false end
 function setVehicleEngineState(e,value) e.engine=value end
 function setElementFrozen(e,value) e.frozen=value end
 function setElementData(e,key,value) e[key]=value end
+function getElementData(e,key) return e[key] end
 function setVehicleOverrideLights(e,value) e.lights=value end
 function isVehicleLocked(e) return e.locked or false end
 function setVehicleLocked(e,value) e.locked=value end
@@ -40,7 +46,15 @@ assert(loadstring('local lightFlashTokens={}\nlocal lightFlashSequence=0\n'..hel
 assert(loadfile('resources/rp_car/faction_adapter.lua'))()
 assert(registerFactionVehicle(v,'fraction:2:1',30),'own faction resource registers service car')
 local occupant=getVehicleOccupant;getVehicleOccupant=function() return nil end
-assert(settleMs==1000);settle(v);assert(v.frozen and v['car:handbrake'],'one-second service parking handbrake')
+assert(settleMs==1000);clock=1000;settle(v)
+assert(not v.frozen and v['car:handbrake'] and v['car:parkingPending'],'handbrake after one second without freezing unloaded suspension')
+source=v;client=outsider;handlers['car:parkingGrounded']();assert(not v.frozen,'non-syncer cannot finalize settling')
+client=p;clock=999;handlers['car:parkingGrounded']();assert(not v.frozen,'settling cannot finalize before one second')
+clock=1000;local ground=isVehicleOnGround;isVehicleOnGround=function() return false end
+handlers['car:parkingGrounded']();assert(not v.frozen,'server rejects airborne grounding reports')
+isVehicleOnGround=ground
+v['car:parkingPending']=false;handlers.onElementDataChange('car:parkingPending');assert(v['car:parkingPending'],'client cannot disable server parking state')
+handlers['car:parkingGrounded']();assert(v.frozen and not v['car:parkingPending'],'syncer ground acknowledgement finalizes parking')
 getVehicleOccupant=occupant;FactionVehicleAdapter.vehicles[v].brake=false;v.frozen=false;v['car:handbrake']=false
 sourceResource={};assert(not registerFactionVehicle(v,'fraction:2:2',30),'foreign resource cannot register')
 assert(FactionVehicleAdapter.handle(p,'engine') and v.engine,'ranked on-duty driver starts engine')

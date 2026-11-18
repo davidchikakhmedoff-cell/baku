@@ -135,13 +135,20 @@ function F.armory(p,selection)
   m.gear_issued=1
   FractionDB.exec('UPDATE fraction_members SET gear_issued=1,civilian_weapons=? WHERE account_id=?',m.civilian_weapons or '[]',m.account_id)
  end
+ local issued={}
  for _,weapon in ipairs(f.weapons) do if chosen[weapon.id] and m.rank>=weapon.rank then
-  local slot=getSlotFromWeapon(weapon.id);local current=getPedWeapon(p,slot)
-  local ammo=current==weapon.id and getPedTotalAmmo(p,slot) or 0
-  if ammo<weapon.ammo then giveWeapon(p,weapon.id,weapon.ammo-ammo,false) end
+  local granted=false
+  if weapon.armor then
+   if getPedArmor(p)<weapon.armor then setPedArmor(p,weapon.armor);granted=true end
+  else
+   local slot=getSlotFromWeapon(weapon.id);local current=getPedWeapon(p,slot)
+   local ammo=current==weapon.id and getPedTotalAmmo(p,slot) or 0
+   if ammo<weapon.ammo then giveWeapon(p,weapon.id,weapon.ammo-ammo,false);granted=true end
+  end
+  if granted then issued[#issued+1]=weapon.name or getWeaponNameFromID(weapon.id) end
  end end
  triggerClientEvent(p,'fraction:closeArmory',resourceRoot)
- F.notify(p,'Комплект получен. Повторная выдача ограничена по времени',true)
+ F.notify(p,#issued>0 and ('Вы взяли '..table.concat(issued,', ')..'.') or 'Выбранные предметы уже получены',true)
 end
 function canDriveFactionVehicle(p,v)
  local spec=F.vehicles[v]

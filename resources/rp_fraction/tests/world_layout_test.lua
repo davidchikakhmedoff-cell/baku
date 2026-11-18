@@ -101,6 +101,7 @@ for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fracti
 end end
 
 local g=Fractions[2].garage
+assert(g.arrival.rotation==180,'garage arrival faces the parking area')
 F.member=function() return {faction_id=2} end
 F.safeGarageTeleport=function(p,pos,interior,dimension)
  setElementInterior(p,interior);setElementDimension(p,dimension);setElementPosition(p,pos.x,pos.y,pos.z)

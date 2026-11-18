@@ -75,7 +75,7 @@ local function renderMenu()
     local row=rows[i];local yy=y+s(35+(i-scroll-1)*32)
     local picked=window=='armory' and weaponSelection[row.id] or (window=='keys' and selected==i)
     dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
-    local label=window=='armory' and (getWeaponNameFromID(row.id)..' | '..row.ammo..' патр.') or (row.name..' | '..(row.holder and ('Ключи: '..row.holder) or (row.available and 'Свободен' or 'Недоступен')))
+    local label=window=='armory' and ((row.name or getWeaponNameFromID(row.id))..(row.armor and '' or (' | '..row.ammo..' патр.'))) or (row.name..' | '..(row.holder and ('Ключи: '..row.holder) or (row.available and 'Свободен' or 'Недоступен')))
     text(label,x+s(16),yy,w-s(42),s(30))
     hits[#hits+1]={id=window=='armory' and ('weapon:'..row.id) or ('row:'..i),x=x+s(10),y=yy,w=w-s(30),h=s(30)}
    end
@@ -196,7 +196,7 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
  for _,box in ipairs(hits) do if cx>=box.x and cx<=box.x+box.w and cy>=box.y and cy<=box.y+box.h then
   local id=box.id
   if id:sub(1,7)=='weapon:' then
-   local weaponId=tonumber(id:sub(8))
+   local weaponId=id:sub(8);if weaponId~='armor' then weaponId=tonumber(weaponId) end
    for _,w in ipairs(data.weapons or {}) do if w.id==weaponId then weaponSelection[weaponId]=not weaponSelection[weaponId] end end
   elseif id=='armory' then
    local chosen={};for _,w in ipairs(data.weapons or {}) do if weaponSelection[w.id] then chosen[#chosen+1]=w.id end end
