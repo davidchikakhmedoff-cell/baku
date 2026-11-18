@@ -90,3 +90,10 @@ for _,zone in ipairs(elements) do if zone.kind=='colshape' then
  tick=tick+2000;source=zone;handlers.onColShapeHit(p,true)
  assert(p.x==f.inside.x and p.dimension==f.dimension,'independent roof colshape returns to correct interior')
 end end
+
+local g=Fractions[2].garage
+F.member=function() return {faction_id=2} end
+tick=tick+2000;source=F.markers['garage:2'];handlers.onMarkerHit(p,true)
+assert(p.x==g.arrival.x and p.dimension==0 and p.interior==0,'LSPD interior garage exit reaches underground parking')
+tick=tick+2000;source=F.markers['garageBack:2'];handlers.onMarkerHit(p,true)
+assert(p.x==g.returnSpawn.x and p.dimension==Fractions[2].dimension,'garage return reaches LSPD interior')

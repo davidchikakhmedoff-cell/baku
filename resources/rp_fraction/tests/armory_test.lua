@@ -13,6 +13,7 @@ Fraction.snapshotWeapons=function() return '[]' end
 FractionDB={change=function() return true end,exec=function() return true end}
 root={};resourceRoot={}
 function addEventHandler() end
+function triggerClientEvent() end
 function getSlotFromWeapon(id) return id end
 function getPedWeapon(player,slot) return ammo[slot] and slot or 0 end
 function getPedTotalAmmo(player,slot) return ammo[slot] or 0 end

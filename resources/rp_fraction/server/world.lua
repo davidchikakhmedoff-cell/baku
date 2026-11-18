@@ -55,6 +55,12 @@ function F.createWorld()
    local zone=createColSphere(back.x,back.y,back.z,2.5)
    setElementData(zone,'fraction:marker',{id=id,kind='roofBack'},false)
   end
+  if f.garage then
+   marker('garage:'..id,id,'garage',f.garage.inside,f.interior,f.dimension)
+   marker('garageBack:'..id,id,'garageBack',f.garage.outside,0,0)
+   local pos=f.garage.outside;local zone=createColSphere(pos.x,pos.y,pos.z,2.5)
+   setElementData(zone,'fraction:marker',{id=id,kind='garageBack'},false)
+  end
   if f.duty then marker('duty:'..id,id,'duty',f.dutyPoint,f.interior,f.dimension) end
   if f.armory then marker('armory:'..id,id,'armory',f.armory,f.interior,f.dimension) end
  end
@@ -68,12 +74,14 @@ local function markerHit(p,matching)
  if info.kind=='enter' then
   if info.id>=4 and (not m or m.faction_id~=info.id) then F.notify(p,'Вход доступен только участникам фракции');return end
   teleport(p,f.inside,f.interior,f.dimension)
- elseif info.kind=='exit' then teleport(p,f.entrance,0,0)
- elseif info.kind=='roofBack' then teleport(p,f.inside,f.interior,f.dimension)
+ elseif info.kind=='exit' then teleport(p,f.outsideSpawn or f.entrance,0,0)
+ elseif info.kind=='roofBack' then teleport(p,f.roof.returnSpawn or f.inside,f.interior,f.dimension)
+ elseif info.kind=='garageBack' then teleport(p,f.garage.returnSpawn or f.inside,f.interior,f.dimension)
  elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
+ elseif info.kind=='garage' then teleport(p,f.garage.arrival,0,0)
  elseif info.kind=='roof' then
   local out=f.roof.outside
-  teleport(p,{x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)
+  teleport(p,f.roof.arrival or {x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)
  elseif info.kind=='keys' then F.keysMenu(p)
  elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name})
  elseif info.kind=='armory' then
@@ -92,7 +100,7 @@ function F.armory(p,selection)
   for _,id in ipairs(selection) do
    local found=false
    for _,w in ipairs(f.weapons) do if id==w.id and m.rank>=w.rank then found=true end end
-   if not found then return end
+   if not found then F.notify(p,'Ваш ранг не позволяет получить это оружие');return end
    chosen[id]=true
   end
  else for _,w in ipairs(f.weapons) do chosen[w.id]=true end end
@@ -109,6 +117,7 @@ function F.armory(p,selection)
   local ammo=current==weapon.id and getPedTotalAmmo(p,slot) or 0
   if ammo<weapon.ammo then giveWeapon(p,weapon.id,weapon.ammo-ammo,false) end
  end end
+ triggerClientEvent(p,'fraction:closeArmory',resourceRoot)
  F.notify(p,'Комплект получен. Повторная выдача ограничена по времени',true)
 end
 function canDriveFactionVehicle(p,v)

@@ -2,12 +2,14 @@ local window,data,selected,scroll,input,edit=nil,{},nil,0,nil,''
 local hits,alpha={},255
 local weaponSelection={}
 local stopping=false
+local scrollBar,dragging=nil,false
 local screenW,screenH=guiGetScreenSize()
 local scale=math.min(screenW/1920,screenH/1080)
 local titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(13*1.05*scale+0.5)),false,'cleartype')
 local megaphones={}
 local function close()
  if window=='keys' and not stopping then triggerServerEvent('fraction:action',resourceRoot,'keysClose',{}) end
+ dragging=false;scrollBar=nil
  window=nil;input=nil;edit='';selected=nil;scroll=0
  local core=getResourceFromName('rp_core')
  if core and getResourceState(core)=='running' then exports.rp_core:closeUI('fraction') else showCursor(false);guiSetInputMode('allow_binds') end
@@ -15,6 +17,8 @@ end
 local function action(name,payload) triggerServerEvent('fraction:action',resourceRoot,name,payload or {}) end
 addEvent('fraction:state',true)
 addEventHandler('fraction:state',resourceRoot,function() if window and window~='invite' then close() end end)
+addEvent('fraction:closeArmory',true)
+addEventHandler('fraction:closeArmory',resourceRoot,function() if window=='armory' then close() end end)
 addEvent('fraction:closeKeys',true)
 addEventHandler('fraction:closeKeys',resourceRoot,function() if window=='keys' then close() end end)
 addEvent('fraction:menu',true)
@@ -44,13 +48,51 @@ end
 local function button(id,label,x,y,w,h)
  local cx,cy=getCursorPosition();cx,cy=(cx or -1)*screenW,(cy or -1)*screenH
  local hover=cx>=x and cx<=x+w and cy>=y and cy<=y+h
- dxDrawRectangle(x,y,w,h,tocolor(0,0,0,alpha));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(hover and 20 or 14,hover and 20 or 14,hover and 20 or 14,alpha))
+ dxDrawRectangle(x,y,w,h,tocolor(0,0,0,alpha));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(hover and 17 or 14,hover and 17 or 14,hover and 17 or 14,alpha))
+ dxDrawRectangle(x+3,y+1,w-6,1,tocolor(18,18,18,255));dxDrawRectangle(x+3,y+h-2,w-6,1,tocolor(5,5,5,255))
  text(label,x+4,y,w-8,h,nil,nil,'center');hits[#hits+1]={id=id,x=x,y=y,w=w,h=h}
 end
 local function renderMenu()
  if not window then return end
- alpha=255
+ alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
+ if window=='duty' or window=='armory' or window=='keys' then
+  local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
+  local visible=math.min(7,#rows)
+  local w=s(window=='duty' and 340 or (window=='armory' and 480 or 660))
+  local h=s(window=='duty' and 130 or (visible*32+88))
+  local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
+  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130))
+  hits={};scrollBar=nil
+  text(window=='duty' and 'РАБОЧАЯ СМЕНА' or (window=='armory' and 'ОРУЖЕЙНАЯ' or 'КЛЮЧИ ТРАНСПОРТА'),x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  if window=='duty' then
+   text(data.name,x+s(10),y+s(35),w-s(20),s(30))
+   button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),w-s(120),s(30))
+   button('close','Закрыть',x+w-s(100),y+h-s(42),s(90),s(30))
+  else
+   scroll=math.max(0,math.min(scroll,math.max(0,#rows-7)))
+   for i=scroll+1,math.min(#rows,scroll+7) do
+    local row=rows[i];local yy=y+s(35+(i-scroll-1)*32)
+    local picked=window=='armory' and weaponSelection[row.id] or (window=='keys' and selected==i)
+    dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
+    local label=window=='armory' and (getWeaponNameFromID(row.id)..' | '..row.ammo..' патр.') or (row.name..' | '..(row.holder and ('Ключи: '..row.holder) or (row.available and 'Свободен' or 'Недоступен')))
+    text(label,x+s(16),yy,w-s(42),s(30))
+    hits[#hits+1]={id=window=='armory' and ('weapon:'..row.id) or ('row:'..i),x=x+s(10),y=yy,w=w-s(30),h=s(30)}
+   end
+   local trackH=s(visible*32);local tx,ty=x+w-s(15),y+s(35)
+   dxDrawRectangle(tx,ty,s(5),trackH,tocolor(69,74,76,255))
+   if #rows>7 then
+    local thumb=math.max(s(24),trackH*7/#rows)
+    dxDrawRectangle(tx,ty+(trackH-thumb)*scroll/(#rows-7),s(5),thumb,tocolor(245,245,245,255))
+    scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-7}
+   end
+   local count=window=='armory' and 2 or 3;local bw=(w-s(20)-s(8)*(count-1))/count
+   button(window=='armory' and 'armory' or 'keysTake','Получить',x+s(10),y+h-s(40),bw,s(30))
+   if window=='keys' then button('keysReturn','Сдать ключи',x+s(18)+bw,y+h-s(40),bw,s(30)) end
+   button('close','Закрыть',x+w-s(10)-bw,y+h-s(40),bw,s(30))
+  end
+  return
+ end
  local w,h=s(700),s(540);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230*alpha/255));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130*alpha/255))
  dxDrawRectangle(x+s(5),y+s(35),w-s(10),h-s(40),tocolor(0,0,0,255))
@@ -60,25 +102,12 @@ local function renderMenu()
   text(data.inviter..' приглашает вас в '..data.name,x+s(20),y+s(80),w-s(40),s(50))
   text('Приглашение действует '..data.seconds..' сек.',x+s(20),y+s(140),w-s(40),s(35))
   button('accept','Принять',x+s(20),y+s(210),s(300),s(36));button('decline','Отклонить',x+s(340),y+s(210),s(300),s(36))
- elseif window=='duty' then
-  text(data.name,x+s(20),y+s(70),w-s(40),s(35))
-  button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(20),y+s(140),w-s(40),s(40))
- elseif window=='armory' then
-  local yy=y+s(65)
-  for _,weapon in ipairs(data.weapons or {}) do
-   local picked=weaponSelection[weapon.id]
-   if picked then dxDrawRectangle(x+s(7),yy,w-s(20),s(30),tocolor(47,113,151,255)) end
-   text((picked and '[✓] ' or '[ ] ')..getWeaponNameFromID(weapon.id)..' | '..weapon.ammo..' патр. | ранг '..weapon.rank,x+s(20),yy,w-s(40),s(30))
-   hits[#hits+1]={id='weapon:'..weapon.id,x=x+s(7),y=yy,w=w-s(20),h=s(30)};yy=yy+s(34)
-  end
-  button('armory','Получить выбранное',x+s(20),y+h-s(100),w-s(40),s(36))
  else
   local rows=data.rows or {};local yy=y+s(52)
   for i=scroll+1,math.min(#rows,scroll+7) do
    local row=rows[i];local label
    if window=='members' then label=row.rp_name..' | аккаунт '..row.account_id..' | '..Fractions[data.faction].ranks[tonumber(row.rank)]
    elseif window=='news' then label='#'..row.id..' '..row.author..': '..row.original
-   elseif window=='keys' then label=row.name..' | ранг '..row.rank..' | '..(row.holder and ('Ключи: '..row.holder..(row.mine and ' (вы)' or '')) or (row.available and 'Свободен' or 'Возвращается / недоступен'))
    else label='#'..row.id..' | $'..row.amount..' | '..row.reason end
    if selected==i then dxDrawRectangle(x+s(16),yy,w-s(32),s(32),tocolor(47,113,151,255)) end
    if selected==i then
@@ -98,11 +127,6 @@ local function renderMenu()
   if window=='members' then
    text('/invite ID   •   /uninvite ID   •   /giverank ID ранг',x+s(20),y+s(350),w-s(40),s(35))
    text('Управление составом — через команды лидера и заместителя',x+s(20),y+s(390),w-s(40),s(35))
-  elseif window=='keys' then
-   text(data.hasKey and 'У вас уже есть ключи. Сдайте их перед выбором другого транспорта.' or 'Выберите свободный транспорт по вашему рангу.',x+s(20),y+s(340),w-s(40),s(35))
-   button('keysTake','Взять ключи',x+s(20),y+s(395),s(205),s(36))
-   button('keysReturn','Сдать ключи',x+s(240),y+s(395),s(205),s(36))
-   button('keysRefresh','Обновить',x+s(460),y+s(395),s(220),s(36))
   elseif window=='news' then
    button('edit',edit~='' and edit or 'Нажмите для редактирования текста',x+s(20),y+s(340),w-s(40),s(60))
    button('publish','Опубликовать',x+s(20),y+s(415),s(305),s(34));button('reject','Отклонить',x+s(345),y+s(415),s(305),s(34))
@@ -120,6 +144,10 @@ for _,f in pairs(Fractions) do
  addMarkerLabel('Ключи транспорта',f.keysPoint,f.interior,f.dimension)
  if f.duty then addMarkerLabel('Начать / завершить смену',f.dutyPoint,f.interior,f.dimension) end
  addMarkerLabel('Оружейная',f.armory,f.interior,f.dimension)
+ if f.garage then
+  addMarkerLabel('В гараж',f.garage.inside,f.interior,f.dimension)
+  addMarkerLabel('В участок',f.garage.outside,0,0)
+ end
  if f.roof and f.roof.outside then
   addMarkerLabel('На крышу',f.roof.inside,f.interior,f.dimension)
   addMarkerLabel('В интерьер',f.roof.outside,0,0)
@@ -160,15 +188,19 @@ addEventHandler('onClientRender',root,function()
  renderMenu()
 end)
 addEventHandler('onClientClick',root,function(key,state,cx,cy)
+ if key=='left' and state=='up' then dragging=false;return end
  if key~='left' or state~='down' or not window then return end
+ if scrollBar and cx>=scrollBar.x-3 and cx<=scrollBar.x+scrollBar.w and cy>=scrollBar.y and cy<=scrollBar.y+scrollBar.h then
+  dragging=true;scroll=math.floor(math.max(0,math.min(1,(cy-scrollBar.y-scrollBar.thumb/2)/(scrollBar.h-scrollBar.thumb)))*scrollBar.max+0.5);return
+ end
  for _,box in ipairs(hits) do if cx>=box.x and cx<=box.x+box.w and cy>=box.y and cy<=box.y+box.h then
   local id=box.id
   if id:sub(1,7)=='weapon:' then
    local weaponId=tonumber(id:sub(8))
-   for _,w in ipairs(data.weapons or {}) do if w.id==weaponId and data.rank>=w.rank then weaponSelection[weaponId]=not weaponSelection[weaponId] end end
+   for _,w in ipairs(data.weapons or {}) do if w.id==weaponId then weaponSelection[weaponId]=not weaponSelection[weaponId] end end
   elseif id=='armory' then
    local chosen={};for _,w in ipairs(data.weapons or {}) do if weaponSelection[w.id] then chosen[#chosen+1]=w.id end end
-   if #chosen>0 then action('armory',{weapons=chosen});close() end
+   if #chosen>0 then action('armory',{weapons=chosen}) end
   elseif id:sub(1,4)=='row:' then selected=tonumber(id:sub(5));if window=='news' then edit=data.rows[selected].edited or data.rows[selected].original end
   elseif id=='edit' then input=true
   elseif id=='close' then if window=='invite' then action('decline') end;close()
@@ -180,6 +212,9 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
   return
  end end
 end)
+addEventHandler('onClientCursorMove',root,function(_,_,cx,cy)
+ if dragging and scrollBar then scroll=math.floor(math.max(0,math.min(1,(cy-scrollBar.y-scrollBar.thumb/2)/(scrollBar.h-scrollBar.thumb)))*scrollBar.max+0.5) end
+end)
 addEventHandler('onClientCharacter',root,function(char)
  if not window or not input then return end
  if #edit<FractionConfig.textLimit*4 and not char:find('[%c]') then edit=edit..char end
@@ -188,7 +223,7 @@ addEventHandler('onClientKey',root,function(key,down)
  if not down or not window then return end
  if key=='escape' then cancelEvent();close()
  elseif key=='backspace' and input then edit=utf8 and utf8.sub and utf8.sub(edit,1,-2) or edit:sub(1,-2);cancelEvent()
- elseif key=='mouse_wheel_down' then scroll=math.min(math.max(0,#(data.rows or {})-7),scroll+1);cancelEvent()
+ elseif key=='mouse_wheel_down' then scroll=math.min(math.max(0,#(window=='armory' and (data.weapons or {}) or (data.rows or {}))-7),scroll+1);cancelEvent()
  elseif key=='mouse_wheel_up' then scroll=math.max(0,scroll-1);cancelEvent()
  elseif key=='enter' and input then input=false;cancelEvent()
  elseif input and not key:find('mouse_',1,true) then cancelEvent() end

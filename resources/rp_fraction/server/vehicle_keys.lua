@@ -49,6 +49,7 @@ function F.takeVehicleKeys(p,slot)
  F.keyHolders[key]={player=p,account=F.account(p),faction=m.faction_id,index=index}
  F.playerKeys[p]=key
  F.notify(p,'Ключи получены. N — открыть/закрыть транспорт',true)
+ F.keyMenus[p]=nil;triggerClientEvent(p,'fraction:closeKeys',resourceRoot)
  F.refreshKeyMenus(m.faction_id)
 end
 local function release(p,key)

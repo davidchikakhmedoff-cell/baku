@@ -50,16 +50,16 @@ FractionFleetConfig = {
             rank = 2,
             count = 10,
             parking = {
-                { slot=1, x=1535, y=-1678, z=13.4, rotation=0 },
-                { slot=2, x=1539, y=-1678, z=13.4, rotation=0 },
-                { slot=3, x=1543, y=-1678, z=13.4, rotation=0 },
-                { slot=4, x=1547, y=-1678, z=13.4, rotation=0 },
-                { slot=5, x=1551, y=-1678, z=13.4, rotation=0 },
-                { slot=6, x=1535, y=-1685, z=13.4, rotation=0 },
-                { slot=7, x=1539, y=-1685, z=13.4, rotation=0 },
-                { slot=8, x=1543, y=-1685, z=13.4, rotation=0 },
-                { slot=9, x=1547, y=-1685, z=13.4, rotation=0 },
-                { slot=10, x=1551, y=-1685, z=13.4, rotation=0 },
+                { slot=1, x=1595.5, y=-1710, z=5.8, rotation=0 },
+                { slot=2, x=1591.5, y=-1710, z=5.8, rotation=0 },
+                { slot=3, x=1587.5, y=-1710, z=5.8, rotation=0 },
+                { slot=4, x=1583.5, y=-1710, z=5.8, rotation=0 },
+                { slot=5, x=1578.5, y=-1710, z=5.8, rotation=0 },
+                { slot=6, x=1574.5, y=-1710, z=5.8, rotation=0 },
+                { slot=7, x=1570.5, y=-1710, z=5.8, rotation=0 },
+                { slot=8, x=1566.5, y=-1710, z=5.8, rotation=0 },
+                { slot=9, x=1562.5, y=-1710, z=5.8, rotation=0 },
+                { slot=10, x=1559, y=-1710, z=5.8, rotation=0 },
             },
         },
         {
@@ -68,9 +68,9 @@ FractionFleetConfig = {
             rank = 3,
             count = 3,
             parking = {
-                { slot=11, x=1594, y=-1710, z=5.8, rotation=0 },
-                { slot=12, x=1598, y=-1710, z=5.8, rotation=0 },
-                { slot=13, x=1602, y=-1710, z=5.8, rotation=0 },
+                { slot=11, x=1545, y=-1684.5, z=5.8, rotation=90 },
+                { slot=12, x=1545, y=-1680.5, z=5.8, rotation=90 },
+                { slot=13, x=1545, y=-1676.5, z=5.8, rotation=90 },
             },
         },
         {
@@ -79,7 +79,7 @@ FractionFleetConfig = {
             rank = 6,
             count = 1,
             parking = {
-                { slot=14, x=1596, y=-1700, z=6.1, rotation=90 },
+                { slot=14, x=1545, y=-1672, z=5.8, rotation=90 },
             },
         },
         {
@@ -88,8 +88,8 @@ FractionFleetConfig = {
             rank = 4,
             count = 2,
             parking = {
-                { slot=15, x=1585, y=-1698, z=6.1, rotation=90 },
-                { slot=16, x=1590, y=-1698, z=6.1, rotation=90 },
+                { slot=15, x=1545, y=-1668, z=5.8, rotation=90 },
+                { slot=16, x=1545, y=-1663, z=5.8, rotation=90 },
             },
         },
         {
@@ -242,5 +242,83 @@ FractionFleetConfig = {
                 { slot=9, x=1028, y=-1154, z=23.9, rotation=180 },
             },
         },
+    },
+}
+
+-- МАРКЕРЫ И ТОЧКИ ПОЯВЛЕНИЯ. ID разделов совпадают с ID фракций.
+-- entrance/exit — маркеры входа/выхода; inside/outsideSpawn — точки появления.
+-- keysPoint/dutyPoint/armory — ключи/смена/оружейная в интерьере.
+-- roof/garage: inside — маркер внутри, outside — маркер снаружи,
+-- arrival — появление снаружи, returnSpawn — появление после возврата внутрь.
+-- interior/dimension относятся к внутренним точкам; снаружи всегда 0/0.
+-- Точки появления размещайте в стороне от маркеров, чтобы не было обратного телепорта.
+FractionLocationConfig = {
+    -- Los Santos Hospital
+    [1] = {
+        interior=3, dimension=20001,
+        entrance={x=1172.0000,y=-1323.3000,z=15.4000,rotation=0.00},
+        inside={x=830.6016,y=5.9404,z=1004.1797,rotation=0.00},
+        exit={x=834.0016,y=5.9404,z=1004.1797,rotation=0.00},
+        keysPoint={x=827.0016,y=5.9404,z=1004.1797,rotation=0.00},
+        dutyPoint={x=830.6016,y=10.3404,z=1004.1797,rotation=0.00},
+        outsideSpawn={x=1175.5000,y=-1323.3000,z=15.4000,rotation=0.00},
+        roof={slot=3, inside={x=834.0016,y=10.3404,z=1004.1797,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
+            arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=830.6016,y=5.9404,z=1004.1797,rotation=0.00}},
+    },
+    -- Los Santos Police Department
+    [2] = {
+        interior=6, dimension=20002,
+        entrance={x=1554.9000,y=-1675.5000,z=16.2000,rotation=0.00},
+        inside={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00},
+        exit={x=246.5000,y=62.6000,z=1003.6000,rotation=0.00},
+        keysPoint={x=248.5000,y=70.8000,z=1003.6000,rotation=0.00},
+        dutyPoint={x=253.5000,y=68.8000,z=1003.6000,rotation=0.00},
+        armory={x=257.7000,y=69.2000,z=1003.6000,rotation=0.00},
+        outsideSpawn={x=1558.4000,y=-1675.5000,z=16.2000,rotation=0.00},
+        roof={slot=17, inside={x=253.5000,y=64.4000,z=1003.6000,rotation=0.00}, outside={x=1573.5000,y=-1694.0000,z=28.6000,rotation=90.00},
+            arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00}},
+        garage={inside={x=250,y=74,z=1003.6},outside={x=1568,y=-1666,z=5.9},arrival={x=1571.5,y=-1666,z=5.9},returnSpawn={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00}},
+    },
+    -- Los Santos News
+    [3] = {
+        interior=11, dimension=20003,
+        entrance={x=741.0000,y=-1334.0000,z=13.5000,rotation=0.00},
+        inside={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00},
+        exit={x=2003.1178,y=1015.1948,z=33.0080,rotation=0.00},
+        keysPoint={x=2007.0000,y=1014.7948,z=33.0080,rotation=0.00},
+        dutyPoint={x=2007.0000,y=1018.3948,z=33.0080,rotation=0.00},
+        outsideSpawn={x=744.5000,y=-1334.0000,z=13.5000,rotation=0.00},
+        roof={slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=746.5000,y=-1348.0000,z=24.0000,rotation=90.00},
+            arrival={x=750.0000,y=-1348.0000,z=24.0000,rotation=0.00}, returnSpawn={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00}},
+    },
+    -- La Cosa Nostra
+    [4] = {
+        interior=5, dimension=20004,
+        entrance={x=1459.1000,y=-1010.6000,z=26.8000,rotation=0.00},
+        inside={x=1262.1000,y=-785.3000,z=1091.9000,rotation=0.00},
+        exit={x=1262.1000,y=-788.5000,z=1091.9000,rotation=0.00},
+        keysPoint={x=1258.0000,y=-785.3000,z=1091.9000,rotation=0.00},
+        armory={x=1265.0000,y=-785.3000,z=1091.9000,rotation=0.00},
+        outsideSpawn={x=1462.6000,y=-1010.6000,z=26.8000,rotation=0.00},
+    },
+    -- Yakuza
+    [5] = {
+        interior=1, dimension=20005,
+        entrance={x=1081.0000,y=-1696.8000,z=13.5000,rotation=0.00},
+        inside={x=-2159.9000,y=641.5000,z=1052.4000,rotation=0.00},
+        exit={x=-2159.9000,y=638.3000,z=1052.4000,rotation=0.00},
+        keysPoint={x=-2163.0000,y=641.5000,z=1052.4000,rotation=0.00},
+        armory={x=-2156.0000,y=641.5000,z=1052.4000,rotation=0.00},
+        outsideSpawn={x=1084.5000,y=-1696.8000,z=13.5000,rotation=0.00},
+    },
+    -- Russian Mafia
+    [6] = {
+        interior=12, dimension=20006,
+        entrance={x=1022.7000,y=-1121.2000,z=23.9000,rotation=0.00},
+        inside={x=2324.5000,y=-1147.1000,z=1050.7000,rotation=0.00},
+        exit={x=2324.5000,y=-1150.4000,z=1050.7000,rotation=0.00},
+        keysPoint={x=2321.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
+        armory={x=2327.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
+        outsideSpawn={x=1026.2000,y=-1121.2000,z=23.9000,rotation=0.00},
     },
 }

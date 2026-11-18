@@ -79,3 +79,8 @@ for id,f in pairs(Fractions) do
  end end end
  f.weapons=id==2 and FractionConfig.policeWeapons or (f.category=="criminal" and FractionConfig.mafiaWeapons or nil)
 end
+
+for id,location in pairs(FractionLocationConfig or {}) do
+ local f=Fractions[id]
+ if f then for key,value in pairs(location) do f[key]=value end end
+end

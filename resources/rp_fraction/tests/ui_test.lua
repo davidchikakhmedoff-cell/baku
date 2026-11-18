@@ -55,16 +55,28 @@ handlers.onClientClick('left','down',x+30,y+350)
 handlers.onClientCharacter('!');handlers.onClientRender()
 handlers.onClientClick('left','down',x+30,y+425)
 assert(sent[#sent].name=='publish' and sent[#sent].data.text=='Original ad!','edited ad submitted to server')
-handlers['fraction:menu']('armory',payloads.armory);handlers.onClientRender()
-handlers.onClientClick('left','down',x+30,y+70)
-handlers.onClientClick('left','down',x+30,y+450)
-assert(sent[#sent].name=='armory' and #sent[#sent].data.weapons==1 and sent[#sent].data.weapons[1]==3,'weapon selector submits only checked weapon')
+local function clickText(needle)
+ for _,d in ipairs(draws) do if d.text:find(needle,1,true) then handlers.onClientClick('left','down',(d.x+d.right)/2,(d.y+d.bottom)/2);return end end
+ error('missing UI text '..needle)
+end
+handlers['fraction:menu']('armory',payloads.armory);draws={};handlers.onClientRender()
+clickText('Weapon 3');clickText('Получить')
+assert(sent[#sent].name=='armory' and #sent[#sent].data.weapons==1 and sent[#sent].data.weapons[1]==3,'weapon selector submits only selected weapon')
+handlers['fraction:closeArmory']();draws={};handlers.onClientRender();assert(#draws==0,'successful armory response closes window')
 handlers['fraction:menu']('keys',payloads.keys);draws={};handlers.onClientRender()
-local holderShown=false;for _,d in ipairs(draws) do if d.text:find('Holder_Name',1,true) then holderShown=true end end
-assert(holderShown,'key menu shows actual holder nickname next to vehicle')
-handlers.onClientClick('left','down',x+30,y+60);handlers.onClientClick('left','down',x+30,y+405)
+clickText('Holder_Name');clickText('Получить')
 assert(sent[#sent].name=='keysTake' and sent[#sent].data.slot==7,'key request sends stable configured vehicle slot')
-handlers.onClientClick('left','down',x+250,y+405);assert(sent[#sent].name=='keysReturn','return-key button uses server action')
+clickText('Сдать ключи');assert(sent[#sent].name=='keysReturn','return-key button uses server action')
+handlers['fraction:closeKeys']();draws={};handlers.onClientRender();assert(#draws==0,'successful key response closes window')
+local many={rows={}};for i=1,12 do many.rows[i]={slot=i,name='Car '..i,available=true} end
+handlers['fraction:menu']('keys',many);handlers.onClientRender()
+handlers.onClientClick('left','down',1276,430)
+handlers.onClientCursorMove(0,0,1276,640)
+handlers.onClientClick('left','up',1276,640)
+draws={};handlers.onClientRender();local bottom=false
+for _,d in ipairs(draws) do if d.text:find('Car 12',1,true) then bottom=true end end
+assert(bottom,'dragging right scrollbar reaches end of key list')
+handlers['fraction:closeKeys']()
 handlers['fraction:megaphone']({},'Megaphone test');handlers.onClientKey('escape',true)
 now=1001;draws={};handlers.onClientRender();local found=false
 for _,d in ipairs(draws) do if d.text=='Megaphone test' then found=true end end;assert(found,'megaphone appears')
