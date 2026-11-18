@@ -4,6 +4,7 @@
  <include resource="rp_car" />
  <script src="config.lua" type="shared" />
  <script src="shared.lua" type="shared" />
+ <script src="server/dependencies.lua" type="server" />
  <script src="server/database.lua" type="server" />
  <script src="server/main.lua" type="server" />
  <script src="server/members.lua" type="server" />

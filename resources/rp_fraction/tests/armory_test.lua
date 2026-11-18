@@ -3,6 +3,7 @@ local now,active,near=1000,true,true
 local p={};local member={account_id=1,faction_id=2,rank=5,armory_at=0,duty=1,civilian_weapons='[]'}
 local ammo,grants={},0
 Fraction={markers={['armory:2']={}},vehicles={}}
+FractionDependencies={ready=function() return true end}
 Fraction.member=function() return member end
 Fraction.active=function() return active end
 Fraction.near=function() return near end

@@ -2,10 +2,10 @@ Fraction={members={},sessions={},invites={},cuffs={},vehicles={},markers={},cool
 local F=Fraction
 function F.now() return getRealTime().timestamp end
 function F.account(p)
- if not FractionDB.available() or not isElement(p) or getElementType(p)~='player' or getElementData(p,'auth:loggedIn')~=true then return false end
+ if not F.ready or not FractionDB.available() or not isElement(p) or getElementType(p)~='player' or getElementData(p,'auth:loggedIn')~=true then return false end
  return tonumber(exports.rp_core:getAuthPlayerId(p))
 end
-function F.player(id) if FractionDB.available() then return exports.rp_core:getPlayerByDynamicID(tonumber(id)) end end
+function F.player(id) if F.ready and FractionDB.available() then return exports.rp_core:getPlayerByDynamicID(tonumber(id)) end end
 function F.name(p) return getElementData(p,'rp:name') or getPlayerName(p) end
 function F.notify(p,text,good)
  if isElement(p) and FractionDB.available() then exports.rp_core:sendCoreNotification(p,text,good and 103 or 239,good and 196 or 100,good and 216 or 100) end
@@ -132,7 +132,9 @@ addEventHandler('onPlayerQuit',root,function() F.disconnect(source) end,true,'hi
 addEventHandler('onElementDataChange',root,function(key)
  if key=='auth:loggedIn' and getElementType(source)=='player' and not getElementData(source,key) then F.disconnect(source) end
 end)
-addEventHandler('onResourceStart',resourceRoot,function()
+function F.tryStart()
+ if F.ready then return true end
+ if not FractionDependencies.ready() then return false end
  FractionDB.init();F.ready=true;F.createWorld();F.spawnFleet()
  for _,p in ipairs(getElementsByType('player')) do if F.account(p) then F.load(p) end end
  setTimer(F.tick,FractionConfig.tickMs,0)
@@ -140,12 +142,18 @@ addEventHandler('onResourceStart',resourceRoot,function()
   for p in pairs(F.cuffs) do if isElement(p) then setPedWeaponSlot(p,0) end end
   for vehicle in pairs(F.vehicles) do local driver=isElement(vehicle) and getVehicleOccupant(vehicle,0);if driver then F.revokeDriver(driver) end end
  end,500,0)
+ return true
+end
+addEventHandler('onResourceStart',resourceRoot,function()
+ if F.tryStart() then return end
+ local retry
+ retry=setTimer(function() if F.tryStart() then killTimer(retry) end end,5000,0)
 end)
 addEventHandler('onResourceStop',resourceRoot,function()
  for p in pairs(F.sessions) do if isElement(p) then F.disconnect(p,true) end end
  for _,p in ipairs(getElementsByType('player')) do setElementData(p,'rp:faction',false,true);setElementData(p,'rp:nametagColor',{255,255,255},true) end
  local cars=getResourceFromName('rp_car')
- if cars and getResourceState(cars)=='running' then
+ if cars and FractionDependencies.hasExports('rp_car',{'unregisterFactionVehicle'}) then
   for vehicle in pairs(F.vehicles) do if isElement(vehicle) then exports.rp_car:unregisterFactionVehicle(vehicle) end end
  end
 end)

@@ -86,6 +86,7 @@ function F.revokeDriver(p)
  end
 end
 local function spawnVehicle(fid,index)
+ if FractionDependencies.blocked then return false end
  local f=Fractions[fid];local cfg=f.vehicles[index];local key='fraction:'..fid..':'..index
  if F.missing[key] and getTickCount()<F.missing[key].at then return end
  for vehicle,spec in pairs(F.vehicles) do if spec.key==key then return end end
@@ -103,13 +104,18 @@ local function spawnVehicle(fid,index)
  setElementData(vehicle,'fraction:vehicle',fid,true);setElementData(vehicle,'fraction:minRank',cfg.rank,true)
  local saved=FractionDB.one('SELECT fuel FROM fraction_vehicle_fuel WHERE vehicle_key=?',key)
  if not saved then FractionDB.exec('INSERT OR IGNORE INTO fraction_vehicle_fuel(vehicle_key,fuel) VALUES(?,30)',key);saved={fuel=30} end
- if not exports.rp_car:registerFactionVehicle(vehicle,key,tonumber(saved.fuel)) then
-  F.vehicles[vehicle]=nil;destroyElement(vehicle);outputDebugString('[Fraction] rp_car adapter unavailable',1)
+ local ok,registered=pcall(function() return exports.rp_car:registerFactionVehicle(vehicle,key,tonumber(saved.fuel)) end)
+ if not ok or registered~=true then
+  F.vehicles[vehicle]=nil;destroyElement(vehicle);FractionDependencies.rejectVehicleAdapter()
+  return false
  end
 end
 F.missing={}
 function F.spawnFleet()
- for fid,f in pairs(Fractions) do for index in ipairs(f.vehicles) do spawnVehicle(fid,index) end end
+ if not FractionDependencies.ready() then return end
+ for fid,f in pairs(Fractions) do for index in ipairs(f.vehicles) do
+  if spawnVehicle(fid,index)==false then return end
+ end end
 end
 addEventHandler('onVehicleStartEnter',root,function(p,seat)
  local spec=F.vehicles[source]
@@ -129,6 +135,7 @@ addEventHandler('onElementDestroy',root,function()
  F.missing[spec.key]={faction=spec.faction,index=spec.index,at=getTickCount()+FractionConfig.vehicleRespawnMs};F.vehicles[source]=nil
 end)
 function F.fleetTick()
+ if not FractionDependencies.ready() then return end
  for v,spec in pairs(F.vehicles) do
   if spec.destroyAt and getTickCount()>=spec.destroyAt then
    local occupied=false;for _ in pairs(getVehicleOccupants(v)) do occupied=true end
