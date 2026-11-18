@@ -56,15 +56,15 @@ local function renderMenu()
  if not window then return end
  alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
- if window=='duty' or window=='armory' or window=='keys' then
+ if window=='duty' or window=='armory' or window=='keys' or window=='members' then
   local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
   local visible=math.min(7,#rows)
-  local w=s(window=='duty' and 340 or (window=='armory' and 480 or 660))
+  local w=s(window=='duty' and 340 or (window=='armory' and 480 or (window=='members' and 540 or 660)))
   local h=s(window=='duty' and 130 or (visible*32+88))
   local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
   dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130))
   hits={};scrollBar=nil
-  text(window=='duty' and 'РАБОЧАЯ СМЕНА' or (window=='armory' and 'ОРУЖЕЙНАЯ' or 'КЛЮЧИ ТРАНСПОРТА'),x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  text(window=='duty' and 'РАБОЧАЯ СМЕНА' or (window=='armory' and 'ОРУЖЕЙНАЯ' or (window=='members' and 'СОСТАВ ФРАКЦИИ' or 'КЛЮЧИ ТРАНСПОРТА')),x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
   if window=='duty' then
    text(data.working and 'Завершить работу?' or 'Начать работу?',x+s(10),y+s(35),w-s(20),s(30))
    button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),s(170),s(30))
@@ -73,10 +73,17 @@ local function renderMenu()
    scroll=math.max(0,math.min(scroll,math.max(0,#rows-7)))
    for i=scroll+1,math.min(#rows,scroll+7) do
     local row=rows[i];local yy=y+s(35+(i-scroll-1)*32)
-    local picked=window=='armory' and weaponSelection[row.id] or (window=='keys' and selected==i)
+    local picked=window=='armory' and weaponSelection[row.id] or ((window=='keys' or window=='members') and selected==i)
     dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
-    local label=window=='armory' and ((row.name or getWeaponNameFromID(row.id))..(row.armor and '' or (' | '..row.ammo..' патр.'))) or (row.name..' | '..(row.holder and ('Ключи: '..row.holder) or (row.available and 'Свободен' or 'Недоступен')))
-    text(label,x+s(16),yy,w-s(42),s(30))
+    if window=='members' then
+     local rank=Fractions[data.faction].ranks[tonumber(row.rank)] or ''
+     local rankWidth=math.min(math.ceil(dxGetTextWidth(rank,1,'default-bold'))+1,w-s(190))
+     text(rank,x+s(16),yy,rankWidth,s(30))
+     text(row.rp_name,x+s(16)+rankWidth+s(16),yy,w-rankWidth-s(64),s(30))
+    else
+     local label=window=='armory' and ((row.name or getWeaponNameFromID(row.id))..(row.armor and '' or (' | '..row.ammo..' патр.'))) or (row.name..' | '..(row.holder and ('Ключи: '..row.holder) or (row.available and 'Свободен' or 'Недоступен')))
+     text(label,x+s(16),yy,w-s(42),s(30))
+    end
     hits[#hits+1]={id=window=='armory' and ('weapon:'..row.id) or ('row:'..i),x=x+s(10),y=yy,w=w-s(30),h=s(30)}
    end
    local trackH=s(visible*32);local tx,ty=x+w-s(15),y+s(35)
@@ -86,17 +93,21 @@ local function renderMenu()
     dxDrawRectangle(tx,ty+(trackH-thumb)*scroll/(#rows-7),s(5),thumb,tocolor(245,245,245,255))
     scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-7}
    end
-   local count=window=='armory' and 2 or 3;local bw=(w-s(20)-s(8)*(count-1))/count
-   button(window=='armory' and 'armory' or 'keysTake','Получить',x+s(10),y+h-s(40),bw,s(30))
-   if window=='keys' then button('keysReturn','Сдать ключи',x+s(18)+bw,y+h-s(40),bw,s(30)) end
-   button('close','Закрыть',x+w-s(10)-bw,y+h-s(40),bw,s(30))
+   if window=='members' then
+    button('close','Закрыть',x+w-s(130),y+h-s(40),s(120),s(30))
+   else
+    local count=window=='armory' and 2 or 3;local bw=(w-s(20)-s(8)*(count-1))/count
+    button(window=='armory' and 'armory' or 'keysTake','Получить',x+s(10),y+h-s(40),bw,s(30))
+    if window=='keys' then button('keysReturn','Сдать ключи',x+s(18)+bw,y+h-s(40),bw,s(30)) end
+    button('close','Закрыть',x+w-s(10)-bw,y+h-s(40),bw,s(30))
+   end
   end
   return
  end
  local w,h=s(700),s(540);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230*alpha/255));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130*alpha/255))
  dxDrawRectangle(x+s(5),y+s(35),w-s(10),h-s(40),tocolor(0,0,0,255))
- hits={};local titles={invite='ПРИГЛАШЕНИЕ',members='СОСТАВ ФРАКЦИИ',duty='РАБОЧАЯ СМЕНА',armory='ОРУЖЕЙНАЯ',news='LS NEWS — ОБЪЯВЛЕНИЯ',tickets='НЕОПЛАЧЕННЫЕ ШТРАФЫ',keys='КЛЮЧИ СЛУЖЕБНОГО ТРАНСПОРТА'}
+ hits={};local titles={invite='ПРИГЛАШЕНИЕ',duty='РАБОЧАЯ СМЕНА',armory='ОРУЖЕЙНАЯ',news='LS NEWS — ОБЪЯВЛЕНИЯ',tickets='НЕОПЛАЧЕННЫЕ ШТРАФЫ',keys='КЛЮЧИ СЛУЖЕБНОГО ТРАНСПОРТА'}
  text(titles[window],x+s(18),y+s(8),w-s(36),s(32),nil,titleFont or 'default-bold')
  if window=='invite' then
   text(data.inviter..' приглашает вас в '..data.name,x+s(20),y+s(80),w-s(40),s(50))
@@ -106,8 +117,7 @@ local function renderMenu()
   local rows=data.rows or {};local yy=y+s(52)
   for i=scroll+1,math.min(#rows,scroll+7) do
    local row=rows[i];local label
-   if window=='members' then label=row.rp_name..' | аккаунт '..row.account_id..' | '..Fractions[data.faction].ranks[tonumber(row.rank)]
-   elseif window=='news' then label='#'..row.id..' '..row.author..': '..row.original
+   if window=='news' then label='#'..row.id..' '..row.author..': '..row.original
    else label='#'..row.id..' | $'..row.amount..' | '..row.reason end
    if selected==i then dxDrawRectangle(x+s(16),yy,w-s(32),s(32),tocolor(47,113,151,255)) end
    if selected==i then
@@ -124,10 +134,7 @@ local function renderMenu()
    dxDrawRectangle(trackX,trackY+(trackH-thumbH)*scroll/(#rows-7),s(6),thumbH,tocolor(255,255,255,255))
   end
   text('Строки '..math.min(#rows,scroll+1)..'–'..math.min(#rows,scroll+7)..' / '..#rows..'  • колесо мыши',x+s(20),y+s(301),w-s(40),s(25),tocolor(155,163,173,alpha))
-  if window=='members' then
-   text('/invite ID   •   /uninvite ID   •   /giverank ID ранг',x+s(20),y+s(350),w-s(40),s(35))
-   text('Управление составом — через команды лидера и заместителя',x+s(20),y+s(390),w-s(40),s(35))
-  elseif window=='news' then
+  if window=='news' then
    button('edit',edit~='' and edit or 'Нажмите для редактирования текста',x+s(20),y+s(340),w-s(40),s(60))
    button('publish','Опубликовать',x+s(20),y+s(415),s(305),s(34));button('reject','Отклонить',x+s(345),y+s(415),s(305),s(34))
   elseif window=='tickets' then button('payticket','Оплатить выбранный штраф',x+s(20),y+s(380),w-s(40),s(36)) end

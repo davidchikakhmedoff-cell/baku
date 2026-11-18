@@ -17,6 +17,7 @@ function triggerServerEvent(event,element,name,data) sent[#sent+1]={name=name,da
 function tocolor(r,g,b,a) return r*1000000+g*1000+b end
 function getCursorPosition() return false end
 function dxDrawRectangle() end
+function dxGetTextWidth(text) return #text*7 end
 function dxDrawText(value,x,y,right,bottom,color,size,font) draws[#draws+1]={text=value,x=x,y=y,right=right,bottom=bottom,color=color,size=size,font=font} end
 function getElementPosition() return unpack(position) end
 function getElementInterior() return 0 end
@@ -42,6 +43,18 @@ for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
  for name,data in pairs(payloads) do
   handlers['fraction:menu'](name,data);draws={};handlers.onClientRender()
   for _,d in ipairs(draws) do assert(d.x>=0 and d.y>=0 and d.right<=sw and d.bottom<=sh,name..' must fit screen') end
+  if name=='members' then
+   local rank,nickname,title,close
+   for _,d in ipairs(draws) do
+    if d.text=='Офицер' then rank=d end
+    if d.text=='Test_Player' then nickname=d end
+    if d.text=='СОСТАВ ФРАКЦИИ' then title=d end
+    if d.text=='Закрыть' then close=d end
+    assert(not d.text:find('аккаунт',1,true) and not d.text:find('/invite',1,true) and not d.text:find('Управление составом',1,true) and not d.text:find('Строки',1,true),'members has no account numbers or footer hints')
+   end
+   assert(rank and nickname and rank.y==nickname.y and nickname.x>rank.right and nickname.x-rank.right<=20,'members shows rank then nickname with a small gap')
+   assert(title.right-title.x<600 and close.bottom-title.y<200,'members uses compact content-sized window')
+  end
   if name=='duty' then
    local question=false
    for _,d in ipairs(draws) do
