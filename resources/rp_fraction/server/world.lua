@@ -58,7 +58,7 @@ function F.createWorld()
   if f.garage then
    marker('garage:'..id,id,'garage',f.garage.inside,f.interior,f.dimension)
    marker('garageBack:'..id,id,'garageBack',f.garage.outside,0,0)
-   local pos=f.garage.outside;local zone=createColSphere(pos.x,pos.y,pos.z,2.5)
+   local pos=f.garage.outside;local zone=createColSphere(pos.x,pos.y,pos.z,f.garage.triggerRadius or 0.9)
    setElementData(zone,'fraction:marker',{id=id,kind='garageBack'},false)
   end
   if f.duty then marker('duty:'..id,id,'duty',f.dutyPoint,f.interior,f.dimension) end
@@ -69,6 +69,13 @@ local recent=setmetatable({}, {__mode="k"})
 local function markerHit(p,matching)
  if not matching or not F.account(p) or isPedInVehicle(p) or F.jailed(p) or not F.near(p,source,3) then return end
  local info=getElementData(source,'fraction:marker');if not info then return end
+ -- Arrow markers have their own collision volume. Apply the same small entry
+ -- radius to both the visible marker and its auxiliary colshape.
+ if info.kind=='garageBack' then
+  local garage=Fractions[info.id].garage;local pos=garage.outside
+  local x,y,z=getElementPosition(p);local radius=garage.triggerRadius or 0.9
+  if (x-pos.x)^2+(y-pos.y)^2>radius^2 or math.abs(z-pos.z)>1.5 then return end
+ end
  local now=getTickCount();if recent[p] and now-recent[p]<1500 then return end;recent[p]=now
  local f=Fractions[info.id];local m=F.member(p)
  if info.kind=='enter' then

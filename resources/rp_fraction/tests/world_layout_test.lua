@@ -84,7 +84,7 @@ for id,f in pairs(Fractions) do
 end
 print('World: six map blips, requested hospital, News floor, markers, entry and saved-position repair passed')
 
-for _,zone in ipairs(elements) do if zone.kind=='colshape' then
+for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fraction:marker'].kind=='roofBack' then
  local id=zone.data['fraction:marker'].id;local f=Fractions[id]
  assert(math.abs(f.roof.outside.x+3.5-zone.x)>zone.radius,'roof arrival stays outside return trigger')
  tick=tick+2000;source=zone;handlers.onColShapeHit(p,true)
@@ -96,4 +96,18 @@ F.member=function() return {faction_id=2} end
 tick=tick+2000;source=F.markers['garage:2'];handlers.onMarkerHit(p,true)
 assert(p.x==g.arrival.x and p.dimension==0 and p.interior==0,'LSPD interior garage exit reaches underground parking')
 tick=tick+2000;source=F.markers['garageBack:2'];handlers.onMarkerHit(p,true)
+assert(p.x==g.arrival.x and p.dimension==0,'garage arrival outside small radius must not return immediately')
+p.x,p.y,p.z=g.outside.x+1.2,g.outside.y,g.outside.z
+tick=tick+2000;handlers.onMarkerHit(p,true)
+assert(p.dimension==0,'visible arrow cannot trigger entry beyond configured radius')
+p.x=g.outside.x+0.5
+tick=tick+2000;handlers.onMarkerHit(p,true)
 assert(p.x==g.returnSpawn.x and p.dimension==Fractions[2].dimension,'garage return reaches LSPD interior')
+for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fraction:marker'].kind=='garageBack' then
+ assert(zone.radius==0.9,'garage auxiliary sphere is reduced to marker-sized radius')
+ p.interior,p.dimension=0,0;p.x,p.y,p.z=g.outside.x+2,g.outside.y,g.outside.z
+ tick=tick+2000;source=zone;handlers.onColShapeHit(p,true)
+ assert(p.dimension==0,'auxiliary colshape cannot teleport a player walking past')
+ p.x=g.outside.x+0.4;tick=tick+2000;handlers.onColShapeHit(p,true)
+ assert(p.dimension==Fractions[2].dimension,'auxiliary colshape still allows entering inside marker')
+end end
