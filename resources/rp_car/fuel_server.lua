@@ -42,6 +42,13 @@ function F.attach(vehicle, row)
     publish(state)
     return state
 end
+function F.attachExternal(vehicle,key,fuel)
+    if F.vehicles[vehicle] then return end
+    local state={vehicle=vehicle,id=key,external=true,capacity=FuelConfig.capacity(getElementModel(vehicle))}
+    state.fuel=FuelConfig.clamp(fuel,state.capacity)
+    F.vehicles[vehicle],byId[key]=state,state
+    publish(state)
+end
 function F.byIdFuel(id)
     return byId[id] and byId[id].fuel
 end
@@ -63,7 +70,9 @@ function F.canStart(vehicle)
 end
 local function persist(state)
     if not state then return true end
-    local ok=RPCarDB.exec("UPDATE personal_vehicles SET fuel = ? WHERE id = ?",state.fuel,state.id)
+    local ok
+    if state.external then ok=exec("UPDATE fraction_vehicle_fuel SET fuel=? WHERE vehicle_key=?",state.fuel,state.id)
+    else ok=RPCarDB.exec("UPDATE personal_vehicles SET fuel = ? WHERE id = ?",state.fuel,state.id) end
     if ok then
         state.dirty=false
         if RPCarDB.vehicles[state.id] then RPCarDB.vehicles[state.id].fuel=state.fuel end
@@ -80,7 +89,8 @@ local function valid(player, vehicle, station)
     local state=F.vehicles[vehicle]
     return isElement(player) and CarInteraction.ready(player) and account(player) and isElement(vehicle)
         and getPedOccupiedVehicle(player)==vehicle and getPedOccupiedVehicleSeat(player)==0
-        and state and RPCarDB.vehicles[state.id] and RPCarDB.vehicles[state.id].owner_account_id==account(player)
+        and state and ((state.external and FactionVehicleAdapter and FactionVehicleAdapter.canAccess(player,vehicle))
+        or (not state.external and RPCarDB.vehicles[state.id] and RPCarDB.vehicles[state.id].owner_account_id==account(player)))
         and zone(vehicle)==station and speed(vehicle)<1 and not getVehicleEngineState(vehicle)
 end
 local function balanceRefresh(id)
@@ -97,7 +107,11 @@ end
 -- fuel is a replayable projection, so a restart between two databases is safe.
 local function settle(order)
     local fuel=order.base+order.delivered
-    if not RPCarDB.exec("UPDATE personal_vehicles SET fuel = ? WHERE id = ?",fuel,order.vehicle_id) then return false end
+    local saved
+    if tostring(order.vehicle_id):match('^fraction:') then
+        saved=exec("UPDATE fraction_vehicle_fuel SET fuel=? WHERE vehicle_key=?",fuel,order.vehicle_id)
+    else saved=RPCarDB.exec("UPDATE personal_vehicles SET fuel = ? WHERE id = ?",fuel,order.vehicle_id) end
+    if not saved then return false end
     if RPCarDB.vehicles[order.vehicle_id] then RPCarDB.vehicles[order.vehicle_id].fuel=fuel end
     local state=byId[order.vehicle_id]
     if state then state.fuel=fuel;persist(state);publish(state) end
@@ -218,7 +232,7 @@ local function sample(state, now)
     if not F.canStart(vehicle) and getVehicleEngineState(vehicle) then
         setVehicleEngineState(vehicle,false)
         if RPCarDB.vehicles[state.id] then RPCarDB.vehicles[state.id].engine_on=0 end
-        RPCarDB.exec("UPDATE personal_vehicles SET engine_on = 0 WHERE id = ?",state.id)
+        if not state.external then RPCarDB.exec("UPDATE personal_vehicles SET engine_on = 0 WHERE id = ?",state.id) end
         setElementData(vehicle,"car:engineOn",false,true)
         setElementData(vehicle,"rp_car:engineOn",false,true)
         local driver=getVehicleOccupant(vehicle,0)

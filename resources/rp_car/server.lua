@@ -1674,6 +1674,7 @@ addEvent(CarConfig.events.toggleEngine, true)
 addEventHandler(CarConfig.events.toggleEngine, root, function()
     if client ~= source then return end
     local player = client
+    if FactionVehicleAdapter and FactionVehicleAdapter.handle(player,'engine',nil) then return end
     if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
@@ -1700,6 +1701,7 @@ addEvent(CarConfig.events.toggleLights, true)
 addEventHandler(CarConfig.events.toggleLights, root, function()
     if client ~= source then return end
     local player = client
+    if FactionVehicleAdapter and FactionVehicleAdapter.handle(player,'lights',nil) then return end
     if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
@@ -1720,6 +1722,7 @@ addEvent(CarConfig.events.toggleHandbrake, true)
 addEventHandler(CarConfig.events.toggleHandbrake, root, function()
     if client ~= source then return end
     local player = client
+    if FactionVehicleAdapter and FactionVehicleAdapter.handle(player,'brake',nil) then return end
     if not CarInteraction.ready(player) then return end
     if tuningSessions[player] then return end
     local vehicle = getPedOccupiedVehicle(player)
@@ -1788,6 +1791,7 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     debugLock("Lock request received")
     if client ~= source then return end
     local player = client
+    if FactionVehicleAdapter and FactionVehicleAdapter.handle(player,'lock',vehicle) then return end
     if not CarInteraction.canToggleLock(player) then notify(player,"Дождитесь завершения посадки или выхода из машины.",false);return end
     if tuningSessions[player] then notify(player,"Сначала выйдите из тюнинг-ателье.",false);return end
     vehicle = resolveLockVehicle(player, vehicle)
@@ -2752,6 +2756,7 @@ end)
 
 addEvent("auth:spawned", true)
 addEventHandler("auth:spawned", root, function(player)
+    if client and client ~= player then return end
     if isElement(player) then
         spawnPlayerVehicles(player)
         setTimer(syncAllVehicleToners, 800, 1, player)

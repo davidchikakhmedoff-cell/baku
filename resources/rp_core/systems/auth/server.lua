@@ -183,7 +183,16 @@ local function getRandomSkin(gender)
     return tonumber(list[math.random(1, #list)]) or AuthConfig.spawn.skin
 end
 
+local function factionValue(player,method)
+    local resource=getResourceFromName('rp_fraction')
+    if not resource or getResourceState(resource)~='running' then return nil end
+    local ok,value=pcall(call,resource,method,player)
+    return ok and value or nil
+end
+
 local function getPlayerWeapons(player)
+    local civilian=factionValue(player,"getCivilianWeapons")
+    if type(civilian)=="string" then return civilian end
     local weapons = {}
     for slot = 0, 12 do
         local weapon = getPedWeapon(player, slot)
@@ -289,7 +298,7 @@ local function savePlayerState(player)
             pos_x = ?, pos_y = ?, pos_z = ?, rotation = ?, interior = ?, dimension = ?,
             health = ?, armor = ?, money = ?, skin = ?, weapons = ?, has_position = 1, last_position_at = ?
         WHERE id = ?
-    ]], x, y, z, rz, getElementInterior(player), getElementDimension(player), getElementHealth(player), getPedArmor(player), getPlayerMoney(player), getElementModel(player), getPlayerWeapons(player), now(), id)
+    ]], x, y, z, rz, getElementInterior(player), getElementDimension(player), getElementHealth(player), getPedArmor(player), getPlayerMoney(player), tonumber(factionValue(player,"getCivilianSkin")) or getElementModel(player), getPlayerWeapons(player), now(), id)
 end
 
 local function finishSession(player)
@@ -307,6 +316,15 @@ local function setSessionData(player, row)
     setElementData(player, "auth:playerId", row.id, false)
     setElementData(player, "auth:houseId", tonumber(row.house_id) or 0, true)
 end
+
+-- Account identity belongs to the server. Other resources (including factions)
+-- use these fields through the auth exports; reject client element-data edits.
+local protectedSessionKeys={['auth:playerId']=true,['auth:loggedIn']=true,['auth:rpName']=true,['auth:houseId']=true}
+addEventHandler('onElementDataChange',root,function(key,oldValue)
+    if not client or not protectedSessionKeys[key] then return end
+    if oldValue==nil then removeElementData(source,key)
+    else setElementData(source,key,oldValue,key=='auth:houseId') end
+end,true,'high+100')
 
 function getAuthPlayerId(player)
     return getPlayerId(player)
@@ -405,6 +423,8 @@ function getCoreAdminLevel(player)
 end
 
 local function respawnAtHospital(player)
+    if not isElement(player) then return end
+    if factionValue(player,"applyFactionJail")==true then return end
     if not isElement(player) or not getPlayerId(player) then return end
 
     local h = AuthConfig.hospital

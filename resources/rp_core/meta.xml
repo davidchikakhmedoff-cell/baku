@@ -55,6 +55,8 @@
     <export function="logAdminAction" type="server" />
     <export function="AuthDBQuery" type="server" />
     <export function="AuthDBExec" type="server" />
+    <export function="getPlayerByDynamicID" type="server" />
+    <export function="getPlayerDynamicID" type="server" />
     <export function="getAuthPlayerId" type="server" />
     <export function="getAuthPlayerHouseId" type="server" />
     <export function="getAuthAccountHouseId" type="server" />

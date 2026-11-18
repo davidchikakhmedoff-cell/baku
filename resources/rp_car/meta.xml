@@ -16,6 +16,7 @@
     <script src="database.lua" type="server" />
     <script src="server.lua" type="server" />
     <script src="fuel_server.lua" type="server" />
+    <script src="faction_adapter.lua" type="server" />
     <script src="fuel_client.lua" type="client" />
     <script src="toner/client.lua" type="client" cache="false" />
     <script src="client.lua" type="client" />
@@ -38,6 +39,8 @@
     <file src="siqnald.mp3" />
     <file src="fonts/DejaVuSans.ttf" />
 
+    <export function="registerFactionVehicle" type="server" />
+    <export function="unregisterFactionVehicle" type="server" />
     <export function="resetVehicleFuelSample" type="server" />
     <export function="getPlayerVehicles" type="server" />
     <export function="getVehicleOwner" type="server" />

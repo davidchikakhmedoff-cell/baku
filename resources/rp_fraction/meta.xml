@@ -1,0 +1,18 @@
+<meta>
+ <info name="RP Fractions" author="Baku" version="1.0.0" type="script" />
+ <include resource="rp_core" />
+ <include resource="rp_car" />
+ <script src="config.lua" type="shared" />
+ <script src="shared.lua" type="shared" />
+ <script src="server/database.lua" type="server" />
+ <script src="server/main.lua" type="server" />
+ <script src="server/members.lua" type="server" />
+ <script src="server/world.lua" type="server" />
+ <script src="server/services.lua" type="server" />
+ <script src="server/police.lua" type="server" />
+ <script src="client/main.lua" type="client" />
+ <export function="canDriveFactionVehicle" type="server" />
+ <export function="getCivilianWeapons" type="server" />
+ <export function="getCivilianSkin" type="server" />
+ <export function="applyFactionJail" type="server" />
+</meta>
