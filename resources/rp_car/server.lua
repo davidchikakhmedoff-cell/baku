@@ -1,4 +1,6 @@
 local recoverPlayerVehicleParking
+local resourceStopping = false
+local waitingForPropertyServices = false
 local showcaseByElement = {}
 local personalByElement = {}
 local elementByVehicleId = {}
@@ -1148,6 +1150,11 @@ local function spawnShowcases()
 end
 
 local function spawnAllPersonalVehicles()
+    if not coreRunning() or not homeRunning() then
+        waitingForPropertyServices = true
+        return -- Service unavailability is NOT loss of a car's parking/owner.
+    end
+    waitingForPropertyServices = false
     for _, row in pairs(RPCarDB.vehicles) do
         if isVehicleStoredWithoutParking(row) then
             destroyPersonalVehicle(row.id, false)
@@ -1161,7 +1168,7 @@ local function spawnAllPersonalVehicles()
         else
             local parking = validateVehicleParking(row)
             if parking then
-                createPersonalVehicle(row, tostring(row.status or "") == VehicleStatuses.parked or isRowNearParkingPoint(row, parking), parking)
+                createPersonalVehicle(row, true, parking)
             elseif isUnparkedActiveVehicle(row) then
                 createPersonalVehicle(row)
             else
@@ -1175,6 +1182,14 @@ local function spawnAllPersonalVehicles()
     end
 
 end
+
+addEventHandler("onResourceStart", root, function(startedResource)
+    if waitingForPropertyServices then
+        setTimer(function()
+            if not resourceStopping then spawnAllPersonalVehicles() end
+        end,100,1)
+    end
+end)
 
 local function openDealershipFor(player, vehicle)
     local data = showcaseByElement[vehicle]
@@ -1267,6 +1282,7 @@ addEventHandler("onVehicleExplode", root, function()
 end)
 
 addEventHandler("onElementDestroy", root, function()
+    if resourceStopping or not coreRunning() or not homeRunning() then return end
     if getElementType(source) ~= "vehicle" then return end
     local tuningPlayer = tuningSessionByVehicle[source]
     if tuningPlayer then
@@ -2759,6 +2775,7 @@ addEventHandler("onResourceStart", resourceRoot, function()
 end)
 
 addEventHandler("onResourceStop", resourceRoot, function()
+    resourceStopping = true
     local sessionPlayers = {}
     for player in pairs(tuningSessions) do
         sessionPlayers[#sessionPlayers + 1] = player
@@ -2968,6 +2985,7 @@ recoverPlayerVehicleParking = function(player)
 end
 
 function spawnPlayerVehicles(player)
+    if not coreRunning() or not homeRunning() then return {} end
     recoverPlayerVehicleParking(player)
     local spawned = {}
     for _, row in ipairs(getPlayerVehicles(player)) do
@@ -2985,7 +3003,7 @@ function spawnPlayerVehicles(player)
         else
             local parking = validateVehicleParking(row)
             if parking then
-                vehicle = createPersonalVehicle(row, tostring(row.status or "") == VehicleStatuses.parked or isRowNearParkingPoint(row, parking), parking)
+                vehicle = createPersonalVehicle(row, true, parking)
             elseif isUnparkedActiveVehicle(row) then
                 vehicle = createPersonalVehicle(row)
             else

@@ -32,6 +32,10 @@ end)
 
 addEvent("auth:spawned", true)
 addEventHandler("auth:spawned", resourceRoot, function()
+    -- The local login UI disabled these; server-side enabling alone must not
+    -- leave this client's binds or game controls in the login state.
+    toggleAllControls(true, true, false)
+    if RPUIManager then RPUIManager.release("auth") end
     fadeCamera(true, 0)
     DXUtils.setRadarVisible(true)
     setCameraTarget(localPlayer)

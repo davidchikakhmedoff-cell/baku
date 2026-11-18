@@ -122,6 +122,12 @@ local function removeInputHandlers()
 end
 
 function AuthUI.hide(immediate, keepControlsDisabled)
+    -- Enter submits without a mouse click outside the password field. Hidden
+    -- auth input must not continue blocking every other resource's hotkeys.
+    if DXInput and DXInput.active and (DXInput.active == AuthUI.rpName
+        or DXInput.active == AuthUI.password or DXInput.active == AuthUI.repeatPassword) then
+        DXInput.active:blur()
+    end
     AuthUI.targetAlpha = 0
     AuthUI.helpTargetAlpha = 0
     AuthUI.submit.enabled = false
