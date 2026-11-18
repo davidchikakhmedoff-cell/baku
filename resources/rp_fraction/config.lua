@@ -6,8 +6,9 @@ FractionConfig = {
     megaphone={range=80,durationMs=10000,maxLength=100},
     cuffControls={'sprint','jump','fire','aim_weapon','vehicle_fire','vehicle_secondary_fire','enter_exit'},
     salaryHourMs=3600000, tickMs=5000, idleLimitMs=60000,
-    armoryCooldown=600, vehicleRespawnMs=60000, blipVisibleDistance=250, helipadModel=3934,
+    armoryCooldown=600, vehicleRespawnMs=5000, blipVisibleDistance=250, helipadModel=3934,
     markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
+    interactionIconZOffset=0.5, -- Clothes and keys: height above the configured point.
     roofDeckModel=3095,
     salaries={500,650,800,950,1100,1300,1500,1750,2000,2500},
     release={x=1544.5,y=-1675.5,z=13.6,rotation=90,interior=0,dimension=0},

@@ -13,7 +13,7 @@ addEventHandler('onClientRender',root,function()
  for _,f in pairs(Fractions) do
   local p=f.keysPoint
   if interior==f.interior and dimension==f.dimension and (x-p.x)^2+(y-p.y)^2+(z-p.z)^2<30^2 then
-   local center=p.z+0.7
+   local center=p.z+FractionConfig.interactionIconZOffset
    dxDrawMaterialLine3D(p.x,p.y,center+0.4,p.x,p.y,center-0.4,texture,0.8,tocolor(255,255,255,255),false,p.x+math.cos(angle),p.y+math.sin(angle),center)
   end
  end

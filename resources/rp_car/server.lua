@@ -18,6 +18,7 @@ local explodedVehicleCleanup = {}
 local showcaseTransitions = {}
 local animatedExitPending = {}
 local lightFlashTokens = {}
+local lightFlashSequence = 0
 local handbrakeVehicles = setmetatable({}, { __mode = "k" })
 
 local function coreRunning()
@@ -1631,12 +1632,13 @@ local function syncVehicleRuntimeState(vehicle, row)
     end
 end
 
-local function flashVehicleLights(vehicle, row)
+local function flashVehicleLights(vehicle, row, feedbackKey)
     if not isElement(vehicle) or not row then return false end
-    local vehicleId = getVehicleDatabaseId(vehicle)
+    local vehicleId = feedbackKey or getVehicleDatabaseId(vehicle)
     if not vehicleId then return false end
 
-    local token = getTickCount()
+    lightFlashSequence = lightFlashSequence + 1
+    local token = lightFlashSequence
     local interval = math.max(80, tonumber(CarConfig.headlightFlashInterval) or 140)
     local flashes = math.max(1, math.floor(tonumber(CarConfig.headlightFlashCount) or 2))
     local originalLightsOn = tonumber(row.lights_on) == 1
@@ -1657,6 +1659,14 @@ local function flashVehicleLights(vehicle, row)
     end
     return true
 end
+
+-- Both personal and service locks use the same flash timing and restoration.
+CarLockFeedback = {
+    flash = function(vehicle, state)
+        return flashVehicleLights(vehicle, {lights_on=state.lights and 1 or 0}, state.key)
+    end,
+    cancel = function(key) lightFlashTokens[key] = nil end
+}
 
 local function canControlVehicleEngine(player, vehicle, row)
     local data = getPersonalRuntime(vehicle)

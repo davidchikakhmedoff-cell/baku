@@ -3,9 +3,9 @@ F.vehicleByKey={}
 local function marker(key,fid,kind,p,interior,dimension)
  local m
  if kind=='duty' then
-  m=createPickup(p.x,p.y,p.z+0.7,3,1275,1000)
+  m=createPickup(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,3,1275,1000)
  elseif kind=='keys' then
-  m=createColSphere(p.x,p.y,p.z+0.7,1)
+  m=createColSphere(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,1)
  else
   m=createMarker(p.x,p.y,p.z+0.7,'arrow',0.9,255,220,0,205)
  end
@@ -201,7 +201,12 @@ end,true,'high+10')
 addEventHandler('onVehicleEnter',root,function(p,seat) if seat==0 then F.revokeDriver(p) end end)
 addEventHandler('onVehicleExplode',root,function()
  local spec=F.vehicles[source];if spec then
+  if spec.destroyAt then return end
   spec.destroyAt=getTickCount()+FractionConfig.vehicleRespawnMs
+  setTimer(function(vehicle,expected)
+   local current=F.vehicles[vehicle]
+   if current and current.destroyAt==expected and not F.stopping then F.fleetTick() end
+  end,FractionConfig.vehicleRespawnMs,1,source,spec.destroyAt)
   F.missing[spec.key]={faction=spec.faction,index=spec.index,at=spec.destroyAt}
   if F.vehicleKeysLost then F.vehicleKeysLost(spec.key) end
  end

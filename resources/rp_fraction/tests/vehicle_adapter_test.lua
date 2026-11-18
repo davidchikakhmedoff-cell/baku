@@ -2,7 +2,8 @@ local fractionResource={};local p={rank=2,duty=true};local v={};local outsider={
 root={};sourceResource=fractionResource
 function addEventHandler() end
 local settle,settleMs
-function setTimer(fn,ms) settle=fn;settleMs=ms end
+local timers={}
+function setTimer(fn,ms,count,...) settle=fn;settleMs=ms;timers[#timers+1]={fn=fn,ms=ms,args={...}} end
 function setElementVelocity() end
 function setElementAngularVelocity() end
 function isElement(e) return e==p or e==v or e==outsider end
@@ -33,6 +34,9 @@ local fuel=30
 FuelSystem={attachExternal=function() end,detach=function() end,canStart=function() return fuel>0 end}
 CarInteraction={ready=function() return true end}
 CarConfig={lockServerDistance=25}
+local file=assert(io.open('resources/rp_car/server.lua'));local code=file:read('*a');file:close()
+local helper=assert(code:match('(local function flashVehicleLights.-)local function canControlVehicleEngine'))
+assert(loadstring('local lightFlashTokens={}\nlocal lightFlashSequence=0\n'..helper))()
 assert(loadfile('resources/rp_car/faction_adapter.lua'))()
 assert(registerFactionVehicle(v,'fraction:2:1',30),'own faction resource registers service car')
 local occupant=getVehicleOccupant;getVehicleOccupant=function() return nil end
@@ -47,5 +51,12 @@ p.duty=false;FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'off-d
 FactionVehicleAdapter.handle(p,'lights');assert(v.lights==2,'headlights use rp_car adapter')
 FactionVehicleAdapter.handle(p,'brake');assert(v['car:handbrake'] and v.frozen,'custom handbrake integrates HUD')
 FactionVehicleAdapter.handle(p,'lock',{v});assert(v.locked,'screen-selected service car locks')
+local flashTimers=timers;timers={}
+for i=2,#flashTimers do flashTimers[i].fn(unpack(flashTimers[i].args));assert(v.lights==(i%2==0 and 2 or 1),'lock alternates headlights') end
+assert(#timers==1);timers[1].fn(unpack(timers[1].args));assert(v.lights==2,'flash restores enabled headlights')
+FactionVehicleAdapter.handle(p,'lock',{v});assert(not v.locked,'second N unlocks')
+FactionVehicleAdapter.handle(p,'lights');assert(v.lights==1,'manual light toggle cancels lock flash')
+for i=2,#timers do timers[i].fn(unpack(timers[i].args)) end
+assert(v.lights==1,'cancelled timers do not override manual light choice')
 sourceResource=fractionResource;assert(unregisterFactionVehicle(v),'service car deregisters')
 print('Faction vehicle adapter: registration, rank/duty, engine, fuel, lights, brake and locks passed')

@@ -58,13 +58,11 @@ local function release(p,key)
  return holder
 end
 function F.evacuateFleetVehicle(v,fid)
- local safe=Fractions[fid].outsideSpawn or Fractions[fid].entrance
+ -- Remove occupants before retiring the car; keep their current world/interior.
  for _,passenger in pairs(getVehicleOccupants(v)) do
   removePedFromVehicle(passenger)
   if not isPedDead(passenger) then
-   if F.safeTeleport and getElementType(passenger)=='player' then F.safeTeleport(passenger,safe,0,0)
-   else setElementInterior(passenger,0);setElementDimension(passenger,0);setElementPosition(passenger,safe.x,safe.y,safe.z) end
-   F.notify(passenger,'Служебный транспорт возвращён на парковку. Вы высажены у фракции.')
+   F.notify(passenger,'Служебный транспорт возвращён на парковку. Вы высажены на месте.')
   end
  end
 end
@@ -94,14 +92,6 @@ function F.returnVehicleKeys(p,automatic)
  F.keyMenus[p]=nil
  if not F.stopping then
   F.returningVehicles[key]={faction=holder.faction,index=holder.index,retired=false}
-  local v=F.vehicleByKey[key]
-  if isElement(p) and isElement(v) and getPedOccupiedVehicle(p)==v then
-   removePedFromVehicle(p)
-   if not isPedDead(p) then
-    local pos=Fractions[holder.faction].entrance
-    setElementInterior(p,0);setElementDimension(p,0);setElementPosition(p,pos.x,pos.y,pos.z)
-   end
-  end
   F.processVehicleReturns()
   F.refreshKeyMenus(holder.faction)
   if not automatic then F.notify(p,'Ключи сданы. Транспорт возвращён на парковку или ожидает её освобождения',true);F.keysMenu(p) end

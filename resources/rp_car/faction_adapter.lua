@@ -21,6 +21,7 @@ function registerFactionVehicle(vehicle,key,fuel)
 end
 function unregisterFactionVehicle(vehicle)
  if sourceResource~=getResourceFromName('rp_fraction') or not A.vehicles[vehicle] then return false end
+ CarLockFeedback.cancel(A.vehicles[vehicle].key)
  FuelSystem.detach(vehicle);A.vehicles[vehicle]=nil;return true
 end
 function A.handle(p,kind,target)
@@ -43,15 +44,21 @@ function A.handle(p,kind,target)
   state.engine=not getVehicleEngineState(vehicle);setVehicleEngineState(vehicle,state.engine)
   if state.engine and not state.brake then setElementFrozen(vehicle,false) end
   setElementData(vehicle,'car:engineOn',state.engine,true)
- elseif kind=='lights' then state.lights=not state.lights;setVehicleOverrideLights(vehicle,state.lights and 2 or 1)
+ elseif kind=='lights' then CarLockFeedback.cancel(state.key);state.lights=not state.lights;setVehicleOverrideLights(vehicle,state.lights and 2 or 1)
  elseif kind=='brake' then
   local vx,vy,vz=getElementVelocity(vehicle)
   if not state.brake and (not isVehicleOnGround(vehicle) or vx*vx+vy*vy+vz*vz>0.0001) then return true end
   state.brake=not state.brake;setElementFrozen(vehicle,state.brake);setElementData(vehicle,'car:handbrake',state.brake,true)
- elseif kind=='lock' then setVehicleLocked(vehicle,not isVehicleLocked(vehicle)) end
+ elseif kind=='lock' then
+  setVehicleLocked(vehicle,not isVehicleLocked(vehicle))
+  CarLockFeedback.flash(vehicle,state)
+ end
  return true
 end
-addEventHandler('onElementDestroy',root,function() A.vehicles[source]=nil end)
+addEventHandler('onElementDestroy',root,function()
+ local state=A.vehicles[source];if state then CarLockFeedback.cancel(state.key) end
+ A.vehicles[source]=nil
+end)
 addEventHandler('onVehicleEnter',root,function(player,seat)
  local state=A.vehicles[source]
  if not state or seat~=0 then return end

@@ -20,6 +20,8 @@ FractionDB={one=function() return {fuel=23.4} end}
 local handlers,vehicles,menus={}, {}, {}
 function addEventHandler(name,element,fn) handlers[name]=handlers[name] or {};table.insert(handlers[name],fn) end
 function isElement(e) return type(e)=='table' and not e.destroyed end
+local respawnTimer
+function setTimer(fn,ms,count,...) respawnTimer={fn=fn,ms=ms,args={...}} end
 local clock=10000
 function getTickCount() return clock end
 function getElementsByType(kind)
@@ -80,10 +82,10 @@ assert(saved==1 and F.vehicleByKey[carKey].fuel==23.4,'return persists fuel thro
 
 -- A returned car is replaced immediately, even with passengers.
 F.takeVehicleKeys(q,1)
-local occupied=F.vehicleByKey[carKey];local passenger={id=200};occupied.occupants[1]=passenger;passenger.vehicle=occupied
+local occupied=F.vehicleByKey[carKey];local passenger={id=200};occupied.occupants[1]=passenger;passenger.vehicle=occupied;passenger.x,passenger.y,passenger.z=900,800,20;passenger.interior,passenger.dimension=4,55
 F.returnVehicleKeys(q,false)
 assert(occupied.destroyed and not passenger.vehicle and not F.returningVehicles[carKey],'passengers cannot delay return')
-assert(passenger.x==f.outsideSpawn.x and passenger.z==f.outsideSpawn.z,'passenger moved to safe faction exit')
+assert(passenger.x==900 and passenger.y==800 and passenger.z==20 and passenger.interior==4 and passenger.dimension==55,'passenger remains at original position, interior and dimension')
 local replacement=F.vehicleByKey[carKey];F.vehicleKeysTick();assert(F.vehicleByKey[carKey]==replacement,'no repeated respawn after successful return')
 
 F.takeVehicleKeys(p,1);p.logged=false;F.returnVehicleKeys(p,true)
@@ -105,8 +107,10 @@ assert(not F.playerKeys[p] and not F.keyHolders[heliKey] and F.missing[heliKey].
 F.takeVehicleKeys(q,3);assert(not F.playerKeys[q],'destroyed helicopter cannot be checked out')
 -- Wrecks respawn even if a dead passenger remains in the seat.
 helicopter.occupants[1]=q;q.vehicle=helicopter;q.dead=true
-clock=clock+FractionConfig.vehicleRespawnMs
-F.fleetTick()
+assert(FractionConfig.vehicleRespawnMs==5000 and respawnTimer.ms==5000,'explosion schedules five-second respawn')
+clock=clock+4999;F.fleetTick()
+assert(not helicopter.destroyed and F.vehicleByKey[heliKey]==helicopter,'no early respawn')
+clock=clock+1;respawnTimer.fn(unpack(respawnTimer.args))
 assert(helicopter.destroyed and F.vehicleByKey[heliKey]~=helicopter and not q.vehicle,'exploded fleet vehicle returns without waiting for stale occupants')
 assert(F.vehicleByKey[heliKey].locked and not F.keyHolders[heliKey],'replacement is locked and has no issued keys')
 q.dead=false
@@ -134,6 +138,7 @@ function isVehicleLocked(v) return v.locked end
 function getElementData() return false end
 exports.rp_core={getAuthPlayerId=function(self,player) return player.id end}
 FuelSystem={attachExternal=function() end,canStart=function() return true end}
+CarLockFeedback={flash=function() end,cancel=function() end}
 CarInteraction={ready=function() return true end};CarConfig={lockServerDistance=25}
 dofile('resources/rp_car/faction_adapter.lua')
 assert(registerFactionVehicle(controlled,carKey,23.4),'service car registered with actual adapter')

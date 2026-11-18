@@ -44,14 +44,14 @@ local hospital=Fractions[1]
 assert(hospital.interior==3 and hospital.inside.x==830.6016 and hospital.inside.y==5.9404 and hospital.inside.z==1004.1797,'hospital uses requested Inside Track Betting coordinates')
 for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':1']
- assert(m.interior==3 and m.dimension==hospital.dimension and math.abs(m.z-1004.8797)<0.01,'hospital markers use the stock interior floor')
+ assert(m.interior==3 and m.dimension==hospital.dimension and math.abs(m.z-(hospital.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'hospital markers use the stock interior floor')
 end
 local news=Fractions[3]
 -- Known suite floor from MTA amx's properties/interiors.txt, not roof z=39.1.
 assert(news.interior==11 and math.abs(news.inside.z-33.008)<0.01,'News uses actual suite floor')
 for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':3']
- assert(m.interior==11 and m.dimension==news.dimension and math.abs(m.z-33.708)<0.01,'News marker is on same floor and dimension')
+ assert(m.interior==11 and m.dimension==news.dimension and math.abs(m.z-(news.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'News marker is on same floor and dimension')
 end
 local p=element('player',news.entrance.x,news.entrance.y,news.entrance.z)
 source=F.markers['enter:3'];handlers.onMarkerHit(p,true)
