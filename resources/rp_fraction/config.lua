@@ -9,6 +9,7 @@ FractionConfig = {
     vehicleRespawnMs=5000, blipVisibleDistance=250, helipadModel=3934,
     markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
     radio={fractionColor={90,155,255},departmentColor={240,135,195},department={[1]=true,[2]=true,[3]=true}},
+    armoryPickupModel=2040, -- GTA SA ammo_box_M1.
     interactionIconZOffset=0.5, -- Clothes and keys: height above the configured point.
     roofDeckModel=3095,
     salaries={500,650,800,950,1100,1300,1500,1750,2000,2500},

@@ -4,6 +4,8 @@ local function marker(key,fid,kind,p,interior,dimension)
  local m
  if kind=='duty' then
   m=createPickup(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,3,1275,1000)
+ elseif kind=='armory' then
+  m=createPickup(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,3,FractionConfig.armoryPickupModel,1000)
  elseif kind=='keys' then
   m=createColSphere(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,1)
  else
@@ -109,7 +111,7 @@ addEventHandler('onMarkerHit',resourceRoot,markerHit)
 addEventHandler('onColShapeHit',resourceRoot,markerHit)
 addEventHandler('onPickupHit',resourceRoot,function(p,matching)
  local info=getElementData(source,'fraction:marker')
- if info and info.kind=='duty' then cancelEvent();markerHit(p,matching~=false) end
+ if info and (info.kind=='duty' or info.kind=='armory') then cancelEvent();markerHit(p,matching~=false) end
 end)
 addEventHandler('onPickupUse',resourceRoot,function()
  if getElementData(source,'fraction:marker') then cancelEvent() end

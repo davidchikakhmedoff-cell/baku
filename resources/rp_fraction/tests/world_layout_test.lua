@@ -129,3 +129,16 @@ local lspd=Fractions[2]
 tick=tick+2000;source=F.markers['exit:2'];handlers.onMarkerHit(p,true)
 assert(p.x==1552.4 and p.y==lspd.entrance.y and p.z==lspd.entrance.z and p.rotation==90,'LSPD main exit faces street on exterior porch in front of marker')
 assert(p.x<lspd.entrance.x-2 and p.interior==0 and p.dimension==0,'exit stays outside entrance trigger on street side')
+
+local armories=0
+for id,f in pairs(Fractions) do if f.armory then
+ local pickup=F.markers['armory:'..id];armories=armories+1
+ assert(pickup.kind=='pickup' and pickup.model==2040,'all armories use GTA ammunition box pickups')
+ assert(pickup.interior==f.interior and pickup.dimension==f.dimension,'ammunition box stays in own faction interior')
+end end
+assert(armories==4,'LSPD and three mafia armories replaced')
+F.member=function() return {faction_id=2,rank=2} end
+F.active=function() return true end
+cancelled,opened=false,false;tick=tick+2000;source=F.markers['armory:2']
+handlers.onPickupHit(p,true)
+assert(cancelled and opened=='armory','ammunition box opens armory menu without consuming the pickup')
