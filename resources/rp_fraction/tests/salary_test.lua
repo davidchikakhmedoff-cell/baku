@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local p={};local now,idle,active=0,0,true
 local member={account_id=1,faction_id=2,rank=2,salary_ms=3595000,salary_cycle=0}
 local paid,keys=0,{}

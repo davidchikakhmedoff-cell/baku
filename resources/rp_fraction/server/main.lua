@@ -77,6 +77,7 @@ function getCivilianWeapons(p)
 end
 function F.endDuty(p)
  local m=F.member(p);local s=F.sessions[p]
+ if F.returnVehicleKeys then F.returnVehicleKeys(p,true) end
  if not m then return end
  if (s and s.duty) or m.duty==1 or m.gear_issued==1 then
   setElementModel(p,m.civilian_skin);F.restoreWeapons(p,m.civilian_weapons)
@@ -107,6 +108,7 @@ function F.load(p)
 end
 function F.disconnect(p,resourceStopping)
  F.clearCuffs(p,true)
+ if F.keyMenus then F.keyMenus[p]=nil end
  local id=F.account(p) or (F.sessions[p] and F.sessions[p].account)
  if id then
   local state=F.state(p)
@@ -135,6 +137,7 @@ end)
 function F.tryStart()
  if F.ready then return true end
  if not FractionDependencies.ready() then return false end
+ for _,warning in ipairs(FractionFleetWarnings or {}) do outputDebugString('[Fraction] '..warning,2) end
  FractionDB.init();F.ready=true;F.createWorld();F.spawnFleet()
  for _,p in ipairs(getElementsByType('player')) do if F.account(p) then F.load(p) end end
  setTimer(F.tick,FractionConfig.tickMs,0)
@@ -150,6 +153,7 @@ addEventHandler('onResourceStart',resourceRoot,function()
  retry=setTimer(function() if F.tryStart() then killTimer(retry) end end,5000,0)
 end)
 addEventHandler('onResourceStop',resourceRoot,function()
+ F.stopping=true
  for p in pairs(F.sessions) do if isElement(p) then F.disconnect(p,true) end end
  for _,p in ipairs(getElementsByType('player')) do setElementData(p,'rp:faction',false,true);setElementData(p,'rp:nametagColor',{255,255,255},true) end
  local cars=getResourceFromName('rp_car')

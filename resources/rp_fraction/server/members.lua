@@ -1,6 +1,7 @@
 local F=Fraction
 function F.membersMenu(p)
  local m=F.member(p);if not m then return end
+ if m.rank<#Fractions[m.faction_id].ranks-1 then F.notify(p,'Список состава доступен лидеру и заместителям');return end
  local rows=FractionDB.query('SELECT m.*,p.rp_name FROM fraction_members m JOIN players p ON p.id=m.account_id WHERE faction_id=? ORDER BY rank DESC',m.faction_id)
  triggerClientEvent(p,'fraction:menu',resourceRoot,'members',{rows=rows,faction=m.faction_id,rank=m.rank})
 end
@@ -55,15 +56,29 @@ addCommandHandler('f',function(p,_,...)
   outputChatBox('[F] '..Fractions[m.faction_id].ranks[m.rank]..' '..F.name(p)..': '..text,other,unpack(Fractions[m.faction_id].color))
  end end
 end)
--- The only leader appointment command: core's founder role, live dynamic ID.
+-- Founder-only appointment/removal, using the existing live dynamic player ID.
 addCommandHandler('setleader',function(p,_,id,fid)
  if not F.account(p) then return end
  if exports.rp_core:isCoreFounder(p)~=true then F.notify(p,'Команда доступна только основателю сервера');return end
- local dynamicId=FractionRules.integer(id,1,2147483647);fid=FractionRules.integer(fid,1,6)
- if not fid or not dynamicId then F.notify(p,'Использование: /setleader ID_ИГРОКА ID_ФРАКЦИИ (1–6)');return end
+ local dynamicId=FractionRules.integer(id,1,2147483647);fid=FractionRules.integer(fid,0,6)
+ if not fid or not dynamicId then F.notify(p,'Использование: /setleader ID_ИГРОКА ID_ФРАКЦИИ (1–6, 0 — снять лидера)');return end
  local target=F.player(dynamicId);local targetId=target and F.account(target)
  if not targetId then F.notify(p,'Авторизованный игрок с таким ID не найден');return end
  local existing=F.reload(targetId)
+ if fid==0 then
+  local definition=existing and Fractions[existing.faction_id]
+  if not definition or existing.rank~=#definition.ranks then F.notify(p,'Игрок не является лидером фракции');return end
+  F.endDuty(target)
+  if not FractionDB.change('DELETE FROM fraction_members WHERE account_id=? AND faction_id=? AND rank=?',targetId,existing.faction_id,existing.rank) then
+   F.notify(p,'Не удалось сохранить снятие лидера');return
+  end
+  F.members[targetId]=nil
+  if definition.category=='criminal' then setElementModel(target,existing.civilian_skin) end
+  F.sync(target);F.revokeDriver(target)
+  F.notify(p,'Лидер '..definition.name..' снят и уволен: '..F.name(target),true)
+  if target~=p then F.notify(target,'Вы сняты с должности лидера и уволены из '..definition.name) end
+  return
+ end
  if existing and existing.faction_id~=fid then F.notify(p,'Сначала увольте игрока из другой фракции');return end
  local top=#Fractions[fid].ranks
  -- Demote the previous leader before promoting; the unique index forbids two leaders.
@@ -89,15 +104,17 @@ function executeFractionCommand(p,command,args)
 end
 addEvent('fraction:action',true)
 addEventHandler('fraction:action',resourceRoot,function(action,data)
- local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' or not F.throttle(p,'ui') then return end
+ local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' then return end
+ if action=='keysClose' then F.keyMenus[p]=nil;return end
+ if not F.throttle(p,'ui') then return end
  data=type(data)=='table' and data or {}
  if action=='accept' then F.respondInvite(p,true)
  elseif action=='decline' then F.respondInvite(p,false)
  elseif action=='duty' then F.toggleDuty(p)
  elseif action=='members' then F.membersMenu(p)
- elseif action=='invite' then invite(p,data.id)
- elseif action=='dismiss' then F.dismiss(p,data.id)
- elseif action=='rank' then F.rank(p,data.id,data.rank)
+ elseif action=='keysTake' then F.takeVehicleKeys(p,data.slot)
+ elseif action=='keysReturn' then F.returnVehicleKeys(p,false)
+ elseif action=='keysRefresh' then F.keysMenu(p)
  elseif action=='armory' then F.armory(p)
  elseif action=='news' then F.newsMenu(p)
  elseif action=='publish' or action=='reject' then F.newsProcess(p,action,data.id,data.text)

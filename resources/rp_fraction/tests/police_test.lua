@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local commands,events={},{}
 local officer={id=1,faction=2,rank=9,duty=true,x=1554,y=-1675,z=16,interior=0,dimension=0,stars=0,controls={}}
 local suspect={id=2,x=1554,y=-1675,z=16,interior=0,dimension=0,stars=3,controls={jump=false}}

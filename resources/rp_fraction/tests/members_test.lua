@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local commands={};local leader={id=1};local deputy={id=2};local worker={id=3};local newcomer={id=4}
 local players={leader,deputy,worker,newcomer}
 local db={[1]={account_id=1,faction_id=2,rank=10},[2]={account_id=2,faction_id=2,rank=9},[3]={account_id=3,faction_id=2,rank=1}}

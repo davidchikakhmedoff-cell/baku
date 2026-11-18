@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local now,active,near=1000,true,true
 local p={};local member={account_id=1,faction_id=2,rank=5,armory_at=0,duty=1,civilian_weapons='[]'}
 local ammo,grants={},0

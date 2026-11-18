@@ -6,7 +6,9 @@ FractionConfig = {
     megaphone={range=80,durationMs=10000,maxLength=100},
     cuffControls={'sprint','jump','fire','aim_weapon','vehicle_fire','vehicle_secondary_fire','enter_exit'},
     salaryHourMs=3600000, tickMs=5000, idleLimitMs=60000,
-    armoryCooldown=600, vehicleRespawnMs=60000, labelDistance=30, helipadModel=3934,
+    armoryCooldown=600, vehicleRespawnMs=60000, blipVisibleDistance=250, helipadModel=3934,
+    markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
+    roofDeckModel=3095,
     salaries={500,650,800,950,1100,1300,1500,1750,2000,2500},
     release={x=1544.5,y=-1675.5,z=13.6,rotation=90,interior=0,dimension=0},
     jailCells={{x=264.5,y=77.5,z=1001.1},{x=264.5,y=81.0,z=1001.1},{x=264.5,y=85,z=1001.1}},
@@ -19,30 +21,51 @@ Fractions = {
  [1]={name="Los Santos Hospital",category="state",color={232,91,122},blip={icon=22,size=2},duty=true,
  ranks={"Интерн","Фельдшер","Врач","Старший врач","Заместитель главврача","Главный врач"},skins={274,275,276,274,275,276},
  -- User-selected stock Inside Track Betting interior; no custom shell.
- entrance=point(1172.0,-1323.3,15.4),interior=3,inside=point(830.6016,5.9404,1004.1797),exit=point(834.0016,5.9404,1004.1797),dutyPoint=point(830.6016,10.3404,1004.1797),desk=point(827.0016,5.9404,1004.1797),
- vehicles={{model=416,rank=1,p=point(1180,-1338,13.7,270)},{model=416,rank=1,p=point(1180,-1344,13.7,270)},
- {model=487,rank=5,p=point(1165,-1375,14.2,0)},{model=405,rank=3,p=point(1180,-1350,13.6,270)}}},
+ entrance=point(1172.0,-1323.3,15.4),interior=3,inside=point(830.6016,5.9404,1004.1797),exit=point(834.0016,5.9404,1004.1797),dutyPoint=point(830.6016,10.3404,1004.1797),keysPoint=point(827.0016,5.9404,1004.1797),roof={inside=point(834.0016,10.3404,1004.1797),slot=3},
+ },
  [2]={name="Los Santos Police Department",category="state",color={65,130,231},blip={icon=30,size=2},duty=true,
  ranks={"Кадет","Офицер","Старший офицер","Сержант","Лейтенант","Капитан","Майор","Полковник","Заместитель шефа","Шеф полиции"},skins={280,280,281,281,282,282,283,283,288,288},
- entrance=point(1554.9,-1675.5,16.2),interior=6,inside=point(246.8,65.7,1003.6),exit=point(246.5,62.6,1003.6),dutyPoint=point(253.5,68.8,1003.6),desk=point(248.5,70.8,1003.6),armory=point(257.7,69.2,1003.6),vehicles={}},
+ entrance=point(1554.9,-1675.5,16.2),interior=6,inside=point(246.8,65.7,1003.6),exit=point(246.5,62.6,1003.6),dutyPoint=point(253.5,68.8,1003.6),keysPoint=point(248.5,70.8,1003.6),armory=point(257.7,69.2,1003.6),roof={inside=point(253.5,64.4,1003.6),slot=17}},
  [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=0,size=2},duty=true,
  ranks={"Стажёр","Журналист","Редактор","Заместитель директора","Директор"},skins={171,186,187,147,147},
  -- Four Dragons managerial suite floor/door: MTA amx scriptfiles/properties/interiors.txt.
- entrance=point(741.0,-1334.0,13.5),interior=11,inside=point(2003.1178,1018.3948,33.008,0),exit=point(2003.1178,1015.1948,33.008),dutyPoint=point(2007.0,1018.3948,33.008),desk=point(2007.0,1014.7948,33.008),
- vehicles={{model=582,rank=2,p=point(751,-1355,13.6,0)},{model=582,rank=2,p=point(756,-1355,13.6,0)},{model=487,rank=4,p=point(738,-1355,14.0,0)},{model=405,rank=3,p=point(761,-1355,13.6,0)}}},
+ entrance=point(741.0,-1334.0,13.5),interior=11,inside=point(2003.1178,1018.3948,33.008,0),exit=point(2003.1178,1015.1948,33.008),dutyPoint=point(2007.0,1018.3948,33.008),keysPoint=point(2007.0,1014.7948,33.008),roof={inside=point(1999.5178,1018.3948,33.008),slot=3},
+ },
  [4]={name="La Cosa Nostra",category="criminal",color={115,38,52},blip={icon=0,size=2},ranks=mafiaRanks,skins={124,124,125,125,126,126,127,127,113,113},
- entrance=point(1459.1,-1010.6,26.8),interior=5,inside=point(1262.1,-785.3,1091.9),exit=point(1262.1,-788.5,1091.9),desk=point(1258,-785.3,1091.9),armory=point(1265,-785.3,1091.9),fleet=point(1468,-1027,23.8,90)},
+ entrance=point(1459.1,-1010.6,26.8),interior=5,inside=point(1262.1,-785.3,1091.9),exit=point(1262.1,-788.5,1091.9),keysPoint=point(1258,-785.3,1091.9),armory=point(1265,-785.3,1091.9)},
  [5]={name="Yakuza",category="criminal",color={90,93,99},blip={icon=0,size=2},ranks=mafiaRanks,skins={117,117,118,118,120,120,121,122,123,169},
- entrance=point(1081.0,-1696.8,13.5),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),desk=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4),fleet=point(1089,-1708,13.6,0)},
+ entrance=point(1081.0,-1696.8,13.5),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
  [6]={name="Russian Mafia",category="criminal",color={136,102,73},blip={icon=0,size=2},ranks=mafiaRanks,skins={111,111,112,112,113,113,111,112,113,223},
- entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),desk=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7),fleet=point(1019,-1140,23.9,180)}
+ entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
 }
--- Stock LSPD parking/garage and roof. Never put surface cars on the roof.
-for i=1,10 do Fractions[2].vehicles[#Fractions[2].vehicles+1]={model=596,rank=2,p=point(1535+(i-1)%5*4,-1678-math.floor((i-1)/5)*7,13.4,0)} end
-for i=1,3 do Fractions[2].vehicles[#Fractions[2].vehicles+1]={model=523,rank=3,p=point(1590+i*4,-1710,5.8,0)} end
-Fractions[2].vehicles[#Fractions[2].vehicles+1]={model=427,rank=6,p=point(1596,-1700,6.1,90)}
-for i=1,2 do Fractions[2].vehicles[#Fractions[2].vehicles+1]={model=599,rank=4,p=point(1580+i*5,-1698,6.1,90)} end
-Fractions[2].vehicles[#Fractions[2].vehicles+1]={model=497,rank=9,p=point(1568,-1694,28.6,90)}
+FractionFleetWarnings={}
+local function finite(value) return type(value)=='number' and value==value and value>-math.huge and value<math.huge end
+local function integer(value,min,max) return finite(value) and value%1==0 and value>=min and value<=max end
+local function fleetWarning(id,name,text)
+ FractionFleetWarnings[#FractionFleetWarnings+1]='fleet_config.lua: '..Fractions[id].name..' / '..tostring(name)..': '..text
+end
+local function configureFleet(id,f)
+ f.vehicles={};local used={}
+ if type(FractionFleetConfig)~='table' then fleetWarning(id,'config','fleet_config.lua не загружен');return end
+ for groupIndex,group in ipairs(FractionFleetConfig[id] or {}) do
+  local name=type(group)=='table' and (group.name or groupIndex) or groupIndex
+  if type(group)~='table' or type(group.parking)~='table' or not integer(group.model,400,611) or not integer(group.rank,1,#f.ranks) then
+   fleetWarning(id,name,'проверьте model, rank и список parking')
+  else
+   local count=group.count==nil and #group.parking or group.count
+   if not integer(count,0,2147483647) then fleetWarning(id,name,'count должен быть целым неотрицательным числом');count=0 end
+   if count>#group.parking then fleetWarning(id,name,'count больше числа parking; добавьте места. Используется '..#group.parking);count=#group.parking end
+   for index,p in ipairs(group.parking) do
+    if type(p)~='table' or not integer(p.slot,1,2147483647) or used[p.slot] or not finite(p.x) or not finite(p.y) or not finite(p.z) or not finite(p.rotation or 0) then
+     fleetWarning(id,name,'некорректное место parking #'..index..' или повторяющийся slot')
+    else
+     used[p.slot]=true
+     if index<=count then f.vehicles[#f.vehicles+1]={slot=p.slot,model=group.model,rank=group.rank,p=point(p.x,p.y,p.z,p.rotation),helipad=group.helipad==true,roofDeck=group.roofDeck==true} end
+    end
+   end
+  end
+ end
+end
 for id,f in pairs(Fractions) do
  if id==1 then f.vehicleColor={245,245,245,232,91,122}
  elseif id==2 then f.vehicleColor={0,0,0,245,245,245}
@@ -50,13 +73,9 @@ for id,f in pairs(Fractions) do
  else f.vehicleColor={f.color[1],f.color[2],f.color[3],f.color[1],f.color[2],f.color[3]} end
  f.id=id;f.dimension=FractionConfig.dimensionBase+id;f.salaries=f.salaries or {}
  for rank=1,#f.ranks do f.salaries[rank]=f.salaries[rank] or FractionConfig.salaries[rank] end
- if f.category=="criminal" then
-  f.vehicles={}
-  for i=1,9 do
-   f.vehicles[i]={model=i<=5 and 409 or (i<=8 and 579 or 409),rank=i<=5 and 2 or (i<=8 and 4 or 5),
-    p=point(f.fleet.x+((i-1)%3)*4.5,f.fleet.y-math.floor((i-1)/3)*7,f.fleet.z,f.fleet.rotation)}
-   if i<=5 then f.vehicles[i].model=405 end
-  end
- end
+ configureFleet(id,f)
+ if f.roof then for _,v in ipairs(f.vehicles) do if v.slot==f.roof.slot then
+  f.roof.outside=point(v.p.x+5.5,v.p.y,v.p.z,90)
+ end end end
  f.weapons=id==2 and FractionConfig.policeWeapons or (f.category=="criminal" and FractionConfig.mafiaWeapons or nil)
 end

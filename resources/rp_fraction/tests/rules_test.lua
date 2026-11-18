@@ -1,4 +1,4 @@
-assert(loadfile('resources/rp_fraction/config.lua'))();assert(loadfile('resources/rp_fraction/shared.lua'))()
+assert(loadfile('resources/rp_fraction/fleet_config.lua'))();assert(loadfile('resources/rp_fraction/config.lua'))();assert(loadfile('resources/rp_fraction/shared.lua'))()
 local checks=0;local function check(value,message) checks=checks+1;assert(value,message) end
 local counts={6,10,5,10,10,10};local vehicles={4,17,4,9,9,9}
 for id,f in pairs(Fractions) do

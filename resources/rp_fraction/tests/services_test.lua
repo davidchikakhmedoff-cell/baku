@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local commands,chat={},{}
 local doctor={id=1,faction=1,duty=true,hp=100,money=1000};local patient={id=2,hp=40,money=1000}
 Fraction={sessions={},cuffs={},members={}}

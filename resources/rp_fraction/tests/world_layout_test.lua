@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua')
 root,resourceRoot={},{}
 local handlers,elements={},{}
 Fraction={markers={},blips={}}
@@ -9,7 +9,7 @@ local function element(kind,x,y,z)
 end
 function createObject(model,x,y,z) return element('object',x,y,z) end
 function createMarker(x,y,z) return element('marker',x,y,z) end
-function createBlip(x,y,z,icon,size,r,g,b) local e=element('blip',x,y,z);e.icon,e.size,e.color=icon,size,{r,g,b};return e end
+function createBlip(x,y,z,icon,size,r,g,b,alpha,ordering,distance) local e=element('blip',x,y,z);e.icon,e.size,e.color,e.visibleDistance=icon,size,{r,g,b},distance;return e end
 function setElementData(e,key,value) e.data[key]=value end
 function getElementData(e,key) return e.data[key] end
 function setElementInterior(e,value) e.interior=value end
@@ -35,18 +35,19 @@ for id,blip in pairs(F.blips) do
  count=count+1;local f=Fractions[id]
  assert(blip.x==f.entrance.x and blip.y==f.entrance.y and blip.dimension==0 and blip.interior==0,'each HQ has an exterior map blip')
  assert(blip.icon==f.blip.icon and blip.data['blip:name']==f.name and blip.color[1]==f.color[1],'configured icon, name and faction color applied')
+ assert(blip.visibleDistance==250,'faction blips use the same nearby radar range as car systems')
 end
 assert(count==6,'six faction map blips')
 local hospital=Fractions[1]
 assert(hospital.interior==3 and hospital.inside.x==830.6016 and hospital.inside.y==5.9404 and hospital.inside.z==1004.1797,'hospital uses requested Inside Track Betting coordinates')
-for _,key in ipairs({'exit','duty','desk'}) do
+for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':1']
  assert(m.interior==3 and m.dimension==hospital.dimension and math.abs(m.z-1004.8797)<0.01,'hospital markers use the stock interior floor')
 end
 local news=Fractions[3]
 -- Known suite floor from MTA amx's properties/interiors.txt, not roof z=39.1.
 assert(news.interior==11 and math.abs(news.inside.z-33.008)<0.01,'News uses actual suite floor')
-for _,key in ipairs({'exit','duty','desk'}) do
+for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':3']
  assert(m.interior==11 and m.dimension==news.dimension and math.abs(m.z-33.708)<0.01,'News marker is on same floor and dimension')
 end
@@ -65,4 +66,19 @@ assert(p.interior==3 and p.dimension==hospital.dimension and p.x==830.6016 and p
 p.x,p.y,p.z=5000,4992,1001.2;p.interior=1
 F.repairInteriorPosition(p)
 assert(p.interior==3 and p.x==830.6016 and p.z==1004.1797,'saved old hospital positions migrate to stock interior')
+for id,f in pairs(Fractions) do
+ assert(not F.markers['desk:'..id] and F.markers['keys:'..id],'composition markers replaced with key desks')
+ if id<=3 then
+  local roof,back=F.markers['roof:'..id],F.markers['roofBack:'..id]
+  assert(roof.interior==f.interior and roof.dimension==f.dimension and back.interior==0 and back.dimension==0,'roof portal is paired across correct dimensions')
+  F.member=function() return {faction_id=id} end
+  tick=tick+2000;source=roof;handlers.onMarkerHit(p,true)
+  assert(p.x==f.roof.outside.x and p.z==f.roof.outside.z and p.interior==0 and p.dimension==0,'roof portal reaches configured helicopter parking')
+  tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
+  assert(p.x==f.roof.inside.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores own faction interior')
+  F.member=function() return nil end
+  tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
+  assert(p.interior==f.interior and p.dimension==f.dimension,'dismissal cannot trap a player on a public faction roof')
+ end
+end
 print('World: six map blips, requested hospital, News floor, markers, entry and saved-position repair passed')

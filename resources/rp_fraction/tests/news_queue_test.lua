@@ -1,4 +1,4 @@
-dofile('resources/rp_fraction/config.lua')
+dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua')
 local player={id=1};local deleted={}
 function getResourceFromName() return {} end
 function getResourceState() return 'running' end

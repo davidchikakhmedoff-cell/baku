@@ -1,4 +1,5 @@
 local F=Fraction
+F.vehicleByKey={}
 local function marker(key,fid,kind,p,interior,dimension)
  local m=createMarker(p.x,p.y,p.z+0.7,'arrow',0.9,255,220,0,205)
  setElementInterior(m,interior);setElementDimension(m,dimension)
@@ -28,13 +29,17 @@ function F.repairInteriorPosition(p)
  end
 end
 function F.createWorld()
- local hospital=Fractions[1]
- local helipad=hospital.vehicles[3].p
- local landing=createObject(FractionConfig.helipadModel,helipad.x,helipad.y,helipad.z-1.3,0,0,0)
- if landing then setElementDoubleSided(landing,true) end
  for id,f in pairs(Fractions) do
+  for _,vehicle in ipairs(f.vehicles) do if vehicle.helipad then
+   local p=vehicle.p
+   if vehicle.roofDeck then
+    for ix=-1,1 do for iy=-1,1 do createObject(FractionConfig.roofDeckModel,p.x+ix*9,p.y+iy*9,p.z-2,0,0,0) end end
+   end
+   local landing=createObject(FractionConfig.helipadModel,p.x,p.y,p.z-1.3,0,0,0)
+   if landing then setElementDoubleSided(landing,true) end
+  end end
   if f.blip then
-   local b=createBlip(f.entrance.x,f.entrance.y,f.entrance.z,f.blip.icon,f.blip.size,f.color[1],f.color[2],f.color[3],255,0,16383)
+   local b=createBlip(f.entrance.x,f.entrance.y,f.entrance.z,f.blip.icon,f.blip.size,f.color[1],f.color[2],f.color[3],255,0,f.blip.visibleDistance or FractionConfig.blipVisibleDistance)
    if b then
     F.blips[id]=b;setElementInterior(b,0);setElementDimension(b,0)
     setElementData(b,'blip:name',f.name,true);setElementData(b,'fraction:blip',id,true)
@@ -42,7 +47,11 @@ function F.createWorld()
   end
   marker('enter:'..id,id,'enter',f.entrance,0,0)
   marker('exit:'..id,id,'exit',f.exit,f.interior,f.dimension)
-  marker('desk:'..id,id,'desk',f.desk,f.interior,f.dimension)
+  marker('keys:'..id,id,'keys',f.keysPoint,f.interior,f.dimension)
+  if f.roof and f.roof.outside then
+   marker('roof:'..id,id,'roof',f.roof.inside,f.interior,f.dimension)
+   marker('roofBack:'..id,id,'roofBack',f.roof.outside,0,0)
+  end
   if f.duty then marker('duty:'..id,id,'duty',f.dutyPoint,f.interior,f.dimension) end
   if f.armory then marker('armory:'..id,id,'armory',f.armory,f.interior,f.dimension) end
  end
@@ -57,12 +66,15 @@ addEventHandler('onMarkerHit',resourceRoot,function(p,matching)
   if info.id>=4 and (not m or m.faction_id~=info.id) then F.notify(p,'Вход доступен только участникам фракции');return end
   teleport(p,f.inside,f.interior,f.dimension)
  elseif info.kind=='exit' then teleport(p,f.entrance,0,0)
+ elseif info.kind=='roofBack' then teleport(p,f.roof.inside,f.interior,f.dimension)
  elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
+ elseif info.kind=='roof' then teleport(p,f.roof.outside,0,0)
+ elseif info.kind=='keys' then F.keysMenu(p)
  elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name})
  elseif info.kind=='armory' then
   if not F.active(p,f.id) then F.notify(p,'Начните смену');return end
   triggerClientEvent(p,'fraction:menu',resourceRoot,'armory',{weapons=f.weapons,rank=m.rank,name=f.name})
- elseif info.kind=='desk' then F.membersMenu(p) end
+ end
 end)
 function F.armory(p)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
@@ -84,7 +96,7 @@ function F.armory(p)
 end
 function canDriveFactionVehicle(p,v)
  local spec=F.vehicles[v]
- return spec and F.active(p,spec.faction,spec.rank) and not F.cuffs[p] and not F.jailed(p) or false
+ return spec and F.active(p,spec.faction,spec.rank) and not F.cuffs[p] and not F.jailed(p) and F.hasVehicleKey(p,spec.key) or false
 end
 function F.revokeDriver(p)
  local v=getPedOccupiedVehicle(p)
@@ -94,7 +106,7 @@ function F.revokeDriver(p)
 end
 local function spawnVehicle(fid,index)
  if FractionDependencies.blocked then return false end
- local f=Fractions[fid];local cfg=f.vehicles[index];local key='fraction:'..fid..':'..index
+ local f=Fractions[fid];local cfg=f.vehicles[index];local key='fraction:'..fid..':'..(cfg.slot or index)
  if F.missing[key] and getTickCount()<F.missing[key].at then return end
  for vehicle,spec in pairs(F.vehicles) do if spec.key==key then return end end
  local pos=cfg.p
@@ -106,16 +118,23 @@ local function spawnVehicle(fid,index)
  local vehicle=createVehicle(cfg.model,pos.x,pos.y,pos.z,0,0,pos.rotation or 0)
  if not vehicle then return end
  F.vehicles[vehicle]={faction=fid,index=index,rank=cfg.rank,key=key}
+ F.vehicleByKey[key]=vehicle
  setVehicleColor(vehicle,unpack(f.vehicleColor))
- setVehicleEngineState(vehicle,false);setVehicleLocked(vehicle,false)
+ setVehicleEngineState(vehicle,false);setVehicleLocked(vehicle,true)
  setElementData(vehicle,'fraction:vehicle',fid,true);setElementData(vehicle,'fraction:minRank',cfg.rank,true)
  local saved=FractionDB.one('SELECT fuel FROM fraction_vehicle_fuel WHERE vehicle_key=?',key)
  if not saved then FractionDB.exec('INSERT OR IGNORE INTO fraction_vehicle_fuel(vehicle_key,fuel) VALUES(?,30)',key);saved={fuel=30} end
  local ok,registered=pcall(function() return exports.rp_car:registerFactionVehicle(vehicle,key,tonumber(saved.fuel)) end)
  if not ok or registered~=true then
-  F.vehicles[vehicle]=nil;destroyElement(vehicle);FractionDependencies.rejectVehicleAdapter()
+  F.vehicles[vehicle]=nil;F.vehicleByKey[key]=nil;destroyElement(vehicle);FractionDependencies.rejectVehicleAdapter()
   return false
  end
+end
+F.spawnFleetSlot=spawnVehicle
+function F.retireFleetVehicle(vehicle)
+ local spec=F.vehicles[vehicle];if not spec then return end
+ exports.rp_car:unregisterFactionVehicle(vehicle)
+ F.vehicles[vehicle]=nil;F.vehicleByKey[spec.key]=nil;destroyElement(vehicle)
 end
 F.missing={}
 function F.spawnFleet()
@@ -127,7 +146,7 @@ end
 addEventHandler('onVehicleStartEnter',root,function(p,seat)
  local spec=F.vehicles[source]
  if spec and seat==0 and not canDriveFactionVehicle(p,source) then
-  cancelEvent();F.notify(p,'Для управления требуется '..spec.rank..' ранг '..Fractions[spec.faction].name..' и рабочий статус')
+  cancelEvent();F.notify(p,'Нужны ключи от этого транспорта, '..spec.rank..' ранг '..Fractions[spec.faction].name..' и рабочий статус')
  end
 end,true,'high+10')
 addEventHandler('onVehicleEnter',root,function(p,seat) if seat==0 then F.revokeDriver(p) end end)
@@ -135,18 +154,21 @@ addEventHandler('onVehicleExplode',root,function()
  local spec=F.vehicles[source];if spec then
   spec.destroyAt=getTickCount()+FractionConfig.vehicleRespawnMs
   F.missing[spec.key]={faction=spec.faction,index=spec.index,at=spec.destroyAt}
+  if F.vehicleKeysLost then F.vehicleKeysLost(spec.key) end
  end
 end)
 addEventHandler('onElementDestroy',root,function()
  local spec=F.vehicles[source];if not spec then return end
- F.missing[spec.key]={faction=spec.faction,index=spec.index,at=getTickCount()+FractionConfig.vehicleRespawnMs};F.vehicles[source]=nil
+ F.missing[spec.key]={faction=spec.faction,index=spec.index,at=getTickCount()+FractionConfig.vehicleRespawnMs};F.vehicles[source]=nil;F.vehicleByKey[spec.key]=nil
+ if F.vehicleKeysLost then F.vehicleKeysLost(spec.key) end
 end)
 function F.fleetTick()
  if not FractionDependencies.ready() then return end
+ if F.vehicleKeysTick then F.vehicleKeysTick() end
  for v,spec in pairs(F.vehicles) do
   if spec.destroyAt and getTickCount()>=spec.destroyAt then
    local occupied=false;for _ in pairs(getVehicleOccupants(v)) do occupied=true end
-   if not occupied then exports.rp_car:unregisterFactionVehicle(v);F.vehicles[v]=nil;destroyElement(v) end
+   if not occupied then F.retireFleetVehicle(v) end
   end
  end
  for key,spec in pairs(F.missing) do if getTickCount()>=spec.at then spawnVehicle(spec.faction,spec.index) end end
