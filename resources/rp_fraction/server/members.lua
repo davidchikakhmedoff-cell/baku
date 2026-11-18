@@ -55,11 +55,14 @@ addCommandHandler('f',function(p,_,...)
   outputChatBox('[F] '..Fractions[m.faction_id].ranks[m.rank]..' '..F.name(p)..': '..text,other,unpack(Fractions[m.faction_id].color))
  end end
 end)
--- The sole leadership mechanism: trusted server admin, permanent account ID.
-addCommandHandler('setfractionleader',function(p,_,id,fid)
- if not F.account(p) or exports.rp_core:getCoreAdminLevel(p)<FractionConfig.adminLevel then return end
- local targetId=FractionRules.integer(id,1,2147483647);fid=FractionRules.integer(fid,1,6)
- if not fid or not targetId or not FractionDB.one('SELECT id FROM players WHERE id=?',targetId) then F.notify(p,'/setfractionleader ID_АККАУНТА 1-6');return end
+-- The only leader appointment command: core's founder role, live dynamic ID.
+addCommandHandler('setleader',function(p,_,id,fid)
+ if not F.account(p) then return end
+ if exports.rp_core:isCoreFounder(p)~=true then F.notify(p,'Команда доступна только основателю сервера');return end
+ local dynamicId=FractionRules.integer(id,1,2147483647);fid=FractionRules.integer(fid,1,6)
+ if not fid or not dynamicId then F.notify(p,'Использование: /setleader ID_ИГРОКА ID_ФРАКЦИИ (1–6)');return end
+ local target=F.player(dynamicId);local targetId=target and F.account(target)
+ if not targetId then F.notify(p,'Авторизованный игрок с таким ID не найден');return end
  local existing=F.reload(targetId)
  if existing and existing.faction_id~=fid then F.notify(p,'Сначала увольте игрока из другой фракции');return end
  local top=#Fractions[fid].ranks
@@ -70,8 +73,20 @@ addCommandHandler('setfractionleader',function(p,_,id,fid)
  FractionDB.exec('INSERT OR IGNORE INTO fraction_members(account_id,faction_id,rank,civilian_skin) VALUES(?,?,1,?)',targetId,fid,account and tonumber(account.skin) or 0)
  FractionDB.exec('UPDATE fraction_members SET rank=? WHERE account_id=? AND faction_id=?',top,targetId,fid);F.reload(targetId)
  for _,online in ipairs(getElementsByType('player')) do if F.member(online) then F.sync(online);F.revokeDriver(online) end end
- F.notify(p,'Лидер назначен',true)
+ F.notify(p,'Лидер '..Fractions[fid].name..' назначен: '..F.name(target),true)
+ if target~=p then F.notify(target,'Вы назначены лидером '..Fractions[fid].name,true) end
 end)
+
+-- The project's custom chat does not execute native command handlers itself.
+-- Accept only our known commands, and only from that authenticated core route.
+local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvite=true,giverank=true,members=true,f=true,setleader=true,
+ heal=true,sms=true,add=true,news=true,ticket=true,tickets=true,payticket=true,su=true,clearwanted=true,cuff=true,arrest=true,m=true}
+function executeFractionCommand(p,command,args)
+ if sourceResource~=getResourceFromName('rp_core') or not chatCommands[command] then return false end
+ if not F.account(p) then F.notify(p,'Система фракций ещё не готова. Дождитесь загрузки зависимостей');return true end
+ executeCommandHandler(command,p,type(args)=='string' and args or '')
+ return true
+end
 addEvent('fraction:action',true)
 addEventHandler('fraction:action',resourceRoot,function(action,data)
  local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' or not F.throttle(p,'ui') then return end

@@ -184,6 +184,10 @@ function hasAdminPermission(player, permissionName)
     return AdminCore.hasPermission(player, permissionName)
 end
 
+function isCoreFounder(player)
+    return AdminCore.getAdminType(player) == "owner"
+end
+
 function getAdminAllowedActions(player)
     local allowed = {}
     for action in pairs(AdminActions or {}) do

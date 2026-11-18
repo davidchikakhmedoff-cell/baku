@@ -3,7 +3,7 @@
 FractionDependencies={blocked=false}
 local D=FractionDependencies
 local required={
- {name='rp_core',exports={'AuthDBQuery','AuthDBExec','getAuthPlayerId','getPlayerByDynamicID','getPlayerDynamicID','takeAuthPlayerMoney','getAuthPlayerBalance','getCoreAdminLevel','sendCoreNotification'}},
+ {name='rp_core',exports={'AuthDBQuery','AuthDBExec','getAuthPlayerId','getPlayerByDynamicID','getPlayerDynamicID','takeAuthPlayerMoney','getAuthPlayerBalance','isCoreFounder','sendCoreNotification'}},
  {name='rp_car',exports={'registerFactionVehicle','unregisterFactionVehicle'}}
 }
 function D.hasExports(name,names)

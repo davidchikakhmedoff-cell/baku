@@ -1,4 +1,4 @@
-Fraction={members={},sessions={},invites={},cuffs={},vehicles={},markers={},cooldowns={},ready=false}
+Fraction={members={},sessions={},invites={},cuffs={},vehicles={},markers={},blips={},cooldowns={},ready=false}
 local F=Fraction
 function F.now() return getRealTime().timestamp end
 function F.account(p)
@@ -103,7 +103,7 @@ function F.load(p)
  local m=F.reload(id)
  F.sessions[p]={account=id,duty=false,last=getTickCount(),weapons=false}
  if m and (m.duty==1 or m.gear_issued==1) then F.endDuty(p) end
- F.sync(p);F.applyJustice(p)
+ F.sync(p);F.repairInteriorPosition(p);F.applyJustice(p)
 end
 function F.disconnect(p,resourceStopping)
  F.clearCuffs(p,true)

@@ -10,29 +10,36 @@ local function teleport(p,pos,interior,dimension)
  setElementInterior(p,interior);setElementDimension(p,dimension);setElementPosition(p,pos.x,pos.y,pos.z)
  setPedRotation(p,pos.rotation or 0);setCameraTarget(p,p);return true
 end
+function F.repairInteriorPosition(p)
+ -- Migrate saved positions from the removed hospital shell and old News roof.
+ local hospital=Fractions[1]
+ if getElementDimension(p)==hospital.dimension then
+  local x,y=getElementPosition(p)
+  if getElementInterior(p)~=hospital.interior or (math.abs(x-5000)<40 and math.abs(y-5000)<40) then
+   teleport(p,hospital.inside,hospital.interior,hospital.dimension)
+  end
+  return
+ end
+ local f=Fractions[3]
+ if getElementDimension(p)~=f.dimension or getElementInterior(p)~=f.interior then return end
+ local x,y,z=getElementPosition(p)
+ if math.abs(x-f.inside.x)<35 and math.abs(y-f.inside.y)<35 and z>f.inside.z+3 then
+  teleport(p,f.inside,f.interior,f.dimension)
+ end
+end
 function F.createWorld()
  local hospital=Fractions[1]
- local function object(model,x,y,z,rx,ry,rz,f)
-  local o=createObject(model,x,y,z,rx or 0,ry or 0,rz or 0)
-  if o then setElementInterior(o,f.interior);setElementDimension(o,f.dimension) end
-  return o
- end
- if hospital.customHospital then
-  local room=FractionConfig.hospitalRoom
-  local cx,cy,cz=unpack(room.center);local tile=room.tile;local wall=tile*1.5
-  for ix=-1,1 do for iy=-1,1 do object(room.floorModel,cx+ix*tile,cy+iy*tile,cz,0,0,0,hospital) end end
-  for i=-1,1 do
-   object(room.floorModel,cx+i*tile,cy-wall,cz+tile/2,90,0,0,hospital)
-   object(room.floorModel,cx+i*tile,cy+wall,cz+tile/2,90,0,0,hospital)
-   object(room.floorModel,cx-wall,cy+i*tile,cz+tile/2,0,90,0,hospital)
-   object(room.floorModel,cx+wall,cy+i*tile,cz+tile/2,0,90,0,hospital)
-  end
-  for _,item in ipairs(room.furniture) do object(item[1],item[2],item[3],item[4],0,0,item[5],hospital) end
- end
  local helipad=hospital.vehicles[3].p
  local landing=createObject(FractionConfig.helipadModel,helipad.x,helipad.y,helipad.z-1.3,0,0,0)
  if landing then setElementDoubleSided(landing,true) end
  for id,f in pairs(Fractions) do
+  if f.blip then
+   local b=createBlip(f.entrance.x,f.entrance.y,f.entrance.z,f.blip.icon,f.blip.size,f.color[1],f.color[2],f.color[3],255,0,16383)
+   if b then
+    F.blips[id]=b;setElementInterior(b,0);setElementDimension(b,0)
+    setElementData(b,'blip:name',f.name,true);setElementData(b,'fraction:blip',id,true)
+   end
+  end
   marker('enter:'..id,id,'enter',f.entrance,0,0)
   marker('exit:'..id,id,'exit',f.exit,f.interior,f.dimension)
   marker('desk:'..id,id,'desk',f.desk,f.interior,f.dimension)
