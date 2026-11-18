@@ -1,31 +1,29 @@
+-- Run from repository root. Real event-driven helper with simulated MTA seats.
 local player,vehicle={},{}
-localPlayer=player;root={}
-local events={}
-function addEventHandler(event,element,fn) events[event]=fn end
-local task,occupied,fullySeated,dead=nil,true,true,false
-function isElement(el) return el==player or el==vehicle end
+localPlayer=player;root={};local events={}
+function addEventHandler(name,element,fn) events[name]=fn end
+local occupied,fullySeated,dead=true,true,false
+function isElement(v) return v==player or v==vehicle end
 function isPedDead() return dead end
-function getPedTask(p,kind,level) if kind=='primary' and level==2 then return task end end
 function getPedOccupiedVehicle() return occupied and vehicle or false end
 function getPedOccupiedVehicleSeat() return 0 end
 function isPedInVehicle() return fullySeated end
 function getVehicleOccupant() return fullySeated and player or false end
+-- A stale task must never disable controls after a completed entry or restart.
+function getPedTask() return 'TASK_COMPLEX_ENTER_CAR_AS_DRIVER' end
 assert(loadfile('resources/rp_car/interaction_shared.lua'))()
-assert(CarInteraction.ready(player),'fully seated driver allowed')
-for _,name in ipairs({'TASK_COMPLEX_ENTER_CAR_AS_DRIVER','TASK_COMPLEX_ENTER_CAR_AS_PASSENGER','TASK_SIMPLE_CAR_GET_IN','TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_INSIDE','TASK_COMPLEX_LEAVE_CAR','TASK_SIMPLE_CAR_GET_OUT'}) do
- task=name;assert(not CarInteraction.ready(player),name..' must block actions')
-end
-task=nil;fullySeated=false;assert(not CarInteraction.ready(player),'partial occupation rejected')
-occupied=false;assert(CarInteraction.ready(player),'on-foot locking retained')
-task='TASK_COMPLEX_ENTER_CAR_AS_DRIVER';assert(not CarInteraction.ready(player),'approach animation rejected before occupation')
-assert(CarInteraction.canToggleLock(player),'outside lock is exempt during approach')
-occupied=true;fullySeated=false;assert(not CarInteraction.canToggleLock(player),'lock remains blocked during occupied entry')
-task=nil;fullySeated=true;assert(CarInteraction.canToggleLock(player),'seated lock allowed')
-task=nil;dead=true;assert(not CarInteraction.ready(player),'dead player rejected')
-assert(not CarInteraction.canToggleLock(player),'dead player cannot lock')
-dead=false;occupied=true;fullySeated=true;task='TASK_COMPLEX_ENTER_CAR_AS_DRIVER'
-source=vehicle;events.onClientVehicleEnter(player)
-assert(CarInteraction.ready(player),'completed dealership warp overrides a lingering entry task')
-events.onClientVehicleStartExit(player)
-assert(not CarInteraction.ready(player),'starting exit removes the completed-entry exception')
-print('Vehicle interaction: seating, exterior locks and dealership warp checks passed')
+assert(CarInteraction.ready(player),'already seated after resource restart')
+source=vehicle;events.onClientVehicleStartEnter(player)
+assert(not CarInteraction.ready(player),'entry not complete')
+assert(not CarInteraction.canToggleLock(player),'occupied entry animation blocked')
+events.onClientVehicleEnter(player)
+assert(CarInteraction.ready(player),'completed entry ignores stale GTA task')
+assert(CarInteraction.canToggleLock(player),'seated locks allowed')
+fullySeated=false;assert(not CarInteraction.ready(player),'invalid occupation blocked')
+occupied=false;assert(CarInteraction.canToggleLock(player),'outside locks remain available')
+events.onClientVehicleStartEnter(player)
+assert(CarInteraction.canToggleLock(player),'outside locks remain available during approach')
+events.onClientVehicleExit(player)
+occupied=true;fullySeated=true;assert(CarInteraction.ready(player),'warp/seat after canceled approach')
+dead=true;assert(not CarInteraction.ready(player) and not CarInteraction.canToggleLock(player),'dead player blocked')
+print('Interaction: restart, actual entry events, stale tasks, warp and outside-lock exception passed')

@@ -47,3 +47,13 @@ assert(not press('n','test') and feedback and not sent,'UI block must give visib
 blocked=false;cars={};feedback=nil
 assert(not press('n','test') and feedback,'no aim target must give visible feedback')
 print('N handler: actual request path without client identity plus visible failure messages passed')
+-- All main key actions must reach their server events, not just N.
+function getPedOccupiedVehicle() return near end
+CarConfig.events.toggleEngine='car:toggleEngine'
+CarConfig.events.toggleLights='car:toggleLights'
+CarConfig.events.toggleHandbrake='car:toggleHandbrake'
+for key,event in pairs({['2']='car:toggleEngine',l='car:toggleLights',b='car:toggleHandbrake'}) do
+ feedback=nil;sent=nil
+ assert(press(key,'test') and sent.event==event,'key '..key..' must reach '..event)
+end
+print('Vehicle keys: engine 2, lights L and handbrake B request paths passed')

@@ -913,14 +913,34 @@ local function handleVehicleControlKey(keyName, sourceName)
     return false
 end
 
+local function dispatchVehicleKey(key, origin)
+    local ok, result = pcall(handleVehicleControlKey,key,origin)
+    if not ok then
+        outputDebugString("[RP Car controls] "..tostring(result),1)
+        outputChatBox("Ошибка управления автомобилем: "..tostring(result),239,83,80)
+        return false
+    end
+    return result
+end
+
+addCommandHandler("carcontrols",function()
+    local vehicle=getPedOccupiedVehicle(localPlayer)
+    local ok,ready=pcall(CarInteraction.ready,localPlayer)
+    local any,textInput,activeName=getCoreUIState()
+    outputChatBox("[carcontrols] client: vehicle="..tostring(vehicle)..", seat="..tostring(getPedOccupiedVehicleSeat(localPlayer))
+        ..", ready="..tostring(ok and ready)..", UI="..tostring(UI.mode)..", coreUI="..tostring(activeName)
+        ..", text="..tostring(textInput)..", blocked="..tostring(isInputBlocked()),255,220,120)
+    triggerServerEvent("car:controlsDiagnostic",localPlayer)
+end)
+
 local function bindVehicleKeys()
-    bindKey("2", "down", function() handleVehicleControlKey("2", "bind") end)
+    bindKey("2", "down", function() dispatchVehicleKey("2", "bind") end)
     bindKey("n", "down", function()
         outputDebugString("[RP CAR CLIENT] N pressed", 3)
-        handleVehicleControlKey("n", "bind")
+        dispatchVehicleKey("n", "bind")
     end)
-    bindKey("l", "down", function() handleVehicleControlKey("l", "bind") end)
-    bindKey("b", "down", function() handleVehicleControlKey("b", "bind") end)
+    bindKey("l", "down", function() dispatchVehicleKey("l", "bind") end)
+    bindKey("b", "down", function() dispatchVehicleKey("b", "bind") end)
 end
 
 addEventHandler("onClientClick", root, function(buttonName, state, cx, cy)
@@ -1053,7 +1073,7 @@ addEventHandler("onClientKey", root, function(key, press)
 
     if not UI.mode then
         if key == "2" or key == "l" or key == "n" or key == "b" then
-            if handleVehicleControlKey(key, "key") then cancelEvent() end
+            if dispatchVehicleKey(key, "key") then cancelEvent() end
             if key == "2" and not isInputBlocked() then cancelEvent() end
             return
         end

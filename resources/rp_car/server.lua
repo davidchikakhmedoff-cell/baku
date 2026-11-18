@@ -3041,3 +3041,21 @@ end
 function getFreeHouseParkingSpace(houseId)
     return findFreeParking(houseId)
 end
+
+-- Explicit user diagnostics; never changes ownership, money or vehicle state.
+local controlsDiagnosticTicks = setmetatable({}, {__mode="k"})
+addEvent("car:controlsDiagnostic",true)
+addEventHandler("car:controlsDiagnostic",root,function()
+    if not client or source~=client then return end
+    local now=getTickCount()
+    if controlsDiagnosticTicks[client] and now-controlsDiagnosticTicks[client]<2000 then return end
+    controlsDiagnosticTicks[client]=now
+    local vehicle=getPedOccupiedVehicle(client)
+    local runtime=vehicle and getPersonalRuntime(vehicle)
+    local row=runtime and RPCarDB.vehicles[runtime.vehicleId]
+    outputChatBox("[carcontrols] server: account="..tostring(accountId(client))..", ready="..tostring(CarInteraction.ready(client))
+        ..", vehicleId="..tostring(runtime and runtime.vehicleId)..", owner="..tostring(row and row.owner_account_id)
+        ..", status="..tostring(row and row.status)..", house="..tostring(row and row.house_id)
+        ..", showroom="..tostring(vehicle and showcaseByElement[vehicle]~=nil)
+        ..", tuning="..tostring(tuningSessions[client]~=nil),client,255,220,120)
+end)
