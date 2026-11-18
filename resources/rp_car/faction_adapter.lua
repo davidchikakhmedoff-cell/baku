@@ -54,6 +54,7 @@ function A.handle(p,kind,target)
   state.brake=not state.brake;setElementFrozen(vehicle,state.brake);setElementData(vehicle,'car:handbrake',state.brake,true)
  elseif kind=='lock' then
   setVehicleLocked(vehicle,not isVehicleLocked(vehicle))
+  triggerClientEvent(p,CarConfig.events.playLockSound,resourceRoot,vehicle)
   CarLockFeedback.flash(vehicle,state)
  end
  return true

@@ -127,9 +127,6 @@ function F.armory(p,selection)
    chosen[id]=true
   end
  else for _,w in ipairs(f.weapons) do chosen[w.id]=true end end
- if F.now()<m.armory_at then F.notify(p,'Следующий комплект доступен через '..(m.armory_at-F.now())..' сек.');return end
- if not FractionDB.change('UPDATE fraction_members SET armory_at=? WHERE account_id=? AND armory_at<=?',F.now()+FractionConfig.armoryCooldown,m.account_id,F.now()) then return end
- m.armory_at=F.now()+FractionConfig.armoryCooldown
  if m.gear_issued~=1 then
   if m.duty~=1 then m.civilian_weapons=F.snapshotWeapons(p) end
   m.gear_issued=1

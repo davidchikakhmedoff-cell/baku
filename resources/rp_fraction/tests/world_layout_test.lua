@@ -21,7 +21,7 @@ function getElementDimension(e) return e.dimension end
 function getElementPosition(e) return e.x,e.y,e.z end
 function setElementPosition(e,x,y,z) e.x,e.y,e.z=x,y,z end
 function setElementDoubleSided() end
-function setPedRotation() end
+function setPedRotation(p,rotation) p.rotation=rotation end
 function setCameraTarget() end
 function isPedInVehicle() return false end
 local tick=10000
@@ -124,3 +124,8 @@ for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fracti
  p.x=g.outside.x+0.4;tick=tick+2000;handlers.onColShapeHit(p,true)
  assert(p.dimension==Fractions[2].dimension,'auxiliary colshape still allows entering inside marker')
 end end
+
+local lspd=Fractions[2]
+tick=tick+2000;source=F.markers['exit:2'];handlers.onMarkerHit(p,true)
+assert(p.x==1552.4 and p.y==lspd.entrance.y and p.z==lspd.entrance.z and p.rotation==90,'LSPD main exit faces street on exterior porch in front of marker')
+assert(p.x<lspd.entrance.x-2 and p.interior==0 and p.dimension==0,'exit stays outside entrance trigger on street side')

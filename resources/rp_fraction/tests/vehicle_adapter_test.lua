@@ -1,5 +1,11 @@
 local fractionResource={};local p={rank=2,duty=true};local v={};local outsider={rank=1,duty=true}
-root={};sourceResource=fractionResource
+root,resourceRoot={},{}
+local lockSounds=0
+function triggerClientEvent(player,event,element,vehicle)
+ assert(player==p and event=='car:playLockSound' and element==resourceRoot and vehicle==v,'reuse personal vehicle sound event and source')
+ lockSounds=lockSounds+1
+end
+sourceResource=fractionResource
 local handlers={}
 function addEvent() end
 function addEventHandler(name,element,fn) handlers[name]=fn end
@@ -39,7 +45,7 @@ function isVehicleOnGround() return true end
 local fuel=30
 FuelSystem={attachExternal=function() end,detach=function() end,canStart=function() return fuel>0 end}
 CarInteraction={ready=function() return true end}
-CarConfig={lockServerDistance=25}
+CarConfig={lockServerDistance=25,events={playLockSound='car:playLockSound'}}
 local file=assert(io.open('resources/rp_car/server.lua'));local code=file:read('*a');file:close()
 local helper=assert(code:match('(local function flashVehicleLights.-)local function canControlVehicleEngine'))
 assert(loadstring('local lightFlashTokens={}\nlocal lightFlashSequence=0\n'..helper))()
@@ -72,5 +78,6 @@ FactionVehicleAdapter.handle(p,'lock',{v});assert(not v.locked,'second N unlocks
 FactionVehicleAdapter.handle(p,'lights');assert(v.lights==1,'manual light toggle cancels lock flash')
 for i=2,#timers do timers[i].fn(unpack(timers[i].args)) end
 assert(v.lights==1,'cancelled timers do not override manual light choice')
+assert(lockSounds==2,'lock and unlock each play the personal vehicle sound once')
 sourceResource=fractionResource;assert(unregisterFactionVehicle(v),'service car deregisters')
 print('Faction vehicle adapter: registration, rank/duty, engine, fuel, lights, brake and locks passed')

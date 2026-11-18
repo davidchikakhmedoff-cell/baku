@@ -100,6 +100,17 @@ function RPChat.send(player, payload)
     })
 end
 
+-- Resource-to-resource delivery through the same DX chat as normal messages.
+function sendCoreChatMessage(player, text, r, g, b)
+    if not isElement(player) or getElementType(player) ~= "player" or type(text) ~= "string" then return false end
+    RPChat.send(player, {
+        type = "radio",
+        text = text,
+        color = {tonumber(r) or 255, tonumber(g) or 255, tonumber(b) or 255}
+    })
+    return true
+end
+
 function RPChat.sendMany(players, payload)
     if type(players) ~= "table" or #players == 0 then return end
     payload = payload or {}

@@ -22,7 +22,7 @@ local function radio(p,command,...)
  for _,target in ipairs(getElementsByType('player')) do
   local other=F.account(target) and F.member(target)
   if other and (department and config.department[other.faction_id] or not department and other.faction_id==member.faction_id) then
-   outputChatBox(line,target,color[1],color[2],color[3],false)
+   exports.rp_core:sendCoreChatMessage(target,line,color[1],color[2],color[3])
   end
  end
 end

@@ -274,7 +274,7 @@ FractionLocationConfig = {
         keysPoint={x=248.5000,y=70.8000,z=1003.6000,rotation=0.00},
         dutyPoint={x=254.5000,y=77.0800,z=1003.6000,rotation=0.00},
         armory={x=257.7000,y=69.2000,z=1003.6000,rotation=0.00},
-        outsideSpawn={x=1558.4000,y=-1675.5000,z=16.2000,rotation=0.00},
+        outsideSpawn={x=1552.4000,y=-1675.5000,z=16.2000,rotation=90.00},
         roof={slot=17, inside={x=253.5000,y=64.4000,z=1003.6000,rotation=0.00}, outside={x=1573.5000,y=-1694.0000,z=28.6000,rotation=90.00},
             arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00}},
         garage={

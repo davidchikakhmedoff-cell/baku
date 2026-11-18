@@ -71,6 +71,7 @@
     <export function="getCoreAdminLevel" type="server" />
     <export function="hasAdminPermission" type="server" />
     <export function="isCoreFounder" type="server" />
+    <export function="sendCoreChatMessage" type="server" />
     <export function="sendCoreNotification" type="server" />
     <export function="showCoreNotification" type="client" />
     <export function="canOpenUI" type="client" />
