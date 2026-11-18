@@ -277,7 +277,7 @@ FractionLocationConfig = {
         outsideSpawn={x=1558.4000,y=-1675.5000,z=16.2000,rotation=0.00},
         roof={slot=17, inside={x=253.5000,y=64.4000,z=1003.6000,rotation=0.00}, outside={x=1573.5000,y=-1694.0000,z=28.6000,rotation=90.00},
             arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00}},
-        garage={triggerRadius=0.9,inside={x=246.4,y=87.5,z=1003.6},outside={x=1568.7,y=-1689.6,z=5.9},arrival={x=1571.5,y=-1666,z=5.9},returnSpawn={x=246.4,y=86.0,z=1003.6000,rotation=180.00}},
+        garage={triggerRadius=0.9,inside={x=246.4,y=87.5,z=1003.6},outside={x=1568.7,y=-1690.2,z=5.9},arrival={x=1568.7,y=-1688.2,z=5.9, rotation=180.00},returnSpawn={x=246.4,y=86.0,z=1003.6000,rotation=180.00}},
     },
     -- Los Santos News
     [3] = {

@@ -93,6 +93,9 @@ end end
 
 local g=Fractions[2].garage
 F.member=function() return {faction_id=2} end
+F.safeGarageTeleport=function(p,pos,interior,dimension)
+ setElementInterior(p,interior);setElementDimension(p,dimension);setElementPosition(p,pos.x,pos.y,pos.z)
+end
 tick=tick+2000;source=F.markers['garage:2'];handlers.onMarkerHit(p,true)
 assert(p.x==g.arrival.x and p.dimension==0 and p.interior==0,'LSPD interior garage exit reaches underground parking')
 tick=tick+2000;source=F.markers['garageBack:2'];handlers.onMarkerHit(p,true)

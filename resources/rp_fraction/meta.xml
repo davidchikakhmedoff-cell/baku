@@ -8,12 +8,14 @@
  <script src="server/dependencies.lua" type="server" />
  <script src="server/database.lua" type="server" />
  <script src="server/main.lua" type="server" />
+ <script src="server/portal.lua" type="server" />
  <script src="server/members.lua" type="server" />
  <script src="server/world.lua" type="server" />
  <script src="server/vehicle_keys.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
  <script src="client/main.lua" type="client" />
+ <script src="client/portal.lua" type="client" />
  <export function="canDriveFactionVehicle" type="server" />
  <export function="executeFractionCommand" type="server" />
  <export function="getCivilianWeapons" type="server" />

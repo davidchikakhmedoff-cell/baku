@@ -7,6 +7,7 @@ local function marker(key,fid,kind,p,interior,dimension)
  return m
 end
 local function teleport(p,pos,interior,dimension)
+ if F.safeTeleport then return F.safeTeleport(p,pos,interior,dimension) end
  if isPedInVehicle(p) then return false end
  setElementInterior(p,interior);setElementDimension(p,dimension);setElementPosition(p,pos.x,pos.y,pos.z)
  setPedRotation(p,pos.rotation or 0);setCameraTarget(p,p);return true
@@ -67,6 +68,7 @@ function F.createWorld()
 end
 local recent=setmetatable({}, {__mode="k"})
 local function markerHit(p,matching)
+ if getElementData(p,'rp:transitionPending') then return end
  if not matching or not F.account(p) or isPedInVehicle(p) or F.jailed(p) or not F.near(p,source,3) then return end
  local info=getElementData(source,'fraction:marker');if not info then return end
  -- Arrow markers have their own collision volume. Apply the same small entry
@@ -85,7 +87,7 @@ local function markerHit(p,matching)
  elseif info.kind=='roofBack' then teleport(p,f.roof.returnSpawn or f.inside,f.interior,f.dimension)
  elseif info.kind=='garageBack' then teleport(p,f.garage.returnSpawn or f.inside,f.interior,f.dimension)
  elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
- elseif info.kind=='garage' then teleport(p,f.garage.arrival,0,0)
+ elseif info.kind=='garage' then F.safeGarageTeleport(p,f.garage.arrival,0,0,f.garage.returnSpawn or f.inside)
  elseif info.kind=='roof' then
   local out=f.roof.outside
   teleport(p,f.roof.arrival or {x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)

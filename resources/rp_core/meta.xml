@@ -26,6 +26,7 @@
     <script src="systems/bans/client.lua" type="client" />
     <script src="systems/hud/client.lua" type="client" />
     <script src="systems/visual/client.lua" type="client" />
+    <script src="systems/visual/transitions.lua" type="client" />
     <script src="systems/auth/client.lua" type="client" />
 
     <file src="CompactC.ttf" />
