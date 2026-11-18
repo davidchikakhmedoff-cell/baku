@@ -10,6 +10,7 @@ end
 function createObject(model,x,y,z) return element('object',x,y,z) end
 function createColSphere(x,y,z,r) local e=element('colshape',x,y,z);e.radius=r;return e end
 function createMarker(x,y,z) return element('marker',x,y,z) end
+function createPickup(x,y,z,kind,model) local p=element('pickup',x,y,z);p.model=model;return p end
 function createBlip(x,y,z,icon,size,r,g,b,alpha,ordering,distance) local e=element('blip',x,y,z);e.icon,e.size,e.color,e.visibleDistance=icon,size,{r,g,b},distance;return e end
 function setElementData(e,key,value) e.data[key]=value end
 function getElementData(e,key) return e.data[key] end
@@ -69,6 +70,8 @@ F.repairInteriorPosition(p)
 assert(p.interior==3 and p.x==830.6016 and p.z==1004.1797,'saved old hospital positions migrate to stock interior')
 for id,f in pairs(Fractions) do
  assert(not F.markers['desk:'..id] and F.markers['keys:'..id],'composition markers replaced with key desks')
+ assert(F.markers['keys:'..id].kind=='colshape','key icon uses invisible interaction sphere')
+ if f.duty then assert(F.markers['duty:'..id].kind=='pickup' and F.markers['duty:'..id].model==1275,'shift uses stock rotating clothes pickup') end
  if id<=3 then
   local roof,back=F.markers['roof:'..id],F.markers['roofBack:'..id]
   assert(roof.interior==f.interior and roof.dimension==f.dimension and back.interior==0 and back.dimension==0,'roof portal is paired across correct dimensions')
@@ -83,6 +86,12 @@ for id,f in pairs(Fractions) do
  end
 end
 print('World: six map blips, requested hospital, News floor, markers, entry and saved-position repair passed')
+local cancelled,opened=false,false
+function cancelEvent() cancelled=true end
+function triggerClientEvent(player,event,element,kind) if event=='fraction:menu' then opened=kind end end
+F.sessions={[p]={duty=false}};F.member=function() return {faction_id=1} end
+tick=tick+2000;source=F.markers['duty:1'];handlers.onPickupHit(p,true)
+assert(cancelled and opened=='duty','clothes pickup opens shift menu without consuming pickup')
 
 for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fraction:marker'].kind=='roofBack' then
  local id=zone.data['fraction:marker'].id;local f=Fractions[id]

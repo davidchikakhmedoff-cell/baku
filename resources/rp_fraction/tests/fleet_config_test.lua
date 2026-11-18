@@ -55,6 +55,7 @@ function createObject() error('disabled fleets must not create a helipad') end
 function createBlip() return {} end
 function createColSphere() return {} end
 function createMarker() return {} end
+function createPickup() return {} end
 function setElementInterior() end
 function setElementDimension() end
 Fraction.createWorld()

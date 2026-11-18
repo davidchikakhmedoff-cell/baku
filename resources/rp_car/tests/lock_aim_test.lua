@@ -5,6 +5,7 @@ local centred={owner=7,x=9,sx=960,sy=540}
 local near={owner=7,x=2,sx=1020,sy=540}
 local foreign={owner=8,x=1,sx=960,sy=540}
 local cars={near,centred}
+function getPedOccupiedVehicle() return nil end
 function getCameraMatrix() return 0,0,1 end
 function guiGetScreenSize() return 1920,1080 end
 function getElementPosition(v) return v.x or 0,0,0 end
@@ -25,6 +26,17 @@ near.sx=960;near.dimension=1;assert(not getLookedVehicle(),'different world igno
 CarLockAccountId=nil;near.dimension=0;near.sx=960;assert(getLookedVehicle()==near,'missing client identity must not block the request')
 foreign.sx=958;cars={near,foreign};local first,list=getLookedVehicle();assert(first==near and list[2]==foreign,'ordered target list is sent for authoritative ownership checks')
 print('Lock aim: screen-centre ordering, visibility, 25m range and identity-independent selection passed')
+cars={centred};centred.x=9;centred.blockedX=9
+local decoration={}
+function processLineOfSight() return true,0,0,0,decoration end
+function getElementAttachedTo() return centred end
+assert(getLookedVehicle()==centred,'attached decoration cannot occlude its own vehicle lock target')
+getElementAttachedTo=function() return nil end
+assert(not getLookedVehicle(),'unrelated map objects still occlude targets')
+getPedOccupiedVehicle=function() return centred end
+assert(getLookedVehicle()==centred,'inside vehicle lock targets current vehicle even when camera points away')
+getPedOccupiedVehicle=function() return nil end;processLineOfSight=nil
+cars={near,foreign}
 -- Exercise the real N handler too; earlier tests stopped at selecting a target.
 local handle=assert(code:match('local function handleVehicleControlKey%(.-\nend'))
 local sent,feedback
@@ -36,6 +48,7 @@ function isInputBlocked() return blocked end
 function debugKey() end
 function outputDebugString() end
 function outputChatBox(message) feedback=message end
+controlFeedback=outputChatBox
 local ticks=0
 function getTickCount() ticks=ticks+1000;return ticks end
 function triggerServerEvent(event,element,targets) sent={event=event,targets=targets} end

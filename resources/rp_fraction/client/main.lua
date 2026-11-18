@@ -66,8 +66,8 @@ local function renderMenu()
   hits={};scrollBar=nil
   text(window=='duty' and 'РАБОЧАЯ СМЕНА' or (window=='armory' and 'ОРУЖЕЙНАЯ' or 'КЛЮЧИ ТРАНСПОРТА'),x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
   if window=='duty' then
-   text(data.name,x+s(10),y+s(35),w-s(20),s(30))
-   button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),w-s(120),s(30))
+   text(data.working and 'Завершить работу?' or 'Начать работу?',x+s(10),y+s(35),w-s(20),s(30))
+   button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),s(170),s(30))
    button('close','Закрыть',x+w-s(100),y+h-s(42),s(90),s(30))
   else
    scroll=math.max(0,math.min(scroll,math.max(0,#rows-7)))

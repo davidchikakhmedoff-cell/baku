@@ -20,7 +20,8 @@ FractionDB={one=function() return {fuel=23.4} end}
 local handlers,vehicles,menus={}, {}, {}
 function addEventHandler(name,element,fn) handlers[name]=handlers[name] or {};table.insert(handlers[name],fn) end
 function isElement(e) return type(e)=='table' and not e.destroyed end
-function getTickCount() return 10000 end
+local clock=10000
+function getTickCount() return clock end
 function getElementsByType(kind)
  local result={};if kind=='vehicle' then for _,v in ipairs(vehicles) do if not v.destroyed then result[#result+1]=v end end end
  return result
@@ -77,15 +78,12 @@ p.marker=marker;F.returnVehicleKeys(p,false)
 assert(not F.playerKeys[p] and not F.keyHolders[carKey] and first.destroyed and F.vehicleByKey[carKey]~=first,'return destroys old car and respawns its configured parking slot')
 assert(saved==1 and F.vehicleByKey[carKey].fuel==23.4,'return persists fuel through existing car adapter')
 
--- Passengers keep the old vehicle until it is vacant; there is no forced
--- destruction/duplicate vehicle while a returned car is still occupied.
+-- A returned car is replaced immediately, even with passengers.
 F.takeVehicleKeys(q,1)
 local occupied=F.vehicleByKey[carKey];local passenger={id=200};occupied.occupants[1]=passenger;passenger.vehicle=occupied
 F.returnVehicleKeys(q,false)
-assert(not occupied.destroyed and F.returningVehicles[carKey] and occupied.frozen,'occupied return is deferred safely')
-F.takeVehicleKeys(p,1);assert(not F.playerKeys[p],'keys cannot be reissued while returned car remains occupied')
-removePedFromVehicle(passenger);F.vehicleKeysTick()
-assert(occupied.destroyed and not F.returningVehicles[carKey],'vacant returned car is replaced on common fleet tick')
+assert(occupied.destroyed and not passenger.vehicle and not F.returningVehicles[carKey],'passengers cannot delay return')
+assert(passenger.x==f.outsideSpawn.x and passenger.z==f.outsideSpawn.z,'passenger moved to safe faction exit')
 local replacement=F.vehicleByKey[carKey];F.vehicleKeysTick();assert(F.vehicleByKey[carKey]==replacement,'no repeated respawn after successful return')
 
 F.takeVehicleKeys(p,1);p.logged=false;F.returnVehicleKeys(p,true)
@@ -105,6 +103,13 @@ F.takeVehicleKeys(p,3);local helicopter=F.vehicleByKey[heliKey];source=helicopte
 for _,fn in ipairs(handlers.onVehicleExplode) do fn() end
 assert(not F.playerKeys[p] and not F.keyHolders[heliKey] and F.missing[heliKey].at>getTickCount(),'destruction frees keys while preserving configured respawn delay')
 F.takeVehicleKeys(q,3);assert(not F.playerKeys[q],'destroyed helicopter cannot be checked out')
+-- Wrecks respawn even if a dead passenger remains in the seat.
+helicopter.occupants[1]=q;q.vehicle=helicopter;q.dead=true
+clock=clock+FractionConfig.vehicleRespawnMs
+F.fleetTick()
+assert(helicopter.destroyed and F.vehicleByKey[heliKey]~=helicopter and not q.vehicle,'exploded fleet vehicle returns without waiting for stale occupants')
+assert(F.vehicleByKey[heliKey].locked and not F.keyHolders[heliKey],'replacement is locked and has no issued keys')
+q.dead=false
 F.takeVehicleKeys(p,1);F.stopping=true;local before=saved;F.returnVehicleKeys(p,true)
 assert(not F.playerKeys[p] and saved==before,'resource stop clears keys without creating cars during shutdown')
 
@@ -119,6 +124,7 @@ function getResourceFromName() return fractionResource end
 function getResourceState() return 'running' end
 function call(resource,method,player,vehicle) assert(method=='canDriveFactionVehicle');return canDriveFactionVehicle(player,vehicle) end
 function setTimer() end
+function setElementAngularVelocity() end
 function getVehicleEngineState(v) return v.engine or false end
 function getVehicleOccupant(v,seat) return v.occupants[seat or 0] end
 function setVehicleOverrideLights(v,value) v.lights=value end

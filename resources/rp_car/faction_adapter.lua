@@ -12,7 +12,8 @@ function registerFactionVehicle(vehicle,key,fuel)
  FuelSystem.attachExternal(vehicle,key,fuel)
  setTimer(function(v)
   local state=A.vehicles[v]
-  if isElement(v) and state and not getVehicleOccupant(v,0) and not getVehicleEngineState(v) then
+  if isElement(v) and state and not getVehicleEngineState(v) then
+   setElementVelocity(v,0,0,0);setElementAngularVelocity(v,0,0,0)
    state.brake=true;setElementFrozen(v,true);setElementData(v,'car:handbrake',true,true)
   end
  end,tonumber(CarConfig.parkingSettleDelay) or 1000,1,vehicle)
@@ -51,3 +52,10 @@ function A.handle(p,kind,target)
  return true
 end
 addEventHandler('onElementDestroy',root,function() A.vehicles[source]=nil end)
+addEventHandler('onVehicleEnter',root,function(player,seat)
+ local state=A.vehicles[source]
+ if not state or seat~=0 then return end
+ -- GTA's automatic engine start must not bypass the resource's 2 key or fuel.
+ local running=getVehicleOccupant(source,0)==player and permission(player,source) and state.engine and FuelSystem.canStart(source) or false
+ setVehicleEngineState(source,running)
+end)

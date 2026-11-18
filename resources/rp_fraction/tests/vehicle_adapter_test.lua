@@ -1,7 +1,10 @@
 local fractionResource={};local p={rank=2,duty=true};local v={};local outsider={rank=1,duty=true}
 root={};sourceResource=fractionResource
 function addEventHandler() end
-function setTimer() end
+local settle,settleMs
+function setTimer(fn,ms) settle=fn;settleMs=ms end
+function setElementVelocity() end
+function setElementAngularVelocity() end
 function isElement(e) return e==p or e==v or e==outsider end
 function getResourceFromName() return fractionResource end
 function getResourceState() return 'running' end
@@ -32,6 +35,9 @@ CarInteraction={ready=function() return true end}
 CarConfig={lockServerDistance=25}
 assert(loadfile('resources/rp_car/faction_adapter.lua'))()
 assert(registerFactionVehicle(v,'fraction:2:1',30),'own faction resource registers service car')
+local occupant=getVehicleOccupant;getVehicleOccupant=function() return nil end
+assert(settleMs==1000);settle(v);assert(v.frozen and v['car:handbrake'],'one-second service parking handbrake')
+getVehicleOccupant=occupant;FactionVehicleAdapter.vehicles[v].brake=false;v.frozen=false;v['car:handbrake']=false
 sourceResource={};assert(not registerFactionVehicle(v,'fraction:2:2',30),'foreign resource cannot register')
 assert(FactionVehicleAdapter.handle(p,'engine') and v.engine,'ranked on-duty driver starts engine')
 FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'engine switches off')

@@ -81,6 +81,7 @@ end
 
 function RPUIManager.release(name)
     if RPUIManager.active == name then
+        if DXInput and DXInput.active then DXInput.active:blur() end
         RPUIManager.active = nil
     end
 

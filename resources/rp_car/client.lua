@@ -822,7 +822,17 @@ addEventHandler(CarConfig.events.receiveOffer, resourceRoot, function(offerId, d
 end)
 
 function getLookedVehicle()
+    local occupied=getPedOccupiedVehicle(localPlayer)
+    if occupied then return occupied,{occupied} end
     local cx, cy, cz = getCameraMatrix()
+    local function visible(x,y,z,vehicle)
+        if isLineOfSightClear(cx,cy,cz,x,y,z,true,false,false,true,false,false,false,localPlayer) then return true end
+        if processLineOfSight then
+            local hit,_,_,_,element=processLineOfSight(cx,cy,cz,x,y,z,true,false,false,true,false,false,false,false,localPlayer)
+            if hit and element and (element==vehicle or (getElementAttachedTo and getElementAttachedTo(element)==vehicle)) then return true end
+        end
+        return false
+    end
     local sw, sh = guiGetScreenSize()
     local px, py, pz = getElementPosition(localPlayer)
     local limit = tonumber(CarConfig.lockAimDistance) or 25
@@ -837,7 +847,7 @@ function getLookedVehicle()
             local sx,sy = getScreenFromWorldPosition(x,y,z+0.7)
             if distance <= limit and sx and sy then
                 local offset = (sx-sw/2)^2 + (sy-sh/2)^2
-                if offset <= radius^2 and isLineOfSightClear(cx,cy,cz,x,y,z+0.7,true,false,false,true,false,false,false,localPlayer) then
+                if offset <= radius^2 and visible(x,y,z+0.7,vehicle) then
                     candidates[#candidates+1] = {vehicle=vehicle,offset=offset,distance=distance}
                 end
             end
@@ -852,20 +862,27 @@ function getLookedVehicle()
     return targets[1] or false, targets
 end
 
+local function controlFeedback(message)
+    if coreClientRunning() then
+        local ok=pcall(function() exports.rp_core:showCoreNotification(message,239,166,74) end)
+        if ok then return end
+    end
+    outputChatBox(message,239,166,74)
+end
+
 local function handleVehicleControlKey(keyName, sourceName)
     local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
         or (keyName ~= "n" and CarInteraction.ready(localPlayer))
     if not ready then
-        if keyName == "n" then outputChatBox("Замок: дождитесь завершения посадки или выхода из машины.",239,166,74) end
+        if keyName == "n" then controlFeedback("Замок: дождитесь завершения посадки или выхода из машины.") end
         return false
     end
     if keyName == "n" then
         outputDebugString("[RP CAR CLIENT] N pressed", 3)
     end
     local now = getTickCount()
-    local debounceDelay = keyName == "n" and 650 or 250
+    local debounceDelay = 250
     if keyDebounce[keyName] and now - keyDebounce[keyName] < debounceDelay then return false end
-    keyDebounce[keyName] = now
 
     local label = keyName == "2" and "2" or string.upper(keyName)
     debugKey(keyName == "n" and "N pressed" or ("Key " .. label .. " pressed"))
@@ -878,10 +895,11 @@ local function handleVehicleControlKey(keyName, sourceName)
     local blocked = isInputBlocked()
     debugKey("Blocked by UI: " .. (blocked and "YES" or "NO"))
     if blocked then
-        if keyName == "n" then outputChatBox("Замок: закройте открытое окно или поле ввода.",239,166,74) end
+        if keyName == "n" then controlFeedback("Замок: закройте открытое окно или поле ввода.") end
         return false
     end
 
+    keyDebounce[keyName] = now
     if keyName == "2" then
         debugKey("Vehicle found: " .. (getPedOccupiedVehicle(localPlayer) and "YES" or "NO"))
         triggerServerEvent(CarConfig.events.toggleEngine, localPlayer)
@@ -905,7 +923,7 @@ local function handleVehicleControlKey(keyName, sourceName)
             debugKey("Lock event sent: YES")
             return true
         end
-        outputChatBox("Замок: наведите центр экрана на машину в пределах 25 метров.",239,166,74)
+        controlFeedback("Замок: наведите центр экрана на машину в пределах 25 метров.")
         debugKey("Lock event sent: NO (no car near screen centre)")
         return false
     end
@@ -917,7 +935,7 @@ local function dispatchVehicleKey(key, origin)
     local ok, result = pcall(handleVehicleControlKey,key,origin)
     if not ok then
         outputDebugString("[RP Car controls] "..tostring(result),1)
-        outputChatBox("Ошибка управления автомобилем: "..tostring(result),239,83,80)
+        controlFeedback("Ошибка управления автомобилем: "..tostring(result))
         return false
     end
     return result
@@ -1089,7 +1107,7 @@ addEventHandler("onClientKey", root, function(key, press)
             debugKey("Active UI name: " .. tostring(activeName))
         end
         debugKey("Blocked by UI: YES")
-        if key == "n" then outputChatBox("Замок: сначала закройте меню автомобиля.",239,166,74) end
+        if key == "n" then controlFeedback("Замок: сначала закройте меню автомобиля.") end
         if key == "2" then
             cancelEvent()
         end

@@ -42,6 +42,15 @@ for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
  for name,data in pairs(payloads) do
   handlers['fraction:menu'](name,data);draws={};handlers.onClientRender()
   for _,d in ipairs(draws) do assert(d.x>=0 and d.y>=0 and d.right<=sw and d.bottom<=sh,name..' must fit screen') end
+  if name=='duty' then
+   local question=false
+   for _,d in ipairs(draws) do
+    if d.text=='Начать работу?' then question=true end
+    assert(d.text~=data.name,'shift prompt replaces faction name')
+    if d.text=='Начать работу' then assert(d.x<sw/2 and d.right-d.x<200,'short start button stays on left') end
+   end
+   assert(question,'shift window asks whether to start work')
+  end
  end
 end
 sw,sh=1920,1080

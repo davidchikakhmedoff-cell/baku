@@ -57,6 +57,17 @@ local function release(p,key)
  F.playerKeys[p]=nil;F.keyHolders[key]=nil
  return holder
 end
+function F.evacuateFleetVehicle(v,fid)
+ local safe=Fractions[fid].outsideSpawn or Fractions[fid].entrance
+ for _,passenger in pairs(getVehicleOccupants(v)) do
+  removePedFromVehicle(passenger)
+  if not isPedDead(passenger) then
+   if F.safeTeleport and getElementType(passenger)=='player' then F.safeTeleport(passenger,safe,0,0)
+   else setElementInterior(passenger,0);setElementDimension(passenger,0);setElementPosition(passenger,safe.x,safe.y,safe.z) end
+   F.notify(passenger,'Служебный транспорт возвращён на парковку. Вы высажены у фракции.')
+  end
+ end
+end
 function F.processVehicleReturns()
  if F.stopping or not FractionDependencies.ready() then return end
  for key,state in pairs(F.returningVehicles) do
@@ -64,9 +75,9 @@ function F.processVehicleReturns()
    local v=F.vehicleByKey[key]
    if not isElement(v) then state.retired=true
    else
-    local occupied=false;for _ in pairs(getVehicleOccupants(v)) do occupied=true end
+    F.evacuateFleetVehicle(v,state.faction)
     setVehicleEngineState(v,false);setVehicleLocked(v,true);setElementFrozen(v,true)
-    if not occupied then F.retireFleetVehicle(v);state.retired=true end
+    F.retireFleetVehicle(v);state.retired=true
    end
   end
   if state.retired then

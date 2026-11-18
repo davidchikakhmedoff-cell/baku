@@ -1,7 +1,14 @@
 local F=Fraction
 F.vehicleByKey={}
 local function marker(key,fid,kind,p,interior,dimension)
- local m=createMarker(p.x,p.y,p.z+0.7,'arrow',0.9,255,220,0,205)
+ local m
+ if kind=='duty' then
+  m=createPickup(p.x,p.y,p.z+0.7,3,1275,1000)
+ elseif kind=='keys' then
+  m=createColSphere(p.x,p.y,p.z+0.7,1)
+ else
+  m=createMarker(p.x,p.y,p.z+0.7,'arrow',0.9,255,220,0,205)
+ end
  setElementInterior(m,interior);setElementDimension(m,dimension)
  F.markers[key]=m;setElementData(m,'fraction:marker',{id=fid,kind=kind},true)
  return m
@@ -100,6 +107,13 @@ local function markerHit(p,matching)
 end
 addEventHandler('onMarkerHit',resourceRoot,markerHit)
 addEventHandler('onColShapeHit',resourceRoot,markerHit)
+addEventHandler('onPickupHit',resourceRoot,function(p,matching)
+ local info=getElementData(source,'fraction:marker')
+ if info and info.kind=='duty' then cancelEvent();markerHit(p,matching~=false) end
+end)
+addEventHandler('onPickupUse',resourceRoot,function()
+ if getElementData(source,'fraction:marker') then cancelEvent() end
+end)
 function F.armory(p,selection)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
  if not f or not f.weapons or not F.active(p,f.id) or not F.near(p,F.markers['armory:'..f.id],3) then return end
@@ -202,8 +216,8 @@ function F.fleetTick()
  if F.vehicleKeysTick then F.vehicleKeysTick() end
  for v,spec in pairs(F.vehicles) do
   if spec.destroyAt and getTickCount()>=spec.destroyAt then
-   local occupied=false;for _ in pairs(getVehicleOccupants(v)) do occupied=true end
-   if not occupied then F.retireFleetVehicle(v) end
+   if F.evacuateFleetVehicle then F.evacuateFleetVehicle(v,spec.faction) end
+   F.retireFleetVehicle(v)
   end
  end
  for key,spec in pairs(F.missing) do if getTickCount()>=spec.at then spawnVehicle(spec.faction,spec.index) end end

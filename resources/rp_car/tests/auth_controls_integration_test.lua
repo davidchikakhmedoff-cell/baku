@@ -74,3 +74,7 @@ for _,key in ipairs({'n','l','b','2'}) do binds[key]() end
 assert(#sent==previous,'a real visible login form still blocks vehicle actions')
 AuthUI.hide(true,true)
 print('Auth focus: other inputs preserved; visible login form still blocks hotkeys')
+local stale=DXInput:new('closed window',false,32)
+RPUIManager.acquire('fraction',{cursor=true,inputMode='no_binds_when_editing'});stale:activate()
+closeUI('fraction')
+assert(not DXInput.active and not isTextInputActive(),'closing active window releases hidden text focus blocking vehicle keys')
