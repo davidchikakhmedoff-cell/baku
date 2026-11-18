@@ -36,6 +36,7 @@ local payloads={
  armory={name='LSPD',rank=5,weapons=FractionConfig.policeWeapons},
  members={faction=2,rank=10,rows={{account_id=2,rp_name='Test_Player',rank=2}}},
  news={rows={{id=1,author='Test_Player',original='Original ad',edited='Original ad'}}},
+ ticket={id=11,amount=250,reason='Test fine reason'},
  tickets={rows={{id=1,amount=100,reason='Test ticket'}}},
  keys={name='LSPD',rows={{slot=7,name='Maverick №7',rank=9,available=true,holder='Holder_Name',mine=false}}}}
 for _,size in ipairs({{1920,1080},{1600,900},{1366,768},{1280,720}}) do
@@ -81,6 +82,16 @@ local function clickText(needle)
  for _,d in ipairs(draws) do if d.text:find(needle,1,true) then handlers.onClientClick('left','down',(d.x+d.right)/2,(d.y+d.bottom)/2);return end end
  error('missing UI text '..needle)
 end
+handlers['fraction:menu']('ticket',payloads.ticket);draws={};handlers.onClientRender()
+local amountShown,reasonShown=false,false
+for _,d in ipairs(draws) do
+ if d.text=='Сумма: $250' then amountShown=true end
+ if d.text=='Причина: Test fine reason' then reasonShown=true end
+end
+assert(amountShown and reasonShown,'fine window displays persisted amount and reason')
+clickText('Оплатить');assert(sent[#sent].name=='payticket' and sent[#sent].data.id==11,'fine button pays only shown ticket ID')
+handlers['fraction:ticketPaid'](99);draws={};handlers.onClientRender();assert(#draws>0,'unrelated payment does not close fine window')
+handlers['fraction:ticketPaid'](11);draws={};handlers.onClientRender();assert(#draws==0,'successful fine payment closes window')
 handlers['fraction:menu']('armory',payloads.armory);draws={};handlers.onClientRender()
 clickText('Дубинка');clickText('Получить')
 assert(sent[#sent].name=='armory' and #sent[#sent].data.weapons==1 and sent[#sent].data.weapons[1]==3,'weapon selector submits only selected weapon')

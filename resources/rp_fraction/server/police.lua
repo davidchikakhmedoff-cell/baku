@@ -23,9 +23,10 @@ function F.clearCuffs(p,issuerLeaving)
  end
 end
 local function policeTarget(p,id,action,rank)
- if not F.active(p,2,rank or 2) or not F.throttle(p,action) then return end
+ if not F.active(p,2,rank or 2) then F.notify(p,'Нужен '..(rank or 2)..' ранг LSPD и активная смена. В КПЗ полицейские действия недоступны');return end
  local target=F.player(id)
  if not F.account(target) or isPedDead(target) or not F.near(p,target) then F.notify(p,'Игрок должен находиться рядом и быть жив');return end
+ if not F.throttle(p,action) then F.notify(p,'Подождите перед повторным использованием команды');return end
  return target
 end
 local function wanted(p,value)
@@ -34,13 +35,21 @@ local function wanted(p,value)
  FractionDB.exec('UPDATE fraction_state SET wanted=? WHERE account_id=?',value,F.account(p));setPlayerWantedLevel(p,value)
 end
 addCommandHandler('ticket',function(p,_,id,amount,...)
- local target=policeTarget(p,id,'ticket',FractionConfig.ticket.rank)
  amount=FractionRules.integer(amount,FractionConfig.ticket.min,FractionConfig.ticket.max)
  local reason=FractionRules.text(table.concat({...},' '))
- if not target or not amount or not reason then return end
- FractionDB.exec('INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(?,?,?,?,?)',F.account(target),F.account(p),amount,reason,F.now())
- F.notify(target,'Выписан штраф $'..amount..': '..reason..'. /tickets для оплаты');F.notify(p,'Штраф сохранён',true)
+ if not amount or not reason then F.notify(p,'/ticket ID сумма причина — сумма от $'..FractionConfig.ticket.min..' до $'..FractionConfig.ticket.max);return end
+ local target=policeTarget(p,id,'ticket',FractionConfig.ticket.rank)
+ if not target then return end
+ if not FractionDB.exec('INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(?,?,?,?,?)',F.account(target),F.account(p),amount,reason,F.now()) then
+  F.notify(p,'Не удалось сохранить штраф');return
+ end
+ local ticket=FractionDB.one('SELECT id FROM fraction_tickets WHERE id=last_insert_rowid() AND account_id=? AND officer_id=?',F.account(target),F.account(p))
+ if not ticket then F.notify(p,'Не удалось получить номер штрафа. Проверьте /tickets');return end
+ F.notify(target,'Выписан штраф $'..amount..': '..reason..'. Неоплаченные штрафы: /tickets')
+ if p~=target then F.notify(p,'Штраф выписан',true) end
+ triggerClientEvent(target,'fraction:menu',resourceRoot,'ticket',{id=tonumber(ticket.id),amount=amount,reason=reason})
 end)
+
 function F.tickets(p)
  if not F.account(p) then return end
  triggerClientEvent(p,'fraction:menu',resourceRoot,'tickets',{rows=FractionDB.query('SELECT * FROM fraction_tickets WHERE account_id=? AND paid=0 ORDER BY id',F.account(p))})
@@ -51,6 +60,7 @@ function F.payTicket(p,id)
  if not row or exports.rp_core:getAuthPlayerBalance(p)<tonumber(row.amount) then F.notify(p,'Штраф не найден или недостаточно средств');return end
  if FractionDB.change('UPDATE fraction_tickets SET paid=1 WHERE id=? AND account_id=? AND paid=0',id,F.account(p)) then
   F.balance(F.account(p));F.notify(p,'Штраф оплачен',true)
+  triggerClientEvent(p,'fraction:ticketPaid',resourceRoot,id)
   local officer=tonumber(row.officer_id)
   if officer~=F.account(p) then
    F.balance(officer)
@@ -60,7 +70,6 @@ function F.payTicket(p,id)
    end end
   end
  end
- F.tickets(p)
 end
 addCommandHandler('tickets',F.tickets)
 addCommandHandler('payticket',function(p,_,id) F.payTicket(p,id) end)
@@ -70,7 +79,8 @@ addCommandHandler('su',function(p,_,id,level,...)
  wanted(target,math.min(6,getPlayerWantedLevel(target)+level));F.notify(target,'Вы объявлены в розыск: '..reason)
  local color=FractionConfig.wantedNoticeColor
  local name=F.name(target):gsub('#%x%x%x%x%x%x','')
- local message='Объявлен в розыск '..name..', Уровень розыска - '..getPlayerWantedLevel(target)..'. Причина: '..reason
+ local message='Внимание всем постам! Объявлен в розыск '..name..'. Уровень розыска - '..getPlayerWantedLevel(target)..'. Причина: '..reason
+ if not message:find('[.!?]$') then message=message..'.' end
  for _,other in ipairs(getElementsByType('player')) do
   local member=F.account(other) and F.member(other)
   if member and member.faction_id==2 then exports.rp_core:sendCoreChatMessage(other,message,color[1],color[2],color[3]) end
@@ -110,21 +120,41 @@ function F.arrest(target,minutes,reason,keepDuty)
  F.clearCuffs(target)
  if not keepDuty then F.endDuty(target) end
  wanted(target,0);F.applyJail(target,false)
- F.notify(target,'КПЗ: '..minutes..' мин. Причина: '..reason);return true
+ F.notify(target,'КПЗ: '..minutes..' мин.');return true
 end
-addCommandHandler('arrest',function(p,_,id,...)
+function F.atJailBooking(p)
+ local f=Fractions[2];local point=f.jailBooking
+ if getElementInterior(p)~=f.interior or getElementDimension(p)~=f.dimension then return false end
+ local x,y,z=getElementPosition(p)
+ return math.abs(z-point.z)<=1.2 and getDistanceBetweenPoints3D(x,y,z,point.x,point.y,point.z)<=(point.radius or 3)
+end
+addCommandHandler('arrest',function(p,_,id)
  local target=policeTarget(p,id,'arrest',2)
  if not target then return end
- local parts={...}
- -- Accept the former minutes argument for existing binds; sentence is now
- -- always determined by wanted stars, including when testing on yourself.
- if #parts>1 and FractionRules.integer(parts[1],FractionConfig.jail.min,FractionConfig.jail.max) then table.remove(parts,1) end
- local reason=FractionRules.text(table.concat(parts,' '));local stars=getPlayerWantedLevel(target)
- if not reason or stars<1 then F.notify(p,'/arrest ID причина — у игрока должен быть розыск');return end
- local x,y,z=getElementPosition(p)
- local f=Fractions[2];local h=f.entrance
- if getElementDimension(p)~=f.dimension and (getElementDimension(p)~=0 or getDistanceBetweenPoints3D(x,y,z,h.x,h.y,h.z)>FractionConfig.jail.stationRange) then F.notify(p,'Арест оформляется в LSPD');return end
- F.arrest(target,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),reason)
+ if not F.atJailBooking(p) then F.notify(p,'Оформить арест можно только перед КПЗ LSPD');return end
+ local stars=getPlayerWantedLevel(target)
+ if stars<1 then F.notify(p,'/arrest ID — у игрока должен быть розыск');return end
+ F.arrest(target,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Арест по уровню розыска')
+end)
+local function releasePosition(p)
+ local pos=Fractions[2].outsideSpawn or FractionConfig.release
+ F.clearCuffs(p,true)
+ if isPedInVehicle(p) then removePedFromVehicle(p) end
+ if isPedDead(p) then spawnPlayer(p,pos.x,pos.y,pos.z,pos.rotation or 90,getCivilianSkin(p),0,0) end
+ setElementInterior(p,0);setElementDimension(p,0);setElementPosition(p,pos.x,pos.y,pos.z)
+ setPedRotation(p,pos.rotation or 90);setCameraTarget(p,p)
+end
+addCommandHandler('unarrest',function(p,_,id)
+ local member=F.member(p)
+ if not F.account(p) or not member or member.faction_id~=2 or member.rank<#Fractions[2].ranks-1 then F.notify(p,'Освобождение доступно только лидеру и заместителю LSPD');return end
+ if not F.throttle(p,'unarrest') then return end
+ local target=F.player(id);local state=F.account(target) and F.state(target)
+ if not state or tonumber(state.jail_remaining)<=0 then F.notify(p,'Игрок не находится в КПЗ');return end
+ if not FractionDB.change("UPDATE fraction_state SET jail_remaining=0,jail_reason='' WHERE account_id=? AND jail_remaining>0",F.account(target)) then F.notify(p,'Не удалось освободить игрока');return end
+ state.jail_remaining=0;state.jail_reason=''
+ releasePosition(target)
+ F.notify(target,'Вы освобождены из КПЗ',true)
+ if p~=target then F.notify(p,'Заключённый освобождён',true) end
 end)
 
 function F.jailTick(p,elapsed)
@@ -132,7 +162,7 @@ function F.jailTick(p,elapsed)
  s.jail_remaining=math.max(0,s.jail_remaining-elapsed/1000)
  FractionDB.exec('UPDATE fraction_state SET jail_remaining=? WHERE account_id=?',s.jail_remaining,F.account(p))
  if s.jail_remaining<=0 then
-  local pos=FractionConfig.release;setElementInterior(p,pos.interior);setElementDimension(p,pos.dimension);setElementPosition(p,pos.x,pos.y,pos.z)
+  releasePosition(p)
   F.notify(p,'Срок заключения завершён',true)
  else
   local cell=FractionConfig.jailCells[1];local x,y,z=getElementPosition(p)

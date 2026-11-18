@@ -10,9 +10,7 @@ local function invite(p,id)
  local m=F.member(p);local f=m and Fractions[m.faction_id];local target=F.player(id)
  if not f or m.rank<#f.ranks-1 or target==p or not F.account(target) or not F.near(p,target) or F.member(target) or F.jailed(target) then F.notify(p,'Приглашение недоступно: проверьте ранг, дистанцию и фракцию игрока');return end
  F.invites[target]={inviter=p,faction=m.faction_id,expires=F.now()+FractionConfig.inviteSeconds}
- if m.rank==#f.ranks then F.respondInvite(target,true);return end
- triggerClientEvent(target,'fraction:menu',resourceRoot,'invite',{name=f.name,inviter=F.name(p),seconds=FractionConfig.inviteSeconds})
- F.notify(p,'Приглашение отправлено',true)
+ F.respondInvite(target,true)
 end
 function F.respondInvite(p,accept)
  local invitation=F.invites[p];F.invites[p]=nil
@@ -96,7 +94,7 @@ end)
 -- The project's custom chat does not execute native command handlers itself.
 -- Accept only our known commands, and only from that authenticated core route.
 local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvite=true,giverank=true,members=true,f=true,r=true,rb=true,d=true,db=true,setleader=true,
- heal=true,sms=true,add=true,news=true,ticket=true,tickets=true,payticket=true,su=true,clearwanted=true,cuff=true,arrest=true,m=true}
+ heal=true,sms=true,add=true,news=true,ticket=true,tickets=true,payticket=true,su=true,clearwanted=true,cuff=true,arrest=true,unarrest=true,m=true}
 function executeFractionCommand(p,command,args)
  if sourceResource~=getResourceFromName('rp_core') or not chatCommands[command] then return false end
  if not F.account(p) then F.notify(p,'Система фракций ещё не готова. Дождитесь загрузки зависимостей');return true end

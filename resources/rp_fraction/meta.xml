@@ -19,6 +19,7 @@
  <script src="client/key_marker.lua" type="client" />
  <script src="client/portal.lua" type="client" />
  <script src="client/garage_visibility.lua" type="client" />
+ <script src="client/jail_safezone.lua" type="client" />
  <export function="canDriveFactionVehicle" type="server" />
  <export function="executeFractionCommand" type="server" />
  <export function="getCivilianWeapons" type="server" />

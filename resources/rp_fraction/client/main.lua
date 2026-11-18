@@ -17,6 +17,14 @@ end
 local function action(name,payload) triggerServerEvent('fraction:action',resourceRoot,name,payload or {}) end
 addEvent('fraction:state',true)
 addEventHandler('fraction:state',resourceRoot,function() if window and window~='invite' then close() end end)
+addEvent('fraction:ticketPaid',true)
+addEventHandler('fraction:ticketPaid',resourceRoot,function(id)
+ if window=='ticket' and tonumber(data.id)==tonumber(id) then close()
+ elseif window=='tickets' then
+  for index=#(data.rows or {}),1,-1 do if tonumber(data.rows[index].id)==tonumber(id) then table.remove(data.rows,index) end end
+  selected=nil
+ end
+end)
 addEvent('fraction:closeArmory',true)
 addEventHandler('fraction:closeArmory',resourceRoot,function() if window=='armory' then close() end end)
 addEvent('fraction:closeKeys',true)
@@ -57,6 +65,18 @@ local function renderMenu()
  if not window then return end
  alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
+ if window=='ticket' then
+  local w,h=s(480),s(240);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
+  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130))
+  hits={}
+  text('ШТРАФ',x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  text('Сумма: $'..tostring(data.amount),x+s(16),y+s(42),w-s(32),s(30))
+  dxDrawText('Причина: '..tostring(data.reason or ''),x+s(16),y+s(82),x+w-s(16),y+h-s(55),tocolor(245,245,245),1,'default-bold','left','top',true,true)
+  local bw=(w-s(28))/2
+  button('payCurrentTicket','Оплатить',x+s(10),y+h-s(40),bw,s(30))
+  button('close','Закрыть',x+s(18)+bw,y+h-s(40),bw,s(30))
+  return
+ end
  if window=='duty' or window=='armory' or window=='keys' or window=='members' then
   local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
   local limit=visibleRows()
@@ -216,6 +236,7 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
   elseif id=='keysTake' then if selected then action(id,{slot=data.rows[selected].slot}) end
   elseif id=='keysReturn' or id=='keysRefresh' then action(id)
   elseif id=='publish' or id=='reject' then if selected then action(id,{id=data.rows[selected].id,text=edit}) end
+  elseif id=='payCurrentTicket' then action('payticket',{id=data.id})
   elseif id=='payticket' then if selected then action(id,{id=data.rows[selected].id}) end
   else action(id);close() end
   return
