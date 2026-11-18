@@ -16,8 +16,9 @@ local function radio(p,command,...)
  if not message then F.notify(p,'/'..command..' сообщение');return end
  if not F.throttle(p,'radio') then return end
  local name=F.name(p):gsub('#%x%x%x%x%x%x','')
- local line='['..definition.ranks[member.rank]..'] '..name..': '..message
- if command=='rb' or command=='db' then line='(( '..line..' ))' end
+ local prefix='['..definition.ranks[member.rank]..'] '..name
+ local line=prefix..': '..message
+ if command=='rb' or command=='db' then line=prefix..' (( '..message..' ))' end
  local color=department and config.departmentColor or config.fractionColor
  for _,target in ipairs(getElementsByType('player')) do
   local other=F.account(target) and F.member(target)
