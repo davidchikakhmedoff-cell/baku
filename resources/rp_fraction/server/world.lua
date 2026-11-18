@@ -171,6 +171,15 @@ local function spawnVehicle(fid,index)
   local x,y,z=getElementPosition(v)
   if getElementDimension(v)==0 and getElementInterior(v)==0 and getDistanceBetweenPoints3D(x,y,z,pos.x,pos.y,pos.z)<3 then return end
  end
+ local saved=FractionDB.one('SELECT fuel FROM fraction_vehicle_fuel WHERE vehicle_key=?',key)
+ if not saved then FractionDB.exec('INSERT OR IGNORE INTO fraction_vehicle_fuel(vehicle_key,fuel) VALUES(?,30)',key);saved={fuel=30} end
+ -- Detach the old car first; its final save must precede this refill.
+ -- Startup loads retain stored fuel, parking returns and wreck replacements refill.
+ if (F.returningVehicles and F.returningVehicles[key]) or F.missing[key] then
+  local fuel=FractionConfig.vehicleReturnFuel
+  if not FractionDB.exec('UPDATE fraction_vehicle_fuel SET fuel=? WHERE vehicle_key=?',fuel,key) then return false end
+  saved={fuel=fuel}
+ end
  local vehicle=createVehicle(cfg.model,pos.x,pos.y,pos.z,0,0,pos.rotation or 0)
  if not vehicle then return end
  F.vehicles[vehicle]={faction=fid,index=index,rank=cfg.rank,key=key}
@@ -178,8 +187,6 @@ local function spawnVehicle(fid,index)
  setVehicleColor(vehicle,unpack(f.vehicleColor))
  setVehicleEngineState(vehicle,false);setVehicleLocked(vehicle,true)
  setElementData(vehicle,'fraction:vehicle',fid,true);setElementData(vehicle,'fraction:minRank',cfg.rank,true)
- local saved=FractionDB.one('SELECT fuel FROM fraction_vehicle_fuel WHERE vehicle_key=?',key)
- if not saved then FractionDB.exec('INSERT OR IGNORE INTO fraction_vehicle_fuel(vehicle_key,fuel) VALUES(?,30)',key);saved={fuel=30} end
  local ok,registered=pcall(function() return exports.rp_car:registerFactionVehicle(vehicle,key,tonumber(saved.fuel)) end)
  if not ok or registered~=true then
   F.vehicles[vehicle]=nil;F.vehicleByKey[key]=nil;destroyElement(vehicle);FractionDependencies.rejectVehicleAdapter()

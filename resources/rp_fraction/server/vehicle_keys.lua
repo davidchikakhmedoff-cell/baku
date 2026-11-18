@@ -94,7 +94,10 @@ function F.returnVehicleKeys(p,automatic)
   F.returningVehicles[key]={faction=holder.faction,index=holder.index,retired=false}
   F.processVehicleReturns()
   F.refreshKeyMenus(holder.faction)
-  if not automatic then F.notify(p,'Ключи сданы. Транспорт возвращён на парковку или ожидает её освобождения',true);F.keysMenu(p) end
+  if not automatic then
+   local cfg=Fractions[holder.faction].vehicles[holder.index]
+   F.notify(p,'Ключи от '..getVehicleNameFromModel(cfg.model)..' сданы',true);F.keysMenu(p)
+  end
  end
  return true
 end

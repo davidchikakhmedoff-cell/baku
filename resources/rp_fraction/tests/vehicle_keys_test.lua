@@ -14,9 +14,11 @@ F.active=function(player,fid,rank) return F.account(player) and player.working a
 F.near=function(player,m) return player.marker==m end
 F.jailed=function() return false end
 F.name=function(player) return player.name end
-F.notify=function() end
+F.notify=function(player,text) player.notice=text end
 FractionDependencies={ready=function() return true end}
-FractionDB={one=function() return {fuel=23.4} end}
+local fuelRows={}
+FractionDB={one=function(sql,key) return {fuel=fuelRows[key] or 23.4} end,
+ exec=function(sql,fuel,key) assert(sql:find('UPDATE fraction_vehicle_fuel',1,true));fuelRows[key]=fuel;return true end}
 local handlers,vehicles,menus={}, {}, {}
 function addEventHandler(name,element,fn) handlers[name]=handlers[name] or {};table.insert(handlers[name],fn) end
 function isElement(e) return type(e)=='table' and not e.destroyed end
@@ -57,14 +59,15 @@ function isPedDead(player) return player.dead or false end
 function getVehicleNameFromModel(id) return id==487 and 'Maverick' or 'Ambulance' end
 function triggerClientEvent(player,event,element,kind,data) if event=='fraction:menu' then menus[player]=data end end
 local saved,registered=0,{}
-exports={rp_car={registerFactionVehicle=function(self,v,key,fuel) registered[key]=v;v.fuel=fuel;return true end,
- unregisterFactionVehicle=function(self,v) saved=saved+1 end}}
+exports={rp_car={registerFactionVehicle=function(self,v,key,fuel) registered[key]=v;v.key=key;v.fuel=fuel;return true end,
+ unregisterFactionVehicle=function(self,v) saved=saved+1;fuelRows[v.key]=v.fuel end}}
 dofile('resources/rp_fraction/server/world.lua');dofile('resources/rp_fraction/server/vehicle_keys.lua')
 -- Only this faction has a fleet in this fixture.
 for id,definition in pairs(Fractions) do if id~=1 then definition.vehicles={} end end
 F.spawnFleet()
 local carKey,heliKey='fraction:1:1','fraction:1:3'
 local first=F.vehicleByKey[carKey]
+assert(first.fuel==23.4,'startup retains stored fuel')
 assert(first.locked and not canDriveFactionVehicle(p,first),'unassigned service car is locked and no member can drive without keys')
 F.keysMenu(q);F.takeVehicleKeys(p,1)
 assert(F.hasVehicleKey(p,carKey) and not F.hasVehicleKey(q,carKey),'one server-side holder per vehicle')
@@ -76,9 +79,10 @@ F.takeVehicleKeys(low,3);assert(not F.playerKeys[low],'helicopter rank requireme
 F.takeVehicleKeys(outsider,1);assert(not F.playerKeys[outsider],'foreign-faction desk access rejected')
 q.working=false;F.takeVehicleKeys(q,3);assert(not F.playerKeys[q],'off-duty requests rejected');q.working=true
 p.marker=nil;assert(not F.returnVehicleKeys(p,false) and F.hasVehicleKey(p,carKey),'remote manual return rejected')
-p.marker=marker;F.returnVehicleKeys(p,false)
+p.marker=marker;first.fuel=4.5;F.returnVehicleKeys(p,false)
 assert(not F.playerKeys[p] and not F.keyHolders[carKey] and first.destroyed and F.vehicleByKey[carKey]~=first,'return destroys old car and respawns its configured parking slot')
-assert(saved==1 and F.vehicleByKey[carKey].fuel==23.4,'return persists fuel through existing car adapter')
+assert(p.notice=='Ключи от Ambulance сданы','return notification names the returned vehicle')
+assert(saved==1 and F.vehicleByKey[carKey].fuel==30 and fuelRows[carKey]==30,'return refills to 30 after old vehicle fuel is saved')
 
 -- A returned car is replaced immediately, even with passengers.
 F.takeVehicleKeys(q,1)
@@ -99,7 +103,7 @@ local parking=f.vehicles[1].p;local blocker=createVehicle(400,parking.x,parking.
 F.returnVehicleKeys(p,false)
 assert(F.returningVehicles[carKey] and not F.vehicleByKey[carKey],'blocked parking defers respawn without vehicle overlap')
 blocker.x=blocker.x+100;F.vehicleKeysTick()
-assert(F.vehicleByKey[carKey] and not F.returningVehicles[carKey],'parking retry completes when slot becomes free')
+assert(F.vehicleByKey[carKey] and not F.returningVehicles[carKey] and F.vehicleByKey[carKey].fuel==30,'parking retry completes with 30 litres when slot becomes free')
 
 F.takeVehicleKeys(p,3);local helicopter=F.vehicleByKey[heliKey];source=helicopter
 for _,fn in ipairs(handlers.onVehicleExplode) do fn() end
@@ -112,6 +116,7 @@ clock=clock+4999;F.fleetTick()
 assert(not helicopter.destroyed and F.vehicleByKey[heliKey]==helicopter,'no early respawn')
 clock=clock+1;respawnTimer.fn(unpack(respawnTimer.args))
 assert(helicopter.destroyed and F.vehicleByKey[heliKey]~=helicopter and not q.vehicle,'exploded fleet vehicle returns without waiting for stale occupants')
+assert(F.vehicleByKey[heliKey].fuel==30 and fuelRows[heliKey]==30,'wreck replacement also refills to 30 litres')
 assert(F.vehicleByKey[heliKey].locked and not F.keyHolders[heliKey],'replacement is locked and has no issued keys')
 q.dead=false
 F.takeVehicleKeys(p,1);F.stopping=true;local before=saved;F.returnVehicleKeys(p,true)
