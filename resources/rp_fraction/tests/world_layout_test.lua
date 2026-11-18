@@ -101,7 +101,7 @@ assert(cancelled and opened=='duty','clothes pickup opens shift menu without con
 
 for _,zone in ipairs(elements) do if zone.kind=='colshape' and zone.data['fraction:marker'].kind=='roofBack' then
  local id=zone.data['fraction:marker'].id;local f=Fractions[id]
- assert(zone.radius==0.9,'roof auxiliary sphere matches the garage radius')
+ assert(zone.radius==(f.roof.triggerRadius or 0.9),'roof auxiliary sphere respects uploaded trigger radius')
  local arrival=f.roof.arrival
  assert((arrival.x-zone.x)^2+(arrival.y-zone.y)^2>zone.radius^2,'roof arrival stays outside return trigger')
  p.x,p.y,p.z=zone.x+1.2,zone.y,zone.z;p.interior,p.dimension=0,0

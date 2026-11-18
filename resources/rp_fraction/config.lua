@@ -2,12 +2,13 @@ FractionConfig = {
     dimensionBase=20000, inviteSeconds=60, proximity=5,
     healPrice=100, smsPrice=1, newsReward=150, textLimit=160,
     cooldown={radio=1,invite=5,heal=5,ticket=10,su=5,cuff=2,arrest=5,m=5,add=30,sms=3},
-    ticket={min=10,max=50000,rank=2}, jail={min=1,max=120,perStar=2,radius=15,stationRange=40},
+    ticket={min=10,max=50000,rank=2,officerPercent=60}, jail={min=1,max=120,perStar=5,radius=15,stationRange=40},
     megaphone={range=80,durationMs=10000,maxLength=100},
     cuffControls={'sprint','jump','fire','aim_weapon','vehicle_fire','vehicle_secondary_fire','enter_exit'},
     salaryHourMs=3600000, tickMs=5000, idleLimitMs=60000,
     vehicleRespawnMs=5000, vehicleReturnFuel=30, blipVisibleDistance=250, helipadModel=3934,
     markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
+    wantedNoticeColor={125,195,255},
     radio={fractionColor={90,155,255},departmentColor={240,135,195},department={[1]=true,[2]=true,[3]=true}},
     armoryPickupModel=2040, -- GTA SA ammo_box_M1.
     interactionIconZOffset=0.5, -- Clothes and keys: height above the configured point.

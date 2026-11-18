@@ -32,11 +32,37 @@ class FractionSQLTests(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):
             self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1')
         self.assertEqual(self.money(),1000)
+        self.assertEqual(self.money(2),2000)
         self.assertEqual(self.db.execute('SELECT paid FROM fraction_tickets').fetchone()[0],0)
         self.db.execute('UPDATE players SET money=2000 WHERE id=1')
         self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1 AND paid=0')
         self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1 AND paid=0')
         self.assertEqual(self.money(),500)
+        self.assertEqual(self.money(2),2900)
+        self.assertEqual(self.db.execute("SELECT COUNT(*),amount FROM fraction_rewards WHERE kind='ticket'").fetchone(),(1,900))
+    def test_ticket_unpaid_has_no_reward(self):
+        self.db.execute("INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(1,2,100,'reason',1)")
+        self.assertEqual((self.money(),self.money(2)),(1000,2000))
+        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM fraction_rewards').fetchone()[0],0)
+    def test_ticket_self_payment(self):
+        self.db.execute("INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(1,1,100,'test',1)")
+        self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1 AND paid=0')
+        self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1 AND paid=0')
+        self.assertEqual(self.money(),960)
+    def test_ticket_self_insufficient_is_atomic(self):
+        self.db.execute("INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(1,1,1500,'test',1)")
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1')
+        self.assertEqual(self.money(),1000)
+        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM fraction_rewards').fetchone()[0],0)
+    def test_ticket_reward_persists_for_offline_officer(self):
+        self.db.execute("INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(1,2,101,'test',1)")
+        self.db.execute('UPDATE fraction_tickets SET paid=1 WHERE id=1')
+        self.db.commit()
+        restored=sqlite3.connect(':memory:');restored.deserialize(self.db.serialize())
+        self.assertEqual(restored.execute('SELECT money FROM players WHERE id=2').fetchone()[0],2060)
+        for sql in SCHEMA: restored.execute(sql)
+        self.assertEqual(restored.execute('SELECT money FROM players WHERE id=2').fetchone()[0],2060)
     def test_one_leader(self):
         self.db.execute('INSERT INTO fraction_members(account_id,faction_id,rank) VALUES(1,2,10)')
         with self.assertRaises(sqlite3.IntegrityError):

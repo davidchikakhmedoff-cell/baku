@@ -10,6 +10,7 @@ local function invite(p,id)
  local m=F.member(p);local f=m and Fractions[m.faction_id];local target=F.player(id)
  if not f or m.rank<#f.ranks-1 or target==p or not F.account(target) or not F.near(p,target) or F.member(target) or F.jailed(target) then F.notify(p,'Приглашение недоступно: проверьте ранг, дистанцию и фракцию игрока');return end
  F.invites[target]={inviter=p,faction=m.faction_id,expires=F.now()+FractionConfig.inviteSeconds}
+ if m.rank==#f.ranks then F.respondInvite(target,true);return end
  triggerClientEvent(target,'fraction:menu',resourceRoot,'invite',{name=f.name,inviter=F.name(p),seconds=FractionConfig.inviteSeconds})
  F.notify(p,'Приглашение отправлено',true)
 end

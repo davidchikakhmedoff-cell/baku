@@ -270,14 +270,14 @@ FractionLocationConfig = {
     [2] = {
         interior=6, dimension=20002,
         entrance={x=1554.9000,y=-1675.5000,z=16.2000,rotation=0.00},
-        inside={x=246.8000,y=65.7000,z=1003.6000,rotation=0.00},
-        exit={x=246.5000,y=62.6000,z=1003.6000,rotation=0.00},
+        inside={x=246.8000,y=64.000,z=1003.6000,rotation=0.00},
+        exit={x=246.8000,y=62.6000,z=1003.6000,rotation=0.00},
         keysPoint={x=239.4000,y=73.6000,z=1004.6000,rotation=0.00},
         dutyPoint={x=254.5000,y=77.0800,z=1003.3000,rotation=0.00},
         armory={x=256.000,y=74.3000,z=1003.1000,rotation=0.00},
         outsideSpawn={x=1552.4000,y=-1675.5000,z=16.2000,rotation=90.00},
-        roof={triggerRadius=0.9, slot=17, inside={x=243.0500,y=66.4000,z=1003.6000,rotation=0.00}, outside={x=1565.0700,y=-1684.9000,z=28.4000,rotation=90.00},
-            arrival={x=1577.0000,y=-1694.0000,z=28.6000,rotation=0.00}, returnSpawn={x=244.5000,y=66.4000,z=1003.6000,rotation=270.00}},
+        roof={triggerRadius=0.5, slot=17, inside={x=243.0500,y=66.4000,z=1003.6000,rotation=0.00}, outside={x=1565.0700,y=-1684.9000,z=28.4000,rotation=90.00},
+            arrival={x=1565.0700,y=-1687.0000,z=28.4000,rotation=180.00}, returnSpawn={x=244.5000,y=66.4000,z=1003.6000,rotation=270.00}},
         garage={
             triggerRadius=0.9,
             inside={x=246.4,y=87.5,z=1003.6},

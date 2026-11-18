@@ -18,6 +18,7 @@ end
 function FractionDB.init()
  FractionDB.exec("DROP TRIGGER IF EXISTS fraction_salary")
  FractionDB.exec("DROP TRIGGER IF EXISTS fraction_news_reward")
+ FractionDB.exec("DROP TRIGGER IF EXISTS fraction_ticket_payment")
  local statements={
  [[CREATE TABLE IF NOT EXISTS fraction_members(account_id INTEGER PRIMARY KEY,faction_id INTEGER NOT NULL,rank INTEGER NOT NULL,civilian_skin INTEGER NOT NULL DEFAULT 0,salary_ms INTEGER NOT NULL DEFAULT 0,salary_cycle INTEGER NOT NULL DEFAULT 0,armory_at INTEGER NOT NULL DEFAULT 0,duty INTEGER NOT NULL DEFAULT 0,civilian_weapons TEXT DEFAULT '[]')]],
  [[CREATE TABLE IF NOT EXISTS fraction_state(account_id INTEGER PRIMARY KEY,wanted INTEGER DEFAULT 0,jail_remaining INTEGER DEFAULT 0,jail_reason TEXT DEFAULT '',last_jail INTEGER DEFAULT 0)]],
@@ -29,10 +30,11 @@ function FractionDB.init()
  [[CREATE UNIQUE INDEX IF NOT EXISTS fraction_one_leader ON fraction_members(faction_id) WHERE (faction_id=1 AND rank=6) OR (faction_id=2 AND rank=10) OR (faction_id=3 AND rank=5) OR (faction_id IN (4,5,6) AND rank=10)]],
  [[CREATE TABLE IF NOT EXISTS fraction_vehicle_fuel(vehicle_key TEXT PRIMARY KEY,fuel REAL NOT NULL DEFAULT 30)]],
  [[CREATE TRIGGER IF NOT EXISTS fraction_news_reward AFTER UPDATE OF status ON fraction_ads WHEN OLD.status='pending' AND NEW.status='published' BEGIN INSERT OR IGNORE INTO fraction_rewards(id,account_id,amount,kind) SELECT 'news:'||NEW.id,NEW.editor_id,150,'news'; END]],
- [[CREATE TRIGGER IF NOT EXISTS fraction_ticket_payment AFTER UPDATE OF paid ON fraction_tickets WHEN OLD.paid=0 AND NEW.paid=1 BEGIN SELECT CASE WHEN COALESCE((SELECT money FROM players WHERE id=NEW.account_id),-1)<NEW.amount THEN RAISE(ABORT,'insufficient funds') END; UPDATE players SET money=money-NEW.amount WHERE id=NEW.account_id; END]]}
+ [[CREATE TRIGGER IF NOT EXISTS fraction_ticket_payment AFTER UPDATE OF paid ON fraction_tickets WHEN OLD.paid=0 AND NEW.paid=1 BEGIN SELECT CASE WHEN COALESCE((SELECT money FROM players WHERE id=NEW.account_id),-1)<NEW.amount THEN RAISE(ABORT,'insufficient funds') END; UPDATE players SET money=money-NEW.amount WHERE id=NEW.account_id; INSERT OR IGNORE INTO fraction_rewards(id,account_id,amount,kind) VALUES('ticket:'||NEW.id,NEW.officer_id,CAST(NEW.amount * 60 / 100 AS INTEGER),'ticket'); END]]}
  for _,sql in ipairs(statements) do
   if sql:find("fraction_salary AFTER",1,true) then sql=sql:gsub("3600000",tostring(FractionConfig.salaryHourMs)) end
   if sql:find("fraction_news_reward AFTER",1,true) then sql=sql:gsub("150,'news'",tostring(FractionConfig.newsReward)..",'news'") end
+  if sql:find("fraction_ticket_payment AFTER",1,true) then sql=sql:gsub("NEW.amount %* 60 / 100", "NEW.amount * "..tostring(FractionConfig.ticket.officerPercent).." / 100") end
   assert(FractionDB.exec(sql),'fraction database migration failed')
  end
  local columns=FractionDB.query('PRAGMA table_info(fraction_members)');local hasGear=false

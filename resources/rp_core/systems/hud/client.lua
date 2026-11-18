@@ -191,6 +191,18 @@ local function drawMiniBar(x, y, w, h, value, maxValue, fillName, alpha)
     end
 end
 
+local wantedStar = svgCreate(32, 32, [[<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="16,1 20.5,10.8 31,12 23,19.6 25,30 16,24.7 7,30 9,19.6 1,12 11.5,10.8" fill="#ffffff" stroke="#181818" stroke-width="1.2"/></svg>]])
+local function drawWantedStars(right, y, alpha)
+    local level = math.max(0, math.min(6, tonumber(getPlayerWantedLevel(localPlayer)) or 0))
+    if level == 0 or not isElement(wantedStar) then return end
+    local size, gap = s(20), s(5)
+    for index = 1, 6 do
+        local active = index <= level
+        local tint = active and tocolor(255, 200, 70, alpha) or tocolor(80, 84, 90, alpha * 0.65)
+        dxDrawImage(right - (7 - index) * (size + gap) + gap, y, size, size, wantedStar, 0, 0, 0, tint)
+    end
+end
+
 local function drawHud()
     local suppressed = hud.scoreboardSuppressed or hud.notificationSuppressed
     local targetAlpha = hud.visible and not suppressed and 255 or 0
@@ -236,6 +248,7 @@ local function drawHud()
         outlinedText(tostring(weapon.clip or 0) .. " / " .. tostring(weapon.reserve or 0), barX, weaponY + s(18), barX + barW, weaponY + s(34), color("muted", alpha), 0.86, cfg().fonts.bold, "left", "center", alpha, true)
     end
 
+    drawWantedStars(barX + barW, weaponY + s(42), alpha)
     drawTimeBlock(alpha)
 end
 
@@ -299,6 +312,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 end)
 
 addEventHandler("onClientResourceStop", resourceRoot, function()
+    if isElement(wantedStar) then destroyElement(wantedStar) end
     setDefaultHudVisible(true)
 end)
 

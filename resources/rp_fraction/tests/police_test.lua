@@ -3,10 +3,14 @@ local commands,events={},{}
 local officer={id=1,faction=2,rank=9,duty=true,x=1554,y=-1675,z=16,interior=0,dimension=0,stars=0,controls={}}
 local suspect={id=2,x=1554,y=-1675,z=16,interior=0,dimension=0,stars=3,controls={jump=false}}
 local states={}
+local dispatch={}
+exports={rp_core={sendCoreChatMessage=function(_,p,text,r,g,b) dispatch[#dispatch+1]={player=p,text=text,color={r,g,b}} end}}
+local ticketWrites,megaphones=0,0
 Fraction={cuffs={},vehicles={},sessions={}}
 local F=Fraction
 F.account=function(p) return type(p)=='table' and p.id end
-F.player=function(id) return tonumber(id)==2 and suspect end
+F.member=function(p) return p.faction and {faction_id=p.faction,rank=p.rank} end
+F.player=function(id) return tonumber(id)==1 and officer or (tonumber(id)==2 and suspect or nil) end
 F.active=function(p,fid,rank) return p and p.faction==fid and p.duty and p.rank>=(rank or 1) end
 F.throttle=function() return true end
 F.near=function() return not suspect.far end
@@ -18,7 +22,8 @@ FractionDB={}
 FractionDB.one=function(sql,id) return states[id] end
 FractionDB.exec=function(sql,...)
  local a,b,c,d=...
- if sql:find('INSERT OR IGNORE INTO fraction_state') then states[a]=states[a] or {account_id=a,wanted=0,jail_remaining=0}
+ if sql:find('INSERT INTO fraction_tickets',1,true) then ticketWrites=ticketWrites+1
+ elseif sql:find('INSERT OR IGNORE INTO fraction_state') then states[a]=states[a] or {account_id=a,wanted=0,jail_remaining=0}
  elseif sql:find('SET jail_remaining=?,jail_reason',1,true) then states[d].jail_remaining=a;states[d].jail_reason=b
  elseif sql:find('SET jail_remaining=') then states[b].jail_remaining=a
  elseif sql:find('SET wanted=') then states[b].wanted=a end
@@ -44,7 +49,8 @@ function isControlEnabled(p,name) if p.controls[name]~=nil then return p.control
 function toggleControl(p,name,value) p.controls[name]=value end
 function setPedWeaponSlot() end
 function setElementData(p,key,value) p[key]=value end
-function triggerClientEvent() end
+function triggerClientEvent(p,event) if event=='fraction:megaphone' then megaphones=megaphones+1 end end
+function getElementsByType() return {officer,suspect} end
 function takeAllWeapons() end
 function setCameraTarget() end
 function getElementType() return 'player' end
@@ -53,6 +59,7 @@ function spawnPlayer(p,x,y,z) p.dead=false;p.x,p.y,p.z=x,y,z end
 root,resourceRoot={},{}
 assert(loadfile('resources/rp_fraction/server/police.lua'))()
 commands.su(officer,'su','2','6','reason');assert(suspect.stars==6,'wanted capped at 6')
+assert(dispatch[1].player==officer and dispatch[1].text=='Объявлен в розыск Player2, Уровень розыска - 6. Причина: reason' and dispatch[1].color[2]==195,'wanted dispatch uses visible custom chat and final level')
 commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==0,'deputy clears wanted')
 officer.rank=2;suspect.stars=3;commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==3,'ordinary officer cannot clear wanted')
 commands.cuff(officer,'cuff','2');assert(F.cuffs[suspect] and suspect.controls.fire==false and suspect.controls.sprint==false,'cuffs disable attacks/sprint')
@@ -61,13 +68,57 @@ commands.cuff(officer,'cuff','2');F.clearCuffs(officer,true);assert(not F.cuffs[
 suspect.far=true;commands.cuff(officer,'cuff','2');assert(not F.cuffs[suspect],'remote cuff rejected');suspect.far=false
 commands.arrest(officer,'arrest','2','2','reason');assert(F.jailed(suspect) and suspect.stars==0 and suspect.dimension==20100,'arrest teleports and clears wanted')
 local original=states[2].jail_remaining;F.arrest(suspect,10,'again');assert(states[2].jail_remaining==original,'duplicate arrest cannot extend sentence')
-F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==120,'reconnect reads persisted sentence')
-F.jailTick(suspect,60000);assert(states[2].jail_remaining==60,'online time decrements sentence')
-F.jailTick(suspect,60000);assert(not F.jailed(suspect) and suspect.dimension==0,'sentence ends at release point')
+F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==900,'reconnect reads persisted sentence')
+F.jailTick(suspect,60000);assert(states[2].jail_remaining==840,'online time decrements sentence')
+F.jailTick(suspect,840000);assert(not F.jailed(suspect) and suspect.dimension==0,'sentence ends at release point')
 suspect.stars=2;suspect.dead=true;suspect.duty=true;source=suspect
-events.onPlayerWasted(0,officer);assert(suspect.duty,'death and automatic arrest preserve shift');assert(F.jailed(suspect) and states[2].jail_remaining==240,'police kill uses two minutes per star')
-events.onPlayerWasted(0,officer);assert(states[2].jail_remaining==240,'repeated death does not double arrest')
+events.onPlayerWasted(0,officer);assert(suspect.duty,'death and automatic arrest preserve shift');assert(F.jailed(suspect) and states[2].jail_remaining==600,'police kill uses five minutes per star')
+events.onPlayerWasted(0,officer);assert(states[2].jail_remaining==600,'repeated death does not double arrest')
 assert(applyFactionJail(suspect) and not suspect.dead,'core respawn adapter keeps sentenced players jailed')
 source=officer;officer.dead=true;events.onPlayerWasted(0,nil)
 assert(officer.duty,'ordinary death preserves shift')
 print('Police: wanted, cuff restoration, permissions, persisted jail, release and death-arrest checks passed')
+
+-- Every police action is exercised at all ten LSPD ranks.
+local car={x=1554,y=-1675,z=16,interior=0,dimension=0}
+F.vehicles[car]={faction=2}
+officer.dead=false
+for rank=1,10 do
+ officer.rank=rank;officer.duty=true
+ suspect.dead=false;suspect.vehicle=nil;suspect.x,suspect.y,suspect.z=1554,-1675,16;suspect.dimension,suspect.interior=0,0
+ states[2].jail_remaining=0;suspect.stars=0
+ commands.su(officer,'su','2','1','test');assert((suspect.stars==1)==(rank>=2),'su minimum rank 2')
+ suspect.stars=5;commands.clearwanted(officer,'clearwanted','2');assert((suspect.stars==0)==(rank>=9),'clearwanted minimum rank 9')
+ F.clearCuffs(suspect);commands.cuff(officer,'cuff','2');assert((F.cuffs[suspect]~=nil)==(rank>=2),'cuff minimum rank 2');F.clearCuffs(suspect)
+ local count=ticketWrites;commands.ticket(officer,'ticket','2','100','test');assert((ticketWrites>count)==(rank>=2),'ticket minimum rank 2')
+ officer.vehicle=car;count=megaphones;commands.m(officer,'m','Stop');assert((megaphones>count)==(rank>=2),'megaphone minimum rank 2');officer.vehicle=nil
+ suspect.stars=1;commands.arrest(officer,'arrest','2','test');assert(F.jailed(suspect)==(rank>=2),'arrest minimum rank 2')
+ if rank>=2 then assert(states[2].jail_remaining==300,'manual arrest also uses five minutes per star') end
+end
+-- The issuer may target own ID without bypassing duty, rank or station checks.
+officer.rank=9;officer.duty=true;officer.stars=0;officer.vehicle=nil
+commands.su(officer,'su','1','6','self test');assert(officer.stars==6,'self wanted works and caps at six')
+commands.clearwanted(officer,'clearwanted','1');assert(officer.stars==0,'self clearwanted works')
+commands.cuff(officer,'cuff','1');assert(F.cuffs[officer],'self cuff works')
+commands.cuff(officer,'cuff','1');assert(not F.cuffs[officer],'self uncuff works')
+local count=ticketWrites;commands.ticket(officer,'ticket','1','100','self test');assert(ticketWrites==count+1,'self ticket works')
+commands.su(officer,'su','1','1','self test');commands.arrest(officer,'arrest','1','self test')
+assert(F.jailed(officer) and states[1].jail_remaining==300,'self arrest works with automatic sentence')
+print('LSPD commands: all ten ranks checked for ticket, wanted, cuffs, arrest and megaphone; self actions passed')
+
+-- Wanted dispatch reaches every authenticated police member, regardless of shift.
+local offDuty={id=3,faction=2,rank=1,duty=false}
+function getElementsByType() return {officer,suspect,offDuty} end
+officer.duty=true;officer.dimension,officer.interior=0,0;states[1].jail_remaining=0
+suspect.stars=0;dispatch={}
+commands.su(officer,'su','2','2','Проверка')
+assert(#dispatch==2 and dispatch[1].player==officer and dispatch[2].player==offDuty,'all police receive wanted notices, civilians excluded')
+officer.x,officer.y,officer.z=1554,-1675,16
+suspect.stars=6;states[2].jail_remaining=0
+commands.arrest(officer,'arrest','2','1','test')
+assert(states[2].jail_remaining==1800,'six stars means thirty minutes even with old one-minute argument')
+states[2].jail_remaining=0;suspect.stars=0;officer.duty=false;officer.vehicle=car
+local ticketsBefore,radioBefore=ticketWrites,megaphones
+commands.su(officer,'su','2','1','test');commands.cuff(officer,'cuff','2')
+commands.ticket(officer,'ticket','2','100','test');commands.arrest(officer,'arrest','2','test');commands.m(officer,'m','test')
+assert(suspect.stars==0 and not F.cuffs[suspect] and not F.jailed(suspect) and ticketWrites==ticketsBefore and megaphones==radioBefore,'off-duty police actions remain blocked')
