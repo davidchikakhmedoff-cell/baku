@@ -3,6 +3,7 @@ local f=assert(io.open('resources/rp_car/database.lua','rb'));local source=f:rea
 local method=assert(source:match('function RPCarDB.createVehicle%(data%).-\nend'))
 local args,mode,deleted
 RPCarDB={connection={},vehicles={}}
+function isElement(value) return value==RPCarDB.connection end
 function RPCarDB.reload()
  RPCarDB.vehicles={}
  if mode~='missing' then RPCarDB.vehicles[42]={id=42,owner_account_id=mode=='owner' and 99 or 7,house_id=3,parking_slot=2} end

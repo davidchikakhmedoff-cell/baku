@@ -8,8 +8,9 @@ local function stamp()
 end
 
 local function rows(sql, ...)
-    if not RPCarDB.connection then return {} end
+    if not isElement(RPCarDB.connection) then return {} end
     local handle = dbQuery(RPCarDB.connection, sql, ...)
+    if not handle then return {} end
     return dbPoll(handle, -1) or {}
 end
 
@@ -18,7 +19,7 @@ function RPCarDB.query(sql, ...)
 end
 
 function RPCarDB.exec(sql, ...)
-    if not RPCarDB.connection then return false end
+    if not isElement(RPCarDB.connection) then return false end
     return dbExec(RPCarDB.connection, sql, ...)
 end
 
@@ -163,7 +164,7 @@ end
 
 function RPCarDB.createVehicle(data)
     local nowStamp = stamp()
-    if not RPCarDB.connection then return false end
+    if not isElement(RPCarDB.connection) then return false end
     local handle = dbQuery(RPCarDB.connection, [[
         INSERT INTO personal_vehicles (
             owner_account_id, model, custom_name, gov_price,
