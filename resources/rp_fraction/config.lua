@@ -40,32 +40,35 @@ Fractions = {
  [4]={name="La Cosa Nostra",category="criminal",color={115,38,52},blip={icon=0,size=2},ranks=mafiaRanks,skins={124,124,125,125,126,126,127,127,113,113},
  entrance=point(1459.1,-1010.6,26.8),interior=5,inside=point(1262.1,-785.3,1091.9),exit=point(1262.1,-788.5,1091.9),keysPoint=point(1258,-785.3,1091.9),armory=point(1265,-785.3,1091.9)},
  [5]={name="Yakuza",category="criminal",color={90,93,99},blip={icon=0,size=2},ranks=mafiaRanks,skins={117,117,118,118,120,120,121,122,123,169},
- entrance=point(1767.88,2020.14,14.13,180),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
+ entrance=point(1767.88,-2020.14,14.13,180),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
  [6]={name="Russian Mafia",category="criminal",color={136,102,73},blip={icon=0,size=2},ranks=mafiaRanks,skins={111,111,112,112,113,113,111,112,113,223},
  entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
 }
 -- A retained pre-relocation fleet_config.lua must not restore the old Yakuza site.
--- Only the exact former defaults are migrated; custom sites/parking stay editable.
+-- Migrate the exact former defaults and the mistaken positive-Y destination.
+-- Custom sites/parking stay editable.
 do
  local location=FractionLocationConfig and FractionLocationConfig[5]
  local function at(p,x,y,z)
   return type(p)=='table' and type(p.x)=='number' and type(p.y)=='number' and type(p.z)=='number'
    and math.abs(p.x-x)<0.01 and math.abs(p.y-y)<0.01 and math.abs(p.z-z)<0.01
  end
- if location and at(location.entrance,1081,-1696.8,13.5) then
-  location.entrance=point(1767.88,2020.14,14.13,180)
-  location.outsideSpawn=point(1767.88,2018.64,14.13,180)
+ if location and (at(location.entrance,1081,-1696.8,13.5) or at(location.entrance,1767.88,2020.14,14.13)) then
+  location.entrance=point(1767.88,-2020.14,14.13,180)
+  location.outsideSpawn=point(1767.88,-2021.64,14.13,180)
  end
  local entrance=location and location.entrance or Fractions[5].entrance
- if at(entrance,1767.88,2020.14,14.13) then
+ if at(entrance,1767.88,-2020.14,14.13) then
   local oldX={1089,1093.5,1098}
   for _,group in ipairs(FractionFleetConfig and FractionFleetConfig[5] or {}) do
    for _,p in ipairs(group.parking or {}) do
     local slot=p.slot
     if type(slot)=='number' and slot%1==0 and slot>=1 and slot<=9 then
      local col=(slot-1)%3;local row=math.floor((slot-1)/3)
-     if at(p,oldX[col+1],-1708-row*7,13.6) and (p.rotation or 0)==0 then
-      p.x,p.y,p.z,p.rotation=1759.88+col*4.5,2010.14-row*7,14.13,180
+     local oldParking=at(p,oldX[col+1],-1708-row*7,13.6) and (p.rotation or 0)==0
+     local wrongCityParking=at(p,1759.88+col*4.5,2010.14-row*7,14.13) and p.rotation==180
+     if oldParking or wrongCityParking then
+      p.x,p.y,p.z,p.rotation=1759.88+col*4.5,-2030.14-row*7,14.13,180
      end
     end
    end
