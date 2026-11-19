@@ -1,0 +1,68 @@
+dofile('resources/rp_fraction/cars/config.lua');dofile('resources/rp_fraction/cars/patterns.lua')
+assert(FractionCarConfig.models[599].dff=='cars/for_explorer/copcarla.dff' and not FractionCarConfig.models[596],'Ranger replacement must not replace patrol sedans')
+assert(FractionCarConfig.models[497].dff=='cars/vert_pd/vert_pd.dff','PD helicopter only')
+local P=FractionSirenPatterns
+local fixture={references={colors={blue={red=2,green=96,blue=255,alpha=128}}},states={emergency={
+ ['1']={color='blue',state=1,pattern={100,100}},['2']={color={red=255,green=0,blue=0},state=0,pattern={100,200,100}},
+ ['3']={color='blue',state=1,pattern={}},['4']={color='blue',state=1,inertia=0.5,pattern={100,100}}
+}}}
+local compiled=P.compile(fixture,'emergency')
+assert(compiled[1].color[3]==255 and P.sample(compiled[1],0)==1 and P.sample(compiled[1],100)==0 and P.sample(compiled[1],200)==1,'color references and pulse boundaries')
+assert(P.sample(compiled[2],0)==0 and P.sample(compiled[2],100)==1 and P.sample(compiled[2],400)==1 and P.sample(compiled[2],800)==0,'odd pattern flips on alternating cycles')
+assert(P.sample(compiled[3],99999)==1 and P.sample(compiled[4],25)==0.5,'steady lights and inertia fade')
+root,resourceRoot,localPlayer={},{},{model=0}
+local car={model=599,siren=false}
+local heli={model=497};local sedan={model=596}
+local handlers,elements,timers,restored={}, {},{},{}
+local clock=0;local applied,removed=0,0;local palette
+function addEventHandler(name,_,fn) handlers[name]=fn end
+function getElementModel(e) return e.model end
+function getElementType(e) return e.model and 'vehicle' or 'other' end
+function getElementPosition() return 0,0,0 end
+function getElementInterior() return 0 end
+function getElementDimension(e) return e.dimension or 0 end
+function getElementsByType() return {car,heli,sedan} end
+function isElementStreamedIn() return true end
+function getTickCount() return clock end
+function isElement(e) return type(e)=='table' and not e.dead end
+local function element(kind) local e={kind=kind};elements[#elements+1]=e;return e end
+function destroyElement(e) e.dead=true end
+function engineLoadTXD() return element('txd') end
+function engineImportTXD() return true end
+function engineLoadDFF() return element('dff') end
+function engineReplaceModel(_,id) assert(id==599 or id==497);return true end
+function engineRestoreModel(id) restored[id]=true end
+function fileOpen(path) return assert(io.open('resources/rp_fraction/'..path,'rb')) end
+function fileGetSize(f) local n=f:seek('end');f:seek('set');return n end
+function fileRead(f,n) return f:read(n) end
+function fileClose(f) f:close() end
+function fromJSON(content) assert(content:find('"emergency"',1,true));return fixture end
+function outputDebugString(message) error(message) end
+function setTimer(fn,ms) assert(ms==25);local t=element('timer');t.fn=fn;timers[#timers+1]=t;return t end
+function isTimer(e) return isElement(e) end
+function killTimer(e) e.dead=true end
+function getVehicleSirensOn(v) return v.siren end
+function isVehicleBlown(v) return v.blown end
+function dxCreateShader(path) assert(path=='cars/sirens.fx');return element('shader') end
+function dxCreateTexture(w,h) assert(w==64 and h==1);return element('texture') end
+function dxGetTexturePixels() return {} end
+function dxSetPixelColor(pixels,x,y,r,g,b,a) pixels[x]={r,g,b,a} end
+function dxSetTexturePixels(_,pixels) palette=pixels end
+function dxSetShaderValue() end
+function engineApplyShaderToWorldTexture(_,_,v) assert(v==car);applied=applied+1 end
+function engineRemoveShaderFromWorldTexture(_,_,v) assert(v==car);removed=removed+1 end
+dofile('resources/rp_fraction/cars/client.lua');handlers.onClientResourceStart()
+local tick=timers[1].fn;tick();assert(palette[1][4]==0,'siren off hides lamp materials')
+car.siren=true;tick();assert(palette[1][3]==255 and palette[1][4]==128,'native siren enables JSON pattern')
+clock=100;tick();assert(palette[1][4]==0,'configured duration changes lamp state')
+car.siren=false;tick();assert(palette[3][4]==0,'turning siren off also stops steady lights')
+car.siren=true;clock=200;tick();assert(palette[1][4]==128,'restart resets phase')
+car.blown=true;tick();assert(palette[1][4]==0,'explosion switches lights off')
+assert(applied==1,'reuse one shader across pulse updates')
+car.blown=false;tick();car.dimension=1;tick();car.siren=false;car.dimension=0;tick()
+assert(palette[1][4]==0,'returning from another dimension with siren off clears old lit palette')
+source=car;handlers.onClientElementStreamOut();assert(removed==2,'stream out detaches shader')
+car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==3,'stream in restores animation')
+handlers.onClientResourceStop();assert(restored[599] and restored[497],'restore both stock models on stop')
+for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
+print('PD car models: mapping, JSON pulse semantics, siren toggle, explosion, streaming, reuse and cleanup passed')

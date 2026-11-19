@@ -17,6 +17,9 @@
  <script src="server/radio.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
+ <script src="cars/config.lua" type="client" />
+ <script src="cars/patterns.lua" type="client" />
+ <script src="cars/client.lua" type="client" />
  <script src="skins/models.lua" type="client" />
  <script src="client/jail_clock.lua" type="client" />
  <script src="skins/client.lua" type="client" />
@@ -53,4 +56,10 @@
  <file src="skins/pw5.dff" />
  <file src="skins/pw5.txd" />
 
+ <file src="cars/for_explorer/copcarla.txd" />
+ <file src="cars/for_explorer/copcarla.dff" />
+ <file src="cars/for_explorer/596.json" />
+ <file src="cars/vert_pd/vert_pd.txd" />
+ <file src="cars/vert_pd/vert_pd.dff" />
+ <file src="cars/sirens.fx" />
 </meta>
