@@ -16,6 +16,7 @@ VehicleHandling = {
     [479] = {
         name = "HUMMER H2",
         suspensionFromModel = 579,
+        suspensionLowerLimitOffset = -0.02, -- Small lift relative to the donor suspension.
         wheelSizeFromModel = 579
     },
     -- Shared by dealership/personal cars and faction fleet registration.

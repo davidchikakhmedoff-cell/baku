@@ -497,7 +497,11 @@ local function applyConfiguredHandling(vehicle, row)
         local original = getOriginalHandling(base.suspensionFromModel)
         for _, property in ipairs(VehicleSuspensionReferenceProperties or {}) do
             if original and original[property] ~= nil then
-                setVehicleHandling(vehicle, property, original[property])
+                local value = original[property]
+                if property == "suspensionLowerLimit" then
+                    value = value + (tonumber(base.suspensionLowerLimitOffset) or 0)
+                end
+                setVehicleHandling(vehicle, property, value)
             end
         end
     end
