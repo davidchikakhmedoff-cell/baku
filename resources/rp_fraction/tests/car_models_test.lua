@@ -15,6 +15,7 @@ local car={model=596,siren=false}
 local heli={model=497};local sedan={model=599}
 local handlers,elements,timers,restored={}, {},{},{}
 local clock=0;local applied,removed=0,0;local palette
+local shaderFail,chatErrors=false,0
 function addEventHandler(name,_,fn) handlers[name]=fn end
 function getElementModel(e) return e.model end
 function getElementData(e,key) return e[key] end
@@ -38,7 +39,8 @@ function fileGetSize(f) local n=f:seek('end');f:seek('set');return n end
 function fileRead(f,n) return f:read(n) end
 function fileClose(f) f:close() end
 function fromJSON(content) assert(content:find('"emergency"',1,true));return fixture end
-function outputDebugString(message) error(message) end
+function outputDebugString(message) if not shaderFail then error(message) end end
+function outputChatBox(message) assert(message:find('Не удалось загрузить эффект',1,true));chatErrors=chatErrors+1 end
 function setTimer(fn,ms) assert(ms==25);local t=element('timer');t.fn=fn;timers[#timers+1]=t;return t end
 function isTimer(e) return isElement(e) end
 function killTimer(e) e.dead=true end
@@ -46,6 +48,7 @@ function getVehicleSirensOn(v) return v.siren end
 function isVehicleBlown(v) return v.blown end
 function dxCreateShader(path)
  assert(path=='cars/sirens.fx')
+ if shaderFail then return false,'unsupported shader' end
  local file=assert(io.open('resources/rp_fraction/'..path,'rb'));local shader=file:read('*a');file:close()
  -- MTA exposes D3DMATERIAL9.Diffuse via materialState, not a render state.
  assert(shader:find('materialState="Diffuse"',1,true) and not shader:find('MATERIALDIFFUSE',1,true),'shader must bind the actual material color used by uploaded ELS lamp markers')
@@ -61,7 +64,9 @@ function engineRemoveShaderFromWorldTexture(_,_,v) assert(v==car);removed=remove
 dofile('resources/rp_fraction/cars/client.lua');handlers.onClientResourceStart()
 local tick=timers[1].fn;tick();assert(palette[1][4]==0,'siren off hides lamp materials')
 car['fraction:sirenMode']=1;tick();assert(palette[1][4]==128 and not car.siren,'silent mode illuminates lamps without native siren audio')
-car['fraction:sirenMode']=0;tick();assert(palette[1][4]==0,'replicated off mode overrides native siren state')
+car['fraction:sirenMode']=0;tick();assert(palette[1][4]==0,'off mode without native siren is dark')
+car.siren=true;tick();assert(palette[1][4]==128,'native siren remains visible when custom mode is stale/off')
+car.siren=false;tick()
 car['fraction:sirenMode']=nil
 car.siren=true;tick();assert(palette[1][3]==255 and palette[1][4]==128,'native siren enables JSON pattern')
 clock=100;tick();assert(palette[1][4]==0,'configured duration changes lamp state')
@@ -75,4 +80,8 @@ source=car;handlers.onClientElementStreamOut();assert(removed==2,'stream out det
 car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==3,'stream in restores animation')
 handlers.onClientResourceStop();assert(restored[596] and restored[497],'restore both stock models on stop')
 for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
+shaderFail=true;handlers.onClientResourceStart();timers[#timers].fn();timers[#timers].fn()
+assert(chatErrors==1,'shader failure is visible in chat once without debugscript')
+handlers.onClientResourceStop()
+for _,e in ipairs(elements) do assert(e.dead,'failed shader resources also released') end
 print('PD car models: mapping, JSON pulse semantics, siren toggle, explosion, streaming, reuse and cleanup passed')

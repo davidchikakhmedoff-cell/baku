@@ -43,6 +43,8 @@ handlers={};local timer,uiBlocked,horn,requests,cancelled=nil,false,false,0,0
 function getBoundKeys(control) assert(control=='horn');return {h=true} end
 function isControlEnabled() return true end
 function isChatBoxInputActive() return uiBlocked end
+function isCursorShowing() return false end
+function addCommandHandler() end
 function isConsoleActive() return false end
 function isMainMenuActive() return false end
 function isMTAWindowActive() return false end
@@ -61,7 +63,13 @@ handlers.onClientKey('h',true);timer.fn();assert(horn and requests==1,'hold star
 v.siren=true;handlers.onClientPreRender();assert(not v.siren,'hold restores silent mode after native horn processing')
 handlers.onClientKey('h',false);assert(not horn and requests==1 and v['fraction:sirenMode']==1,'release stops horn without changing mode')
 uiBlocked=true;handlers.onClientKey('h',true);assert(requests==1 and not horn,'typing H in chat does nothing');uiBlocked=false
-handlers.onClientKey('h',true);timer.fn();p.vehicle=nil;handlers.onClientPreRender();assert(not horn and requests==1,'leaving car cancels held horn')
+function isControlEnabled() return false end
+function getBoundKeys() return false end
+getResourceFromName=function() return {} end;function getResourceState() return 'running' end
+exports={rp_core={isTextInputActive=function() return true end,isAnyBlockingUIOpen=function() return true end}}
+handlers.onClientKey('h',true);handlers.onClientKey('h',false);assert(requests==2,'H works with missing native binding and stale invisible core UI flags')
+getResourceFromName=function() return false end
+handlers.onClientKey('h',true);timer.fn();p.vehicle=nil;handlers.onClientPreRender();assert(not horn and requests==2,'leaving car cancels held horn')
 p.vehicle=v;handlers.onClientKey('h',true);handlers.onClientResourceStop();assert(not horn and timer.dead,'stop cancels pending press')
 v.model=599;local n=cancelled;handlers.onClientKey('h',true);assert(cancelled==n,'other models keep native horn behavior')
 assert(FractionCarConfig.sirenBrightness>2 and FractionCarConfig.sirenOpacity>1,'brightness and opacity increased')

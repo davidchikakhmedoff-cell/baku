@@ -1,5 +1,6 @@
 local models,vehicles,patterns={},{},{}
 local timer
+local shaderErrorShown=false
 local function destroy(e) if e and isElement(e) then destroyElement(e) end end
 local function removeLights(v)
  local state=vehicles[v]
@@ -28,14 +29,19 @@ local function updateLights()
    local visible=getElementInterior(v)==interior and getElementDimension(v)==dimension
     and (px-x)^2+(py-y)^2+(pz-z)^2<=FractionCarConfig.sirenDistance^2
    local mode=tonumber(getElementData(v,'fraction:sirenMode'))
-   local enabled=visible and (mode and mode>0 or (not mode and getVehicleSirensOn(v))) and not isVehicleBlown(v)
+   local enabled=visible and ((mode and mode>0) or getVehicleSirensOn(v)) and not isVehicleBlown(v)
    local lights=patterns[getElementModel(v)]
    if visible and lights and not state.failed then
     if not state.shader then
-     state.shader=dxCreateShader('cars/sirens.fx',1,0,false,'vehicle')
+     local detail
+     state.shader,detail=dxCreateShader('cars/sirens.fx',1,0,false,'vehicle')
      state.texture=dxCreateTexture(64,1,'argb','clamp')
      if not state.shader or not state.texture then
-      outputDebugString('[Fraction cars] Не удалось создать шейдер мигалок',1)
+      outputDebugString('[Fraction cars] Не удалось создать шейдер мигалок: '..tostring(detail),1)
+      if not shaderErrorShown then
+       shaderErrorShown=true
+       outputChatBox('[Мигалки] Не удалось загрузить эффект: '..tostring(detail)..'. Проверьте обновление папки cars и meta.xml.',239,100,100)
+      end
       destroy(state.shader);destroy(state.texture);state.shader=nil;state.texture=nil;state.failed=true
      else
       state.pixels=dxGetTexturePixels(state.texture)

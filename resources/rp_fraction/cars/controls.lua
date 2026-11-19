@@ -4,13 +4,13 @@ local function driverVehicle()
  local spec=v and FractionCarConfig.models[getElementModel(v)]
  if not spec or not spec.sirens or not isPedInVehicle(localPlayer) or getPedOccupiedVehicleSeat(localPlayer)~=0
   or getVehicleOccupant(v,0)~=localPlayer or isPedDead(localPlayer) or isVehicleBlown(v)
-  or not isControlEnabled('horn') or getElementData(localPlayer,'auth:loggedIn')~=true or getElementData(localPlayer,'fraction:cuffed') then return false end
+  or getElementData(localPlayer,'auth:loggedIn')~=true or getElementData(localPlayer,'fraction:cuffed') then return false end
  return v
 end
 local function blocked()
  if isChatBoxInputActive() or isConsoleActive() or isMainMenuActive() or isMTAWindowActive() then return true end
  local r=getResourceFromName('rp_core')
- if r and getResourceState(r)=='running' then
+ if isCursorShowing() and r and getResourceState(r)=='running' then
   local ok,value=pcall(function() return exports.rp_core:isTextInputActive() or exports.rp_core:isAnyBlockingUIOpen() end)
   if ok and value then return true end
  end
@@ -37,7 +37,7 @@ addEventHandler('onClientKey',root,function(key,pressed)
   if not state.holding and driverVehicle()==state.vehicle and not blocked() then triggerServerEvent('fraction:cycleSirens',resourceRoot) end
   return
  end
- if not pressed or not (getBoundKeys('horn') or {})[key] then return end
+ if not pressed or (key~='h' and not (getBoundKeys('horn') or {})[key]) then return end
  local v=driverVehicle()
  if not v or blocked() then return end
  cancelEvent() -- Suppress GTA's single-press siren toggle; held horn is restored below.
@@ -60,3 +60,12 @@ end)
 addEventHandler('onClientVehicleExit',root,function(p) if p==localPlayer then finish() end end)
 addEventHandler('onClientPlayerWasted',localPlayer,finish)
 addEventHandler('onClientResourceStop',resourceRoot,finish)
+
+addCommandHandler('pdcontrols',function()
+ local v=getPedOccupiedVehicle(localPlayer)
+ local keys={};for key in pairs(getBoundKeys('horn') or {}) do keys[#keys+1]=key end;table.sort(keys)
+ outputChatBox('[PD controls] input loaded; H + '..table.concat(keys,', ')..'; driver='..tostring(driverVehicle()~=false)..'; UI='..tostring(blocked()),180,215,240)
+ if isElement(v) then
+  outputChatBox('[PD controls] model='..getElementModel(v)..'; mode='..tostring(getElementData(v,'fraction:sirenMode'))..'; native siren='..tostring(getVehicleSirensOn(v)),180,215,240)
+ end
+end)
