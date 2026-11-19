@@ -47,10 +47,10 @@ print('Toyota handling: original Huntley suspension shared by direct and faction
 local hummer={model=479,handling={mass=1700,driveType='rwd'}}
 assert(applyConfiguredVehicleHandling(hummer))
 for _,property in ipairs(VehicleSuspensionReferenceProperties) do
- local expected=donor[property]+(property=='suspensionLowerLimit' and -0.02 or 0)
+ local expected=donor[property]+(property=='suspensionLowerLimit' and -0.04 or 0)
  assert(math.abs(hummer.handling[property]-expected)<0.000001,'Hummer receives SUV suspension geometry with a small lift')
 end
 assert(hummer.handling.mass==1700 and hummer.handling.driveType=='rwd','wheel correction does not change unrequested performance')
 local factionHummer={model=479,handling={}}
 assert(registerFactionVehicle(factionHummer,'fraction:4:6',30))
-assert(math.abs(factionHummer.handling.suspensionLowerLimit-(donor.suspensionLowerLimit-0.02))<0.000001,'Hummer faction registration receives the same small lift')
+assert(math.abs(factionHummer.handling.suspensionLowerLimit-(donor.suspensionLowerLimit-0.04))<0.000001,'Hummer faction registration receives the same small lift')
