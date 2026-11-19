@@ -60,6 +60,7 @@ function F.tick()
     end
    end
    F.jailTick(p,elapsed)
+   F.syncWanted(p)
   end
  end
  for p in pairs(F.cuffs) do if isElement(p) then setPedWeaponSlot(p,0) end end

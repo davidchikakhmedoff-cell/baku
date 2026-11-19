@@ -14,7 +14,6 @@ function F.clearCuffs(p,issuerLeaving)
  local state=F.cuffs[p]
  if state then
   for name,enabled in pairs(state.controls) do if isElement(p) and not getElementData(p,'admin:frozen') then toggleControl(p,name,enabled) end end
-  if isElement(p) then setPedAnimation(p,false) end
   F.cuffs[p]=nil
   if isElement(p) then setElementData(p,'fraction:cuffed',false,true);triggerClientEvent(p,'fraction:cuff',resourceRoot,false,state.controls) end
  end
@@ -29,6 +28,15 @@ local function policeTarget(p,id,action,rank)
  if not F.account(target) or isPedDead(target) or not F.near(p,target) then F.notify(p,'Игрок должен находиться рядом и быть жив');return end
  if not F.throttle(p,action) then F.notify(p,'Подождите перед повторным использованием команды');return end
  return target
+end
+function F.wantedLevel(p)
+ local state=F.state(p)
+ return state and math.max(0,math.min(6,tonumber(state.wanted) or 0)) or 0
+end
+function F.syncWanted(p)
+ if not F.account(p) then return end
+ local level=F.wantedLevel(p)
+ if getPlayerWantedLevel(p)~=level then setPlayerWantedLevel(p,level) end
 end
 local function wanted(p,value)
  local s=F.state(p);if not s then return end
@@ -77,7 +85,7 @@ addCommandHandler('payticket',function(p,_,id) F.payTicket(p,id) end)
 addCommandHandler('su',function(p,_,id,level,...)
  local target=policeTarget(p,id,'su',2);level=FractionRules.integer(level,1,6)
  local reason=FractionRules.text(table.concat({...},' '));if not target or not level or not reason then return end
- wanted(target,math.min(6,getPlayerWantedLevel(target)+level));F.notify(target,'Вы объявлены в розыск: '..reason)
+ wanted(target,math.min(6,F.wantedLevel(target)+level));F.notify(target,'Вы объявлены в розыск: '..reason)
  local color=FractionConfig.wantedNoticeColor
  local name=F.name(target):gsub('#%x%x%x%x%x%x','')
  local message='Внимание всем постам! Объявлен в розыск '..name..'. Уровень розыска - '..getPlayerWantedLevel(target)..'. Причина: '..reason
@@ -97,7 +105,6 @@ addCommandHandler('cuff',function(p,_,id)
  else
   local controls={};for _,control in ipairs(cuffControls) do controls[control]=isControlEnabled(target,control);toggleControl(target,control,false) end
   F.cuffs[target]={issuer=p,controls=controls};setPedWeaponSlot(target,0);setElementData(target,'fraction:cuffed',true,true)
-  setPedAnimation(target,'POLICE','crm_drgbst_01',-1,true,false,true,false)
   triggerClientEvent(target,'fraction:cuff',resourceRoot,true,controls);F.notify(target,'На вас надеты наручники')
  end
 end)
@@ -120,7 +127,7 @@ end
 function applyFactionJail(p) return F.applyJail(p,true) end
 function F.applyJustice(p)
  local s=F.state(p);if not s then return end
- if not F.applyJail(p,false) then setPlayerWantedLevel(p,tonumber(s.wanted) or 0) end
+ if not F.applyJail(p,false) then F.syncWanted(p) end
 end
 function F.arrest(target,minutes,reason,keepDuty)
  local s=F.state(target);if not s or tonumber(s.jail_remaining)>0 then return false end
@@ -141,7 +148,7 @@ addCommandHandler('arrest',function(p,_,id)
  local target=policeTarget(p,id,'arrest',2)
  if not target then return end
  if not F.atJailBooking(p) then F.notify(p,'Оформить арест можно только перед КПЗ LSPD');return end
- local stars=getPlayerWantedLevel(target)
+ local stars=F.wantedLevel(target)
  if stars<1 then F.notify(p,'/arrest ID — у игрока должен быть розыск');return end
  F.arrest(target,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Арест по уровню розыска')
 end)
@@ -193,7 +200,7 @@ addCommandHandler('m',function(p,_,...)
 end)
 addEventHandler('onPlayerWasted',root,function(ammo,killer)
  local victim=source;F.clearCuffs(victim,true)
- local stars=getPlayerWantedLevel(victim)
+ local stars=F.wantedLevel(victim)
  local police=killer
  if isElement(killer) and getElementType(killer)=='vehicle' then police=getVehicleOccupant(killer,0) end
  local member=isElement(police) and F.account(police) and F.member(police)
@@ -208,6 +215,9 @@ addEventHandler('fraction:syncCuffs',resourceRoot,function()
  if source~=resourceRoot or not client or not F.account(client) or not F.throttle(client,'cuffSync') then return end
  local state=F.cuffs[client];local controls={}
  if state then controls=state.controls
- else for _,name in ipairs(cuffControls) do controls[name]=isControlEnabled(client,name) end end
+ else
+  setElementData(client,'fraction:cuffed',false,true)
+  for _,name in ipairs(cuffControls) do controls[name]=isControlEnabled(client,name) end
+ end
  triggerClientEvent(client,'fraction:cuff',resourceRoot,state~=nil,controls)
 end)

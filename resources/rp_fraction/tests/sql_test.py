@@ -63,6 +63,16 @@ class FractionSQLTests(unittest.TestCase):
         self.assertEqual(restored.execute('SELECT money FROM players WHERE id=2').fetchone()[0],2060)
         for sql in SCHEMA: restored.execute(sql)
         self.assertEqual(restored.execute('SELECT money FROM players WHERE id=2').fetchone()[0],2060)
+    def test_wanted_persists_until_booking(self):
+        self.db.execute('INSERT INTO fraction_state(account_id,wanted,jail_remaining) VALUES(1,6,0)')
+        self.db.commit()
+        restored=sqlite3.connect(':memory:');restored.deserialize(self.db.serialize())
+        for sql in SCHEMA: restored.execute(sql)
+        self.assertEqual(restored.execute('SELECT wanted,jail_remaining FROM fraction_state').fetchone(),(6,0))
+        restored.execute('UPDATE fraction_state SET wanted=0,jail_remaining=1800 WHERE account_id=1')
+        restored.commit()
+        restarted=sqlite3.connect(':memory:');restarted.deserialize(restored.serialize())
+        self.assertEqual(restarted.execute('SELECT wanted,jail_remaining FROM fraction_state').fetchone(),(0,1800))
     def test_one_leader(self):
         self.db.execute('INSERT INTO fraction_members(account_id,faction_id,rank) VALUES(1,2,10)')
         with self.assertRaises(sqlite3.IntegrityError):

@@ -6,7 +6,7 @@ function addEvent() end
 function addEventHandler(name,_,fn) handlers[name]=fn end
 function isElement(e) return e==p end
 function getElementType() return 'player' end
-function getElementData(_,key) return key=='auth:loggedIn' end
+function getElementData(p,key) return key=='auth:loggedIn' and p.logged~=false end
 function setElementData() end
 function setElementModel(e,model) e.model=model end
 function getElementModel(e) return e.model end
@@ -27,11 +27,16 @@ F.justice={}
 F.clearCuffs=function() end
 F.revokeDriver=function() end
 F.state=function() return nil end
+F.applyJustice=function() end
+F.justice[1]={wanted=4,jail_remaining=0}
+local savedWanted
+FractionDB.exec=function(sql,wanted) if sql:find('UPDATE fraction_state SET wanted=',1,true) then savedWanted=wanted end;return true end
 local returned=false
 F.returnVehicleKeys=function() returned=true end
 source=p;handlers.onPlayerSpawn()
 assert(p.model==Fractions[2].skins[2] and F.sessions[p].duty and F.members[1].duty==1,'respawn restores working skin and preserves shift')
 local member=F.members[1]
-handlers.onPlayerQuit()
+p.logged=false;handlers.onPlayerQuit()
+assert(savedWanted==4,'disconnect saves authoritative wanted even if native stars reset to zero')
 assert(not F.sessions[p] and member.duty==0 and member.gear_issued==0 and p.model==7 and returned,'disconnect ends shift, clears equipment, returns keys and restores civilian skin')
 print('Duty lifecycle: working respawn and disconnect cleanup passed')

@@ -111,8 +111,8 @@ function F.disconnect(p,resourceStopping)
  if F.keyMenus then F.keyMenus[p]=nil end
  local id=F.account(p) or (F.sessions[p] and F.sessions[p].account)
  if id then
-  local state=F.state(p)
-  if state then FractionDB.exec('UPDATE fraction_state SET wanted=? WHERE account_id=?',getPlayerWantedLevel(p),id) end
+  local state=F.justice[id]
+  if state then FractionDB.exec('UPDATE fraction_state SET wanted=?,jail_remaining=? WHERE account_id=?',tonumber(state.wanted) or 0,tonumber(state.jail_remaining) or 0,id) end
   F.endDuty(p)
   local m=F.member(p)
   if m then
@@ -133,6 +133,7 @@ end)
 addEventHandler('onPlayerSpawn',root,function()
  local session=F.sessions[source]
  if session and session.duty then F.sync(source) end
+ if session then F.applyJustice(source) end
 end)
 addEventHandler('onPlayerQuit',root,function() F.disconnect(source) end,true,'high+20')
 addEventHandler('onElementDataChange',root,function(key)

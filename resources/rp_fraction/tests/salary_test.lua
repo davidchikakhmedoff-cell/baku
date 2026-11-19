@@ -9,6 +9,7 @@ Fraction.member=function() return member end
 Fraction.reload=function() return member end
 Fraction.notify=function() end
 Fraction.jailTick=function() end
+Fraction.syncWanted=function() end
 Fraction.fleetTick=function() end
 Fraction.credit=function(id,amount,key)
  if keys[key] then return false end
