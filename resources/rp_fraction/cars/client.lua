@@ -12,11 +12,11 @@ local function addVehicle(v)
  local spec=FractionCarConfig.models[getElementModel(v)]
  if spec and spec.sirens and models[getElementModel(v)] and not vehicles[v] then vehicles[v]={} end
 end
-local function readPatterns(path)
+local function readPatterns(path,state)
  local file=fileOpen(path,true);if not file then return false end
  local content=fileRead(file,fileGetSize(file));fileClose(file)
  local json=fromJSON(content)
- return type(json)=='table' and FractionSirenPatterns.compile(json,FractionCarConfig.sirenState) or false
+ return type(json)=='table' and FractionSirenPatterns.compile(json,state or FractionCarConfig.sirenState) or false
 end
 local function updateLights()
  local px,py,pz=getElementPosition(localPlayer)
@@ -57,7 +57,7 @@ local function updateLights()
       local pixels=state.pixels
       for id=0,63 do
        local light=lights[id];local value=enabled and light and FractionSirenPatterns.sample(light,now-state.started) or 0
-       local c=light and light.color or {0,0,0,0}
+       local c=light and FractionSirenPatterns.color(light,now-(state.started or now)) or {0,0,0,0}
        dxSetPixelColor(pixels,id,0,c[1]*value,c[2]*value,c[3]*value,c[4]*value)
       end
       dxSetTexturePixels(state.texture,pixels)
@@ -78,7 +78,7 @@ addEventHandler('onClientResourceStart',resourceRoot,function()
   if dff and engineReplaceModel(dff,id,true) then
    models[id]={txd=txd,dff=dff}
    if spec.sirens then
-    patterns[id]=readPatterns(spec.sirens)
+    patterns[id]=readPatterns(spec.sirens,spec.sirenState)
     if not patterns[id] or not next(patterns[id]) then outputDebugString('[Fraction cars] Не удалось прочитать анимацию '..spec.sirens,1);patterns[id]=nil end
    end
   else

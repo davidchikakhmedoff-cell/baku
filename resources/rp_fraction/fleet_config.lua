@@ -45,17 +45,33 @@ FractionFleetConfig = {
     -- 2. Los Santos Police Department
     [2] = {
         {
-            name = "Патрульные автомобили",
+            name = "Ford Explorer",
             model = 596,
             rank = 2,
-            count = 10,
+            count = 2,
             parking = {
                 { slot=1, x=1595.5, y=-1710, z=5.8, rotation=0 },
                 { slot=2, x=1591.5, y=-1710, z=5.8, rotation=0 },
+            },
+        },
+        {
+            name = "Ford Taurus",
+            model = 597,
+            rank = 2,
+            count = 4,
+            parking = {
                 { slot=3, x=1587.5, y=-1710, z=5.8, rotation=0 },
                 { slot=4, x=1583.5, y=-1710, z=5.8, rotation=0 },
                 { slot=5, x=1578.5, y=-1710, z=5.8, rotation=0 },
                 { slot=6, x=1574.5, y=-1710, z=5.8, rotation=0 },
+            },
+        },
+        {
+            name = "Dodge Charger",
+            model = 598,
+            rank = 2,
+            count = 4,
+            parking = {
                 { slot=7, x=1570.5, y=-1710, z=5.8, rotation=0 },
                 { slot=8, x=1566.5, y=-1710, z=5.8, rotation=0 },
                 { slot=9, x=1562.5, y=-1710, z=5.8, rotation=0 },

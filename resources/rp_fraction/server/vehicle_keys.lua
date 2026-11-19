@@ -21,13 +21,17 @@ function F.hasVehicleKey(p,key)
  local holder=F.keyHolders[key]
  return holder and holder.player==p and holder.account==F.account(p) and F.playerKeys[p]==key or false
 end
+local function vehicleName(cfg)
+ local custom=FractionCarConfig and FractionCarConfig.models[cfg.model]
+ return custom and custom.name or getVehicleNameFromModel(cfg.model) or tostring(cfg.model)
+end
 function F.keysMenu(p)
  if not atKeys(p) then F.notify(p,'Начните смену и подойдите к маркеру ключей');return end
  local m=F.member(p);local rows={}
  for _,cfg in ipairs(Fractions[m.faction_id].vehicles) do
   local key=keyFor(m.faction_id,cfg.slot);local holder=F.keyHolders[key]
   local vehicle=F.vehicleByKey[key];local spec=vehicle and F.vehicles[vehicle]
-  rows[#rows+1]={slot=cfg.slot,name=(getVehicleNameFromModel(cfg.model) or tostring(cfg.model))..' №'..cfg.slot,rank=cfg.rank,
+  rows[#rows+1]={slot=cfg.slot,name=vehicleName(cfg)..' №'..cfg.slot,rank=cfg.rank,
    holder=holder and holderName(holder) or false,mine=F.hasVehicleKey(p,key),
    available=vehicle and isElement(vehicle) and spec and not spec.destroyAt and not F.returningVehicles[key] or false}
  end
@@ -55,7 +59,7 @@ function F.takeVehicleKeys(p,slot)
  F.keyHolders[key]={player=p,account=F.account(p),faction=m.faction_id,index=index}
  F.playerKeys[p]=key
  F.setFleetIssued(v,true)
- F.notify(p,'Вы взяли ключи от '..getVehicleNameFromModel(cfg.model)..'.',true)
+ F.notify(p,'Вы взяли ключи от '..vehicleName(cfg)..'.',true)
  F.keyMenus[p]=nil;triggerClientEvent(p,'fraction:closeKeys',resourceRoot)
  F.refreshKeyMenus(m.faction_id)
 end
@@ -103,7 +107,7 @@ function F.returnVehicleKeys(p,automatic)
   F.refreshKeyMenus(holder.faction)
   if not automatic then
    local cfg=Fractions[holder.faction].vehicles[holder.index]
-   F.notify(p,'Ключи от '..getVehicleNameFromModel(cfg.model)..' сданы',true);F.keysMenu(p)
+   F.notify(p,'Ключи от '..vehicleName(cfg)..' сданы',true);F.keysMenu(p)
   end
  end
  return true

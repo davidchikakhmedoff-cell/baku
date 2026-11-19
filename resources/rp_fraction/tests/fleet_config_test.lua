@@ -8,6 +8,13 @@ for id,f in pairs(Fractions) do
  assert(#f.vehicles==counts[id],'original default fleet count retained')
  for index,v in ipairs(f.vehicles) do assert(v.slot==index,'original persistent vehicle IDs retained') end
 end
+local expectedX={1595.5,1591.5,1587.5,1583.5,1578.5,1574.5,1570.5,1566.5,1562.5,1559}
+for slot=1,10 do
+ local v=Fractions[2].vehicles[slot];local model=slot<=2 and 596 or (slot<=6 and 597 or 598)
+ assert(v.slot==slot and v.model==model and v.rank==2,'patrol slots map to 2 Explorer, 4 Taurus and 4 Charger with unchanged rank and fuel identity')
+ assert(v.p.x==expectedX[slot] and v.p.y==-1710 and v.p.z==5.8 and v.p.rotation==0,'existing patrol parking positions retained')
+end
+assert(Fractions[2].vehicles[15].model==599 and Fractions[2].vehicles[17].model==497,'Rangers and helicopter retain their original fleet slots')
 FractionFleetConfig[1][1].count=0;build()
 assert(#Fractions[1].vehicles==2 and Fractions[1].vehicles[1].slot==3 and Fractions[1].vehicles[2].slot==4,'disabling ambulances does not renumber helicopter/sedan fuel IDs')
 FractionFleetConfig[1][2].count=0;build()

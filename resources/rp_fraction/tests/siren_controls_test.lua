@@ -27,6 +27,12 @@ local function cycle() client=p;source=resourceRoot;handlers['fraction:cycleSire
 cycle();assert(v['fraction:sirenMode']==1 and not v.siren,'first tap: lights only')
 cycle();assert(v['fraction:sirenMode']==2 and v.siren,'second tap: lights plus sound')
 cycle();assert(v['fraction:sirenMode']==0 and not v.siren,'third tap: all off')
+for _,model in ipairs({597,598}) do
+ v.model=model;cycle();assert(v['fraction:sirenMode']==1 and not v.siren,'new patrol model supports lights-only mode')
+ cycle();assert(v['fraction:sirenMode']==2 and v.siren,'new patrol model supports audible mode')
+ cycle();assert(v['fraction:sirenMode']==0 and not v.siren)
+end
+v.model=596
 p.seat=1;cycle();assert(v['fraction:sirenMode']==0,'passenger cannot change mode');p.seat=0
 p.logged=false;cycle();assert(v['fraction:sirenMode']==0,'guest rejected');p.logged=true
 Fraction.cuffs[p]={};cycle();assert(v['fraction:sirenMode']==0,'cuffed driver rejected');Fraction.cuffs[p]=nil

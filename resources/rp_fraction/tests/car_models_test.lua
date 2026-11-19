@@ -1,15 +1,21 @@
 dofile('resources/rp_fraction/cars/config.lua');dofile('resources/rp_fraction/cars/patterns.lua')
-assert(FractionCarConfig.models[596].dff=='cars/for_explorer/copcarla.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
+assert(FractionCarConfig.models[596].dff=='cars/ford_explorer/copcarla.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
 assert(FractionCarConfig.models[497].dff=='cars/vert_pd/vert_pd.dff','PD helicopter only')
 local P=FractionSirenPatterns
 local fixture={references={colors={blue={red=2,green=96,blue=255,alpha=128}}},states={emergency={
  ['1']={color='blue',state=1,pattern={100,100}},['2']={color={red=255,green=0,blue=0},state=0,pattern={100,200,100}},
  ['3']={color='blue',state=1,pattern={}},['4']={color='blue',state=1,inertia=0.5,pattern={100,100}}
 }}}
+fixture.states['1.Emergency']=fixture.states.emergency
 local compiled=P.compile(fixture,'emergency')
 assert(compiled[1].color[3]==255 and P.sample(compiled[1],0)==1 and P.sample(compiled[1],100)==0 and P.sample(compiled[1],200)==1,'color references and pulse boundaries')
 assert(P.sample(compiled[2],0)==0 and P.sample(compiled[2],100)==1 and P.sample(compiled[2],400)==1 and P.sample(compiled[2],800)==0,'odd pattern flips on alternating cycles')
 assert(P.sample(compiled[3],99999)==1 and P.sample(compiled[4],25)==0.5,'steady lights and inertia fade')
+local referenced={references={colors={red={red=255,green=0,blue=0},blue={red=0,green=0,blue=255}},strobe={state=1,pattern={500,500},color='red'}},states={['1.Emergency']={['25']={reference='strobe',colors={{410,'blue'}}}}}}
+local lamp=P.compile(referenced,'1.Emergency')[25]
+assert(lamp and P.sample(lamp,0)==1 and P.sample(lamp,500)==0,'named emergency state inherits reference properties')
+assert(P.color(lamp,409)[1]==255 and P.color(lamp,410)[3]==255 and P.color(lamp,1000)[1]==255,'Charger color keyframe changes at configured offset and resets each pulse cycle')
+
 root,resourceRoot,localPlayer={},{},{model=0}
 local car={model=596,siren=false}
 local heli={model=497};local sedan={model=599}
@@ -32,13 +38,13 @@ function destroyElement(e) e.dead=true end
 function engineLoadTXD() return element('txd') end
 function engineImportTXD() return true end
 function engineLoadDFF() return element('dff') end
-function engineReplaceModel(_,id) assert(id==596 or id==497);return true end
+function engineReplaceModel(_,id) assert(id==596 or id==597 or id==598 or id==497);return true end
 function engineRestoreModel(id) restored[id]=true end
 function fileOpen(path) return assert(io.open('resources/rp_fraction/'..path,'rb')) end
 function fileGetSize(f) local n=f:seek('end');f:seek('set');return n end
 function fileRead(f,n) return f:read(n) end
 function fileClose(f) f:close() end
-function fromJSON(content) assert(content:find('"emergency"',1,true));return fixture end
+function fromJSON(content) assert(content:find('emergency',1,true) or content:find('Emergency',1,true));return fixture end
 function outputDebugString(message) if not shaderFail then error(message) end end
 function outputChatBox(message) assert(message:find('Не удалось загрузить эффект',1,true));chatErrors=chatErrors+1 end
 function setTimer(fn,ms) assert(ms==25);local t=element('timer');t.fn=fn;timers[#timers+1]=t;return t end
@@ -78,7 +84,7 @@ car.blown=false;tick();car.dimension=1;tick();car.siren=false;car.dimension=0;ti
 assert(palette[1][4]==0,'returning from another dimension with siren off clears old lit palette')
 source=car;handlers.onClientElementStreamOut();assert(removed==2,'stream out detaches shader')
 car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==3,'stream in restores animation')
-handlers.onClientResourceStop();assert(restored[596] and restored[497],'restore both stock models on stop')
+handlers.onClientResourceStop();assert(restored[596] and restored[597] and restored[598] and restored[497],'restore both stock models on stop')
 for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
 shaderFail=true;handlers.onClientResourceStart();timers[#timers].fn();timers[#timers].fn()
 assert(chatErrors==1,'shader failure is visible in chat once without debugscript')
