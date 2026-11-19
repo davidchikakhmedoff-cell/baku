@@ -159,11 +159,11 @@ FractionFleetConfig = {
             rank = 2,
             count = 5,
             parking = {
-                { slot=1, x=872, y=-1255, z=14.8, rotation=90 },
-                { slot=2, x=879, y=-1255, z=14.8, rotation=90 },
-                { slot=3, x=886, y=-1255, z=14.8, rotation=90 },
-                { slot=4, x=872, y=-1259, z=14.8, rotation=90 },
-                { slot=5, x=879, y=-1259, z=14.8, rotation=90 },
+                { slot=1, x=887, y=-1271, z=14.8, rotation=0 },
+                { slot=2, x=883.5, y=-1271, z=14.8, rotation=0 },
+                { slot=3, x=880, y=-1271, z=14.8, rotation=0 },
+                { slot=4, x=876.5, y=-1271, z=14.8, rotation=0 },
+                { slot=5, x=873, y=-1271, z=14.8, rotation=0 },
             },
         },
         {
@@ -172,9 +172,9 @@ FractionFleetConfig = {
             rank = 4,
             count = 3,
             parking = {
-                { slot=6, x=886, y=-1259, z=14.8, rotation=90 },
-                { slot=7, x=872, y=-1263, z=14.8, rotation=90 },
-                { slot=8, x=879, y=-1263, z=14.8, rotation=90 },
+                { slot=6, x=868, y=-1276, z=14.8, rotation=90 },
+                { slot=7, x=868, y=-1279.5, z=14.8, rotation=90 },
+                { slot=8, x=868, y=-1283, z=14.6, rotation=90 },
             },
         },
         {
@@ -184,7 +184,7 @@ FractionFleetConfig = {
             rank = 5,
             count = 1,
             parking = {
-                { slot=9, x=886, y=-1263, z=14.8, rotation=90 },
+                { slot=9, x=890, y=-1260, z=14.8, rotation=90 },
             },
         },
     },
@@ -326,12 +326,12 @@ FractionLocationConfig = {
     [4] = {
         -- TransFender: user-selected interior and arrival point.
         interior=1, dimension=20004,
-        entrance={x=862.08,y=-1245.18,z=14.8,rotation=0.00},
-        inside={x=621.45,y=-23.72,z=1000.92,rotation=0.00},
-        exit={x=621.45,y=-26.92,z=1000.92,rotation=0.00},
-        keysPoint={x=624.45,y=-23.72,z=1000.92,rotation=0.00},
-        armory={x=618.45,y=-23.72,z=1000.92,rotation=0.00},
-        outsideSpawn={x=865.58,y=-1245.18,z=14.8,rotation=90.00},
+        entrance={x=861.4,y=-1245.3,z=14.8,rotation=0.00},
+        inside={x=625.45,y=-12,z=1000.92,rotation=90.00},
+        exit={x=627.25,y=-12,z=1000.92,rotation=0.00},
+        keysPoint={x=605.66,y=-21.27,z=1000.5,rotation=0.00},
+        armory={x=609,y=-20,z=1000.78,rotation=0.00},
+        outsideSpawn={x=863.4,y=-1245.3,z=14.8,rotation=270.00},
     },
     -- Yakuza
     [5] = {

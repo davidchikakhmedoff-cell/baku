@@ -156,7 +156,7 @@ assert(cancelled and opened=='armory','ammunition box opens armory menu without 
 
 local mafia=Fractions[4]
 F.member=function() return {faction_id=4,rank=1} end
-assert(mafia.interior==1 and mafia.inside.x==621.45 and mafia.inside.y==-23.72 and mafia.inside.z==1000.92,'La Cosa Nostra uses requested TransFender arrival')
+assert(mafia.interior==1 and mafia.inside.x==625.45 and mafia.inside.y==-12 and mafia.inside.z==1000.92,'La Cosa Nostra uses requested TransFender arrival')
 for _,key in ipairs({'exit','keys','armory'}) do
  local marker=F.markers[key..':4']
  assert(marker.interior==1 and marker.dimension==20004,'TransFender interactions use isolated La Cosa Nostra interior')
