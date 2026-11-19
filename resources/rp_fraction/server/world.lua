@@ -23,6 +23,11 @@ local function teleport(p,pos,interior,dimension)
 end
 function F.repairInteriorPosition(p)
  -- Migrate saved positions from the removed hospital shell and old News roof.
+ local mafia=Fractions[4]
+ if getElementDimension(p)==mafia.dimension and getElementInterior(p)~=mafia.interior then
+  teleport(p,mafia.inside,mafia.interior,mafia.dimension)
+  return
+ end
  local hospital=Fractions[1]
  if getElementDimension(p)==hospital.dimension then
   local x,y=getElementPosition(p)
