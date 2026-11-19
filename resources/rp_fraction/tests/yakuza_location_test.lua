@@ -36,7 +36,7 @@ local function wrongCityFleet()
  end end
 end
 defaults();load();verify(true)
-assert(table.concat(Fractions[5].vehicleColor,',')=='115,38,52,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
+assert(table.concat(Fractions[5].vehicleColor,',')=='65,12,25,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
 for index=1,5 do assert(Fractions[5].vehicles[index].model==421,'five Yakuza sedans use new model 421') end
 assert(Fractions[5].vehicles[6].model==579 and Fractions[5].vehicles[9].model==409,'SUV and limousine groups retain their configured models')
 oldFleet();load();verify();load();verify() -- partial update and repeat initialization
