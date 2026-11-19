@@ -204,7 +204,7 @@ FractionFleetConfig = {
         },
         {
             name = "Внедорожники",
-            model = 579,
+            model = 479,
             rank = 4,
             count = 3,
             parking = {

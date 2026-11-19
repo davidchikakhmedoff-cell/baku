@@ -38,7 +38,7 @@ end
 defaults();load();verify(true)
 assert(table.concat(Fractions[5].vehicleColor,',')=='65,12,25,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
 for index=1,5 do assert(Fractions[5].vehicles[index].model==421,'five Yakuza sedans use new model 421') end
-assert(Fractions[5].vehicles[6].model==579 and Fractions[5].vehicles[9].model==409,'SUV and limousine groups retain their configured models')
+assert(Fractions[5].vehicles[6].model==479 and Fractions[5].vehicles[9].model==409,'Toyota 479 replaces three SUVs while limousine stays unchanged')
 oldFleet();load();verify();load();verify() -- partial update and repeat initialization
 wrongCityFleet();load();verify();load();verify() -- wrong-city deployment migrates to Los Santos
 oldFleet();FractionFleetConfig[5][1].parking[1].x=1800

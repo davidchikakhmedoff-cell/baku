@@ -2,7 +2,8 @@
  <info name="RP Fractions" author="Baku" version="1.0.0" type="script" />
  <include resource="rp_core" />
  <include resource="rp_car" />
- <include resource="new" />
+ <include resource="lexus_ls400" />
+ <include resource="toyota_sequoia" />
  <script src="skins/config.lua" type="shared" />
  <script src="cars/config.lua" type="shared" />
  <script src="fleet_config.lua" type="shared" />

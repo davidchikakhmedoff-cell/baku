@@ -1,3 +1,10 @@
+-- Canonical names shared by dealership UI, personal cars and faction keys.
+-- These entries name models; they do not add offers/prices to the dealership.
+VehicleModelNames = {
+    [421] = "LEXUX LS 400 XF10",
+    [479] = "TOYOTA SEQUOIA"
+}
+
 Dealerships = {
     {
         id = 1,

@@ -8,6 +8,8 @@ VehicleStatuses = {
 }
 
 function getVehicleDisplayName(model, fallback)
+    local configured = VehicleModelNames and VehicleModelNames[tonumber(model)]
+    if configured then return configured end
     if fallback and fallback ~= "" then return tostring(fallback) end
     return getVehicleNameFromModel(tonumber(model) or 400) or ("Model " .. tostring(model))
 end
@@ -18,7 +20,7 @@ function getConfiguredVehicleName(model)
     for _,dealership in ipairs(Dealerships or {}) do
         for _,vehicle in ipairs(dealership.vehicles or {}) do
             if tonumber(vehicle.model)==model and type(vehicle.customName)=="string" and vehicle.customName:find("%S") then
-                return vehicle.customName
+                return getVehicleDisplayName(model, vehicle.customName)
             end
         end
     end

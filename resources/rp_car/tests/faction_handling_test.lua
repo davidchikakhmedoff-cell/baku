@@ -10,7 +10,7 @@ function setVehicleHandling(e,key,value) e.handling[key]=value;return true end
 assert(loadstring(supported..'\n'..apply))()
 local function vehicle() return {model=421,handling={driveType='rwd',suspensionLowerLimit=-0.2}} end
 local personal=vehicle();assert(applyConfiguredVehicleHandling(personal))
-assert(personal.handling.driveType=='awd' and personal.handling.suspensionLowerLimit==-0.23,'shared dealership handler uses 421 AWD and mild lowering')
+assert(personal.handling.driveType=='awd' and personal.handling.suspensionLowerLimit==-0.13,'shared dealership handler uses 421 AWD and mild lowering')
 local r={};sourceResource=r
 function getResourceFromName() return r end
 function getVehicleType() return 'Automobile' end

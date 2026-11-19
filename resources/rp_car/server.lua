@@ -142,7 +142,7 @@ local function setPersonalRuntime(vehicle, row)
     setElementData(vehicle, "car:personal", true, true)
     setElementData(vehicle, "car:vehicleId", data.vehicleId, true)
     setElementData(vehicle, "car:ownerAccountId", data.ownerAccountId, true)
-    setElementData(vehicle, "car:customName", row.custom_name, true)
+    setElementData(vehicle, "car:customName", getVehicleDisplayName(row.model, row.custom_name), true)
     setElementData(vehicle, "car:tonerPercent", data.tonerPercent, true)
     setElementData(vehicle, "car:tonerLobPercent", data.tonerLobPercent, true)
     setElementData(vehicle, "car:tonerFrontPercent", data.tonerFrontPercent, true)
@@ -1198,7 +1198,7 @@ local function openDealershipFor(player, vehicle)
     local config = getDealershipVehicle(data.dealershipId, data.vehicleId)
     if not config then return end
     triggerClientEvent(player, CarConfig.events.openDealership, resourceRoot, data.dealershipId, data.vehicleId, {
-        name = config.customName,
+        name = getVehicleDisplayName(config.model, config.customName),
         price = config.price,
         maxSpeed = config.maxSpeed,
         model = config.model,
@@ -1412,7 +1412,7 @@ addEventHandler(CarConfig.events.buyVehicle, root, function(dealershipId, vehicl
     local vehicleDbId = RPCarDB.createVehicle({
         owner_account_id = id,
         model = config.model,
-        custom_name = config.customName,
+        custom_name = getVehicleDisplayName(config.model, config.customName),
         gov_price = price,
         color_r = 255, color_g = 255, color_b = 255,
         health = 1000,
@@ -1453,7 +1453,7 @@ addEventHandler(CarConfig.events.buyVehicle, root, function(dealershipId, vehicl
         return
     end
     purchaseLocks[player] = nil
-    notify(player, "Автомобиль " .. tostring(config.customName) .. " куплен.", true)
+    notify(player, "Автомобиль " .. getVehicleDisplayName(config.model, config.customName) .. " куплен.", true)
 end)
 
 addEvent(CarConfig.events.buyVehicleRequest, true)
@@ -1523,7 +1523,7 @@ addEventHandler(CarConfig.events.buyVehicleRequest, root, function(dealershipId,
     local vehicleDbId = RPCarDB.createVehicle({
         owner_account_id = id,
         model = config.model,
-        custom_name = config.customName,
+        custom_name = getVehicleDisplayName(config.model, config.customName),
         gov_price = price,
         color_r = 255, color_g = 255, color_b = 255,
         health = 1000,
@@ -1596,7 +1596,7 @@ addEventHandler(CarConfig.events.buyVehicleRequest, root, function(dealershipId,
                 debugLog("[RP CAR] Player warped into purchased vehicle: YES")
                 finishDealershipSession(player)
                 debugLog("buy success: dbId=" .. tostring(vehicleDbId))
-                notify(player, "Автомобиль " .. tostring(config.customName) .. " куплен.", true)
+                notify(player, "Автомобиль " .. getVehicleDisplayName(config.model, config.customName) .. " куплен.", true)
                 return
             end
 
