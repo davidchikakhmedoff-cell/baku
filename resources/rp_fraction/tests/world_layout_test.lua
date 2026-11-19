@@ -156,18 +156,25 @@ assert(cancelled and opened=='armory','ammunition box opens armory menu without 
 
 local mafia=Fractions[4]
 F.member=function() return {faction_id=4,rank=1} end
-assert(mafia.interior==2 and mafia.inside.x==2536.53 and mafia.inside.y==-1294.84 and mafia.inside.z==1044.12,"La Cosa Nostra uses requested Big Smoke's Crack Palace floor")
+assert(mafia.interior==1 and mafia.inside.x==621.45 and mafia.inside.y==-23.72 and mafia.inside.z==1000.92,'La Cosa Nostra uses requested TransFender arrival')
 for _,key in ipairs({'exit','keys','armory'}) do
  local marker=F.markers[key..':4']
- assert(marker.interior==2 and marker.dimension==20004,'palace interactions use isolated La Cosa Nostra interior')
+ assert(marker.interior==1 and marker.dimension==20004,'TransFender interactions use isolated La Cosa Nostra interior')
 end
-for _,old in ipairs({{5,1262.1,-785.3,1091.9},{1,1405.312,-8.2928,1000.913}}) do
+for _,old in ipairs({{5,1262.1,-785.3,1091.9},{1,1405.312,-8.2928,1000.913},{2,2536.53,-1294.84,1044.12}}) do
  p.interior=old[1];p.dimension=20004;p.x,p.y,p.z=old[2],old[3],old[4]
  F.repairInteriorPosition(p)
- assert(p.interior==2 and p.x==mafia.inside.x and p.z==mafia.inside.z,'saved residents migrate from both previous interiors to palace')
+ assert(p.interior==1 and p.x==mafia.inside.x and p.z==mafia.inside.z,'saved residents migrate from all previous interiors to TransFender')
 end
 tick=tick+2000;source=F.markers['exit:4'];handlers.onMarkerHit(p,true)
-assert(p.interior==0 and p.dimension==0 and p.x==mafia.outsideSpawn.x,'palace exit returns to current exterior entrance')
+assert(p.interior==0 and p.dimension==0 and p.x==mafia.outsideSpawn.x,'TransFender exit returns to current exterior entrance')
 tick=tick+2000;source=F.markers['enter:4'];handlers.onMarkerHit(p,true)
-assert(p.interior==2 and p.dimension==20004 and p.x==mafia.inside.x,'HQ entrance reaches palace floor')
-print('La Cosa Nostra palace: markers, entry, exit and old saved-position recovery passed')
+assert(p.interior==1 and p.dimension==20004 and p.x==mafia.inside.x,'HQ entrance reaches TransFender floor')
+print('La Cosa Nostra TransFender: markers, entry, exit and old saved-position recovery passed')
+
+p.x,p.y,p.z=mafia.inside.x+1,mafia.inside.y,mafia.inside.z
+F.repairInteriorPosition(p)
+assert(p.x==mafia.inside.x+1,'current TransFender residents are not moved')
+p.interior=1;p.dimension=0;p.x,p.y,p.z=1405.312,-8.2928,1000.913
+F.repairInteriorPosition(p)
+assert(p.x==1405.312 and p.dimension==0,'warehouse players outside faction dimension are not moved')
