@@ -156,16 +156,18 @@ assert(cancelled and opened=='armory','ammunition box opens armory menu without 
 
 local mafia=Fractions[4]
 F.member=function() return {faction_id=4,rank=1} end
-assert(mafia.interior==1 and mafia.inside.x==1405.312 and mafia.inside.z==1000.913,'La Cosa Nostra uses stock Warehouse 1')
+assert(mafia.interior==2 and mafia.inside.x==2536.53 and mafia.inside.y==-1294.84 and mafia.inside.z==1044.12,"La Cosa Nostra uses requested Big Smoke's Crack Palace floor")
 for _,key in ipairs({'exit','keys','armory'}) do
  local marker=F.markers[key..':4']
- assert(marker.interior==1 and marker.dimension==20004,'warehouse interactions use isolated La Cosa Nostra interior')
+ assert(marker.interior==2 and marker.dimension==20004,'palace interactions use isolated La Cosa Nostra interior')
 end
-p.interior=5;p.dimension=20004;p.x,p.y,p.z=1262.1,-785.3,1091.9
-F.repairInteriorPosition(p)
-assert(p.interior==1 and p.x==mafia.inside.x and p.z==mafia.inside.z,'saved residents migrate from old mansion to warehouse')
+for _,old in ipairs({{5,1262.1,-785.3,1091.9},{1,1405.312,-8.2928,1000.913}}) do
+ p.interior=old[1];p.dimension=20004;p.x,p.y,p.z=old[2],old[3],old[4]
+ F.repairInteriorPosition(p)
+ assert(p.interior==2 and p.x==mafia.inside.x and p.z==mafia.inside.z,'saved residents migrate from both previous interiors to palace')
+end
 tick=tick+2000;source=F.markers['exit:4'];handlers.onMarkerHit(p,true)
-assert(p.interior==0 and p.dimension==0 and p.x==mafia.outsideSpawn.x,'warehouse exit returns to current exterior entrance')
+assert(p.interior==0 and p.dimension==0 and p.x==mafia.outsideSpawn.x,'palace exit returns to current exterior entrance')
 tick=tick+2000;source=F.markers['enter:4'];handlers.onMarkerHit(p,true)
-assert(p.interior==1 and p.dimension==20004 and p.x==mafia.inside.x,'HQ entrance reaches warehouse floor')
-print('La Cosa Nostra warehouse: markers, entry, exit and old saved-position recovery passed')
+assert(p.interior==2 and p.dimension==20004 and p.x==mafia.inside.x,'HQ entrance reaches palace floor')
+print('La Cosa Nostra palace: markers, entry, exit and old saved-position recovery passed')

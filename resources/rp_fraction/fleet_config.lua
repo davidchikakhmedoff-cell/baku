@@ -323,13 +323,13 @@ FractionLocationConfig = {
     },
     -- La Cosa Nostra
     [4] = {
-        -- Standard GTA SA Warehouse 1.
-        interior=1, dimension=20004,
+        -- Big Smoke's Crack Palace: user-selected upper floor.
+        interior=2, dimension=20004,
         entrance={x=862.08,y=-1245.18,z=14.8,rotation=0.00},
-        inside={x=1405.3120,y=-8.2928,z=1000.9130,rotation=0.00},
-        exit={x=1412.6399,y=-1.7875,z=1000.9244,rotation=0.00},
-        keysPoint={x=1408.3120,y=-8.2928,z=1000.9130,rotation=0.00},
-        armory={x=1405.3120,y=-5.2928,z=1000.9130,rotation=0.00},
+        inside={x=2536.53,y=-1294.84,z=1044.12,rotation=0.00},
+        exit={x=2536.53,y=-1298.04,z=1044.12,rotation=0.00},
+        keysPoint={x=2539.53,y=-1294.84,z=1044.12,rotation=0.00},
+        armory={x=2533.53,y=-1294.84,z=1044.12,rotation=0.00},
         outsideSpawn={x=865.58,y=-1245.18,z=14.8,rotation=90.00},
     },
     -- Yakuza
