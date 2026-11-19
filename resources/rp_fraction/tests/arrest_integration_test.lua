@@ -71,7 +71,7 @@ local F=Fraction
 F.ready=true;F.revokeDriver=function() end
 local function prepare(dimension,dx,z,working,stars)
  clock=clock+6000;replies={};row={wanted=stars or 1,remaining=0}
- p.x,p.y,p.z=264.28+(dx or 0),80.64,z or 1001.03
+ p.x,p.y,p.z=264.28+(dx or 0),77.64,z or 1001.03
  p.interior,p.dimension,p.model,p.stars=6,dimension,280,0
  F.sessions[p]={account=87,duty=working~=false};F.justice={};F.cooldowns={}
  F.members[87]={account_id=87,faction_id=2,rank=10,duty=1,civilian_skin=7,civilian_weapons='[]',gear_issued=0}
@@ -80,7 +80,7 @@ for _,dimension in ipairs({0,Fractions[2].dimension,FractionConfig.dimensionBase
  prepare(dimension,4)
  RPChat.processMessage(p,'/arrest 15')
  assert(p.dimension==FractionConfig.dimensionBase+100 and row.remaining==300,'self arrest works four metres from actual prison in each supported world')
- assert(p.x==264.28 and p.y==80.64 and p.z==1001.03 and p.rotation==180,'exact requested prison appearance position and heading')
+ assert(p.x==264.28 and p.y==77.64 and p.z==1001.03 and p.rotation==90,'exact requested prison appearance position and heading')
  assert(row.wanted==0 and p.stars==0,'arrest clears persistent and native wanted')
  assert(replies[#replies]:find('помещён',1,true),'successful command always replies in visible chat')
 end

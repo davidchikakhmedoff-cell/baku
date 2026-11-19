@@ -82,7 +82,7 @@ commands.cuff(officer,'cuff','2');F.clearCuffs(officer,true);assert(not F.cuffs[
 suspect.far=true;commands.cuff(officer,'cuff','2');assert(not F.cuffs[suspect],'remote cuff rejected');suspect.far=false
 atBooking(officer);atBooking(suspect)
 commands.arrest(officer,'arrest','2');assert(F.jailed(suspect) and suspect.stars==0 and suspect.dimension==20100,'arrest teleports and clears wanted')
-assert(suspect.y==Fractions[2].jailSpawn.y and suspect.x==Fractions[2].jailSpawn.x and suspect.rotation==180,'prisoner spawns at the exact coordinates supplied by user')
+assert(suspect.y==Fractions[2].jailSpawn.y and suspect.x==Fractions[2].jailSpawn.x and suspect.rotation==90,'prisoner spawns at the exact coordinates supplied by user')
 local original=states[2].jail_remaining;F.arrest(suspect,10,'again');assert(states[2].jail_remaining==original,'duplicate arrest cannot extend sentence')
 F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==900,'reconnect reads persisted sentence')
 F.jailTick(suspect,60000);assert(states[2].jail_remaining==840,'online time decrements sentence')
