@@ -278,7 +278,7 @@ FractionLocationConfig = {
         keysPoint={x=239.4000,y=73.6000,z=1004.6000,rotation=0.00},
         dutyPoint={x=254.5000,y=77.0800,z=1003.3000,rotation=0.00},
         armory={x=256.000,y=74.3000,z=1003.1000,rotation=0.00},
-        jailSpawn={x=264.28,y=80.64,z=1001.03,rotation=180},
+        jailSpawn={x=264.28,y=79.94,z=1001.03,rotation=180},
         jailBooking={radius=5,height=1.2},
         outsideSpawn={x=1552.4000,y=-1675.5000,z=16.2000,rotation=90.00},
         roof={triggerRadius=0.5, slot=17, inside={x=243.0500,y=66.4000,z=1003.6000,rotation=0.00}, outside={x=1565.0700,y=-1684.9000,z=28.4000,rotation=90.00},

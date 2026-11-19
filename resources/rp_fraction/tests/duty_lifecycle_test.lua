@@ -17,7 +17,7 @@ function fromJSON() return {} end
 function getElementsByType() return {p} end
 function getPlayerWantedLevel() return 0 end
 exports={rp_core={getAuthPlayerId=function() return 1 end}}
-FractionDB={available=function() return true end,exec=function() return true end}
+FractionDB={one=function() return {gender='male'} end,available=function() return true end,exec=function() return true end}
 dofile('resources/rp_fraction/server/main.lua')
 local F=Fraction
 F.ready=true

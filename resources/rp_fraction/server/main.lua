@@ -49,11 +49,23 @@ function F.reload(id)
  end
  F.members[id]=m;return m
 end
+function F.workSkin(p,m)
+ m=m or F.member(p);local f=m and Fractions[m.faction_id]
+ if not f then return getElementModel(p) end
+ if f.femaleSkins then
+  if not m.gender then
+   local row=FractionDB.one('SELECT gender FROM players WHERE id=?',m.account_id)
+   m.gender=row and row.gender=='female' and 'female' or 'male'
+  end
+  if m.gender=='female' then return f.femaleSkins[m.rank] end
+ end
+ return f.skins[m.rank]
+end
 function F.sync(p)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
  setElementData(p,'rp:nametagColor',f and f.color or {255,255,255},true)
  setElementData(p,'rp:faction',f and f.name or false,true)
- if f and (f.category=='criminal' or (F.sessions[p] and F.sessions[p].duty)) then setElementModel(p,f.skins[m.rank]) end
+ if f and (f.category=='criminal' or (F.sessions[p] and F.sessions[p].duty)) then setElementModel(p,F.workSkin(p,m)) end
  triggerClientEvent(p,'fraction:state',resourceRoot,m and {id=m.faction_id,rank=m.rank,duty=F.sessions[p] and F.sessions[p].duty or false} or false)
 end
 function F.snapshotWeapons(p)
@@ -96,7 +108,7 @@ function F.toggleDuty(p)
  else
   m.civilian_skin=getElementModel(p);m.civilian_weapons=F.snapshotWeapons(p)
   if not FractionDB.change('UPDATE fraction_members SET duty=1,civilian_skin=?,civilian_weapons=? WHERE account_id=?',m.civilian_skin,m.civilian_weapons,m.account_id) then return end
-  s.duty=true;m.duty=1;setElementModel(p,f.skins[m.rank]);F.sync(p);F.notify(p,'Вы начали смену',true)
+  s.duty=true;m.duty=1;setElementModel(p,F.workSkin(p,m));F.sync(p);F.notify(p,'Вы начали смену',true)
  end
 end
 function F.load(p)

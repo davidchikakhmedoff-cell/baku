@@ -15,6 +15,8 @@
  <script src="server/radio.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
+ <script src="client/skins.lua" type="client" />
+ <script src="client/jail_clock.lua" type="client" />
  <script src="client/main.lua" type="client" />
  <script src="client/cuff_pose.lua" type="client" />
  <script src="client/key_marker.lua" type="client" />
@@ -27,4 +29,12 @@
  <export function="getCivilianWeapons" type="server" />
  <export function="getCivilianSkin" type="server" />
  <export function="applyFactionJail" type="server" />
+ <file src="skins/pw1.dff" />
+ <file src="skins/pw1.txd" />
+ <file src="skins/pw2.dff" />
+ <file src="skins/pw2.txd" />
+ <file src="skins/pw3.dff" />
+ <file src="skins/pw3.txd" />
+ <file src="skins/pw5.dff" />
+ <file src="skins/pw5.txd" />
 </meta>

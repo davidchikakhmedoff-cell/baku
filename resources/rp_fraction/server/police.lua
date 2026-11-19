@@ -115,13 +115,17 @@ addCommandHandler('uncuff',function(p,_,id)
  F.clearCuffs(target);F.notify(target,'Наручники сняты',true)
  if p~=target then F.notify(p,'Вы сняли наручники с игрока',true) end
 end)
+function F.sendJailClock(p)
+ local state=F.state(p)
+ triggerClientEvent(p,'fraction:jailClock',resourceRoot,state and math.max(0,tonumber(state.jail_remaining) or 0) or 0)
+end
 function F.applyJail(p,spawn)
  local s=F.state(p);if not s or tonumber(s.jail_remaining)<=0 then return false end
  local cell=Fractions[2].jailSpawn or FractionConfig.jailCells[1]
  if isPedInVehicle(p) then removePedFromVehicle(p) end
  if spawn and isPedDead(p) then spawnPlayer(p,cell.x,cell.y,cell.z,0,getCivilianSkin(p),6,FractionConfig.dimensionBase+100) end
  setElementInterior(p,6);setElementDimension(p,FractionConfig.dimensionBase+100);setElementPosition(p,cell.x,cell.y,cell.z);setPedRotation(p,cell.rotation or 180)
- setCameraTarget(p,p);takeAllWeapons(p);wanted(p,0)
+ setCameraTarget(p,p);takeAllWeapons(p);wanted(p,0);F.sendJailClock(p)
  return true
 end
 function applyFactionJail(p) return F.applyJail(p,true) end
@@ -184,6 +188,7 @@ function F.commandArrest(p,id)
 end
 addCommandHandler('arrest',function(p,_,id) F.commandArrest(p,id) end)
 local function releasePosition(p)
+ triggerClientEvent(p,'fraction:jailClock',resourceRoot,0)
  local pos=Fractions[2].outsideSpawn or FractionConfig.release
  F.clearCuffs(p,true)
  if isPedInVehicle(p) then removePedFromVehicle(p) end
@@ -207,6 +212,7 @@ end)
 function F.jailTick(p,elapsed)
  local s=F.state(p);if not s or tonumber(s.jail_remaining)<=0 then return end
  s.jail_remaining=math.max(0,s.jail_remaining-elapsed/1000)
+ F.sendJailClock(p)
  FractionDB.exec('UPDATE fraction_state SET jail_remaining=? WHERE account_id=?',s.jail_remaining,F.account(p))
  if s.jail_remaining<=0 then
   releasePosition(p)
@@ -251,4 +257,10 @@ addEventHandler('fraction:syncCuffs',resourceRoot,function()
   for _,name in ipairs(cuffControls) do controls[name]=isControlEnabled(client,name) end
  end
  triggerClientEvent(client,'fraction:cuff',resourceRoot,state~=nil,controls)
+end)
+
+addEvent('fraction:requestJailClock',true)
+addEventHandler('fraction:requestJailClock',resourceRoot,function()
+ if source~=resourceRoot or not client or not F.account(client) or not F.throttle(client,'jailClock') then return end
+ F.sendJailClock(client)
 end)

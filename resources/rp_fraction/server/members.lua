@@ -38,7 +38,7 @@ function F.rank(p,targetId,rank)
  for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then F.endDuty(online) end end
  FractionDB.exec('UPDATE fraction_members SET rank=? WHERE account_id=?',rank,targetId);F.reload(targetId)
  for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then
-  F.sync(online);if F.sessions[online] and F.sessions[online].duty then setElementModel(online,f.skins[rank]) end;F.revokeDriver(online)
+  F.sync(online);if F.sessions[online] and F.sessions[online].duty then setElementModel(online,F.workSkin(online)) end;F.revokeDriver(online)
  end end
  F.membersMenu(p)
 end

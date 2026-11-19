@@ -80,7 +80,7 @@ for _,dimension in ipairs({0,Fractions[2].dimension,FractionConfig.dimensionBase
  prepare(dimension,4)
  RPChat.processMessage(p,'/arrest 15')
  assert(p.dimension==FractionConfig.dimensionBase+100 and row.remaining==300,'self arrest works four metres from actual prison in each supported world')
- assert(p.x==264.28 and p.y==80.64 and p.z==1001.03 and p.rotation==180,'exact requested prison appearance position and heading')
+ assert(p.x==264.28 and p.y==79.94 and p.z==1001.03 and p.rotation==180,'exact requested prison appearance position and heading')
  assert(row.wanted==0 and p.stars==0,'arrest clears persistent and native wanted')
  assert(replies[#replies]:find('помещён',1,true),'successful command always replies in visible chat')
 end
