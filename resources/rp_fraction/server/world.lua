@@ -154,9 +154,12 @@ function canDriveFactionVehicle(p,v)
  local spec=F.vehicles[v]
  return spec and F.active(p,spec.faction,spec.rank) and not F.cuffs[p] and not F.jailed(p) and F.hasVehicleKey(p,spec.key) or false
 end
+local function canOccupyDriverSeat(p)
+ return F.account(p) and not isPedDead(p) and not F.cuffs[p] and not F.jailed(p)
+end
 function F.revokeDriver(p)
  local v=getPedOccupiedVehicle(p)
- if v and F.vehicles[v] and getPedOccupiedVehicleSeat(p)==0 and not canDriveFactionVehicle(p,v) then
+ if v and F.vehicles[v] and getPedOccupiedVehicleSeat(p)==0 and not canOccupyDriverSeat(p) then
   setVehicleEngineState(v,false);removePedFromVehicle(p)
  end
 end
@@ -209,8 +212,8 @@ function F.spawnFleet()
 end
 addEventHandler('onVehicleStartEnter',root,function(p,seat)
  local spec=F.vehicles[source]
- if spec and seat==0 and not canDriveFactionVehicle(p,source) then
-  cancelEvent();F.notify(p,'Нужны ключи от этого транспорта, '..spec.rank..' ранг '..Fractions[spec.faction].name..' и рабочий статус')
+ if spec and seat==0 and (isVehicleLocked(source) or not canOccupyDriverSeat(p)) then
+  cancelEvent()
  end
 end,true,'high+10')
 addEventHandler('onVehicleEnter',root,function(p,seat) if seat==0 then F.revokeDriver(p) end end)

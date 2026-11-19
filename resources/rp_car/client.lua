@@ -874,7 +874,6 @@ local function handleVehicleControlKey(keyName, sourceName)
     local ready = keyName == "n" and CarInteraction.canToggleLock(localPlayer)
         or (keyName ~= "n" and CarInteraction.ready(localPlayer))
     if not ready then
-        if keyName == "n" then controlFeedback("Замок: дождитесь завершения посадки или выхода из машины.") end
         return false
     end
     if keyName == "n" then
@@ -895,7 +894,6 @@ local function handleVehicleControlKey(keyName, sourceName)
     local blocked = isInputBlocked()
     debugKey("Blocked by UI: " .. (blocked and "YES" or "NO"))
     if blocked then
-        if keyName == "n" then controlFeedback("Замок: закройте открытое окно или поле ввода.") end
         return false
     end
 
@@ -923,7 +921,6 @@ local function handleVehicleControlKey(keyName, sourceName)
             debugKey("Lock event sent: YES")
             return true
         end
-        controlFeedback("Замок: наведите центр экрана на машину в пределах 25 метров.")
         debugKey("Lock event sent: NO (no car near screen centre)")
         return false
     end
@@ -935,7 +932,7 @@ local function dispatchVehicleKey(key, origin)
     local ok, result = pcall(handleVehicleControlKey,key,origin)
     if not ok then
         outputDebugString("[RP Car controls] "..tostring(result),1)
-        controlFeedback("Ошибка управления автомобилем: "..tostring(result))
+        if key ~= "n" then controlFeedback("Ошибка управления автомобилем: "..tostring(result)) end
         return false
     end
     return result

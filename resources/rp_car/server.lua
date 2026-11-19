@@ -1802,11 +1802,10 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     if client ~= source then return end
     local player = client
     if FactionVehicleAdapter and FactionVehicleAdapter.handle(player,'lock',vehicle) then return end
-    if not CarInteraction.canToggleLock(player) then notify(player,"Дождитесь завершения посадки или выхода из машины.",false);return end
-    if tuningSessions[player] then notify(player,"Сначала выйдите из тюнинг-ателье.",false);return end
+    if not CarInteraction.canToggleLock(player) then return end
+    if tuningSessions[player] then return end
     vehicle = resolveLockVehicle(player, vehicle)
     if not vehicle then
-        notify(player, "Рядом нет доступного личного автомобиля. Подойдите ближе к своей машине.", false)
         return
     end
     debugLock("Vehicle valid: " .. (isElement(vehicle) and "YES" or "NO"))
@@ -1850,14 +1849,12 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     debugLock("setVehicleLocked result: " .. (success and "SUCCESS" or "FAILED"))
     if not success then
         debugLock("Headlight flash triggered: NO")
-        notify(player,"Не удалось изменить состояние замка автомобиля.",false)
         return
     end
 
     if not RPCarDB.updateVehicle(vehicleId, { locked = locked }) then
         setVehicleLocked(vehicle, wasLocked)
         debugLock("New lock state: " .. (wasLocked and "CLOSED" or "OPEN"))
-        notify(player,"Не удалось сохранить замок автомобиля в базе данных.",false)
         debugLock("Database lock update: FAILED")
         debugLock("Headlight flash triggered: NO")
         return
@@ -1868,7 +1865,6 @@ addEventHandler(CarConfig.events.toggleLock, root, function(vehicle)
     triggerClientEvent(player, CarConfig.events.playLockSound, resourceRoot, vehicle)
     debugLock("Headlight flash triggered: YES")
     flashVehicleLights(vehicle, row)
-    notify(player,expectedLocked and "Двери автомобиля закрыты." or "Двери автомобиля открыты.",true)
 end)
 
 local function openUsedMarket(player, vehicle)

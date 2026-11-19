@@ -65,6 +65,18 @@ getVehicleOccupant=occupant;FactionVehicleAdapter.vehicles[v].brake=false;v.froz
 sourceResource={};assert(not registerFactionVehicle(v,'fraction:2:2',30),'foreign resource cannot register')
 assert(FactionVehicleAdapter.handle(p,'engine') and v.engine,'ranked on-duty driver starts engine')
 FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'engine switches off')
+local occupantPlayer=getVehicleOccupant
+getVehicleOccupant=function() return outsider end
+source=v;handlers.onVehicleEnter(outsider,0)
+assert(not v.engine,'ordinary entrant cannot auto-start a stopped engine')
+FactionVehicleAdapter.handle(outsider,'engine');assert(not v.engine,'ordinary player cannot start engine with controls')
+getVehicleOccupant=occupantPlayer
+FactionVehicleAdapter.handle(p,'engine');assert(v.engine)
+getVehicleOccupant=function() return outsider end
+handlers.onVehicleEnter(outsider,0);assert(v.engine,'running engine remains available to keyless driver')
+getVehicleOccupant=occupantPlayer
+FactionVehicleAdapter.handle(p,'engine');assert(not v.engine)
+
 fuel=0;FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'empty fuel blocks start');fuel=30
 FactionVehicleAdapter.handle(outsider,'engine');assert(not v.engine,'insufficient rank denied')
 p.duty=false;FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'off-duty driver denied');p.duty=true

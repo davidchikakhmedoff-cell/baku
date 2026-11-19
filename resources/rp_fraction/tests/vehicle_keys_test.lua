@@ -79,6 +79,26 @@ assert(not first.proof and first['fraction:issued']==true,'issuing keys enables 
 assert(F.hasVehicleKey(p,carKey) and not F.hasVehicleKey(q,carKey),'one server-side holder per vehicle')
 assert(canDriveFactionVehicle(p,first) and not canDriveFactionVehicle(q,first),'even same-rank coworkers cannot control holder vehicle')
 assert(menus[q].rows[1].holder=='First_Player','other open menus see holder nickname immediately')
+-- Entry is independent of key ownership; controls remain exclusive.
+local cancelled=false
+function cancelEvent() cancelled=true end
+function isVehicleLocked(v) return v.locked end
+local function startEntry(player,seat)
+ cancelled=false;source=first
+ for _,fn in ipairs(handlers.onVehicleStartEnter) do fn(player,seat) end
+ return not cancelled
+end
+outsider.faction=nil;outsider.notice=nil
+assert(not startEntry(outsider,0) and not outsider.notice,'locked fleet car silently denies outsiders')
+first.locked=false
+assert(startEntry(outsider,0) and not outsider.notice,'ordinary player may enter unlocked fleet driver seat silently')
+outsider.vehicle=first;first.occupants[0]=outsider;first.engine=true
+F.revokeDriver(outsider)
+assert(outsider.vehicle==first and first.engine,'keyless driver is neither ejected nor stopped by repeated checks')
+F.cuffs[outsider]={};assert(not startEntry(outsider,0),'cuffs still prevent driver entry');F.cuffs[outsider]=nil
+outsider.vehicle=nil;first.occupants[0]=nil;outsider.faction=2
+first.locked=true
+
 F.takeVehicleKeys(q,1);assert(not F.playerKeys[q],'second player cannot claim same keys')
 F.takeVehicleKeys(p,3);assert(F.playerKeys[p]==carKey and not F.keyHolders[heliKey],'one vehicle per player')
 F.takeVehicleKeys(low,3);assert(not F.playerKeys[low],'helicopter rank requirement enforced')

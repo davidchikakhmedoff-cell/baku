@@ -72,7 +72,7 @@ addEventHandler('onVehicleEnter',root,function(player,seat)
  local state=A.vehicles[source]
  if not state or seat~=0 then return end
  -- GTA's automatic engine start must not bypass the resource's 2 key or fuel.
- local running=getVehicleOccupant(source,0)==player and permission(player,source) and (state.helicopter or state.engine) and FuelSystem.canStart(source) or false
+ local running=getVehicleOccupant(source,0)==player and (state.engine or (state.helicopter and permission(player,source))) and FuelSystem.canStart(source) or false
  if state.helicopter then
   state.engine=running;setElementFrozen(source,false);setVehicleLocked(source,false)
   setElementData(source,'car:engineOn',running,true)

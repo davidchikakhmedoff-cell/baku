@@ -56,10 +56,10 @@ local press=assert(loadstring('local keyDebounce={}\n'..handle..'\nreturn handle
 CarLockAccountId=nil
 assert(press('n','test') and sent.event=='car:toggleLock' and #sent.targets==2,'N sends server request without client account identity or a house')
 blocked=true;feedback=nil;sent=nil
-assert(not press('n','test') and feedback and not sent,'UI block must give visible feedback')
+assert(not press('n','test') and not feedback and not sent,'chat/UI block must be silent and send no lock request')
 blocked=false;cars={};feedback=nil
-assert(not press('n','test') and feedback,'no aim target must give visible feedback')
-print('N handler: actual request path without client identity plus visible failure messages passed')
+assert(not press('n','test') and not feedback,'no aim target must be silent')
+print('N handler: actual request path without client identity plus silent chat and missing-target handling passed')
 -- All main key actions must reach their server events, not just N.
 function getPedOccupiedVehicle() return near end
 CarConfig.events.toggleEngine='car:toggleEngine'
