@@ -1,3 +1,4 @@
+function setVehicleDamageProof() end
 local function build() dofile('resources/rp_fraction/config.lua') end
 local function defaults() dofile('resources/rp_fraction/fleet_config.lua');build() end
 defaults()

@@ -42,7 +42,11 @@ function getDistanceBetweenPoints3D(x,y,z,a,b,c) return math.sqrt((x-a)^2+(y-b)^
 function setElementPosition(e,x,y,z) e.x,e.y,e.z=x,y,z end
 function setElementInterior() end
 function setElementDimension() end
-function setElementData() end
+function setElementData(e,key,value) e[key]=value end
+function setVehicleDamageProof(e,value) e.proof=value end
+function fixVehicle(e) e.health=1000 end
+function getElementHealth(e) return e.health or 1000 end
+function getVehicleType(e) return e.model==487 and 'Helicopter' or 'Automobile' end
 function setVehicleColor() end
 function setVehicleEngineState(v,b) v.engine=b end
 function setVehicleLocked(v,b) v.locked=b end
@@ -67,9 +71,11 @@ for id,definition in pairs(Fractions) do if id~=1 then definition.vehicles={} en
 F.spawnFleet()
 local carKey,heliKey='fraction:1:1','fraction:1:3'
 local first=F.vehicleByKey[carKey]
+assert(first.proof and first['fraction:issued']==false,'unissued parked fleet vehicle is protected')
 assert(first.fuel==23.4,'startup retains stored fuel')
 assert(first.locked and not canDriveFactionVehicle(p,first),'unassigned service car is locked and no member can drive without keys')
 F.keysMenu(q);F.takeVehicleKeys(p,1)
+assert(not first.proof and first['fraction:issued']==true,'issuing keys enables ordinary damage')
 assert(F.hasVehicleKey(p,carKey) and not F.hasVehicleKey(q,carKey),'one server-side holder per vehicle')
 assert(canDriveFactionVehicle(p,first) and not canDriveFactionVehicle(q,first),'even same-rank coworkers cannot control holder vehicle')
 assert(menus[q].rows[1].holder=='First_Player','other open menus see holder nickname immediately')
@@ -82,6 +88,7 @@ p.marker=nil;assert(not F.returnVehicleKeys(p,false) and F.hasVehicleKey(p,carKe
 p.marker=marker;first.fuel=4.5;F.returnVehicleKeys(p,false)
 assert(not F.playerKeys[p] and not F.keyHolders[carKey] and first.destroyed and F.vehicleByKey[carKey]~=first,'return destroys old car and respawns its configured parking slot')
 assert(p.notice=='Ключи от Ambulance сданы','return notification names the returned vehicle')
+assert(F.vehicleByKey[carKey].proof and not F.vehicleByKey[carKey]['fraction:issued'],'returned vehicle protected again')
 assert(saved==1 and F.vehicleByKey[carKey].fuel==30 and fuelRows[carKey]==30,'return refills to 30 after old vehicle fuel is saved')
 
 -- A returned car is replaced immediately, even with passengers.
@@ -90,7 +97,10 @@ local occupied=F.vehicleByKey[carKey];local passenger={id=200};occupied.occupant
 F.returnVehicleKeys(q,false)
 assert(occupied.destroyed and not passenger.vehicle and not F.returningVehicles[carKey],'passengers cannot delay return')
 assert(passenger.x==900 and passenger.y==800 and passenger.z==20 and passenger.interior==4 and passenger.dimension==55,'passenger remains at original position, interior and dimension')
-local replacement=F.vehicleByKey[carKey];F.vehicleKeysTick();assert(F.vehicleByKey[carKey]==replacement,'no repeated respawn after successful return')
+local replacement=F.vehicleByKey[carKey]
+replacement.health=800;source=replacement;for _,fn in ipairs(handlers.onVehicleDamage) do fn() end
+assert(replacement.health==1000 and replacement.proof,'server repairs damage on parked unissued vehicles')
+F.vehicleKeysTick();assert(F.vehicleByKey[carKey]==replacement,'no repeated respawn after successful return')
 
 F.takeVehicleKeys(p,1);p.logged=false;F.returnVehicleKeys(p,true)
 assert(not F.playerKeys[p] and not F.keyHolders[carKey],'logout returns keys even after auth fields are cleared');p.logged=true

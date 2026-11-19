@@ -13,9 +13,10 @@ local cuffControls=FractionConfig.cuffControls
 function F.clearCuffs(p,issuerLeaving)
  local state=F.cuffs[p]
  if state then
-  for name,enabled in pairs(state.controls) do if isElement(p) then toggleControl(p,name,enabled) end end
+  for name,enabled in pairs(state.controls) do if isElement(p) and not getElementData(p,'admin:frozen') then toggleControl(p,name,enabled) end end
+  if isElement(p) then setPedAnimation(p,false) end
   F.cuffs[p]=nil
-  if isElement(p) then setElementData(p,'fraction:cuffed',false,true);triggerClientEvent(p,'fraction:cuff',resourceRoot,false) end
+  if isElement(p) then setElementData(p,'fraction:cuffed',false,true);triggerClientEvent(p,'fraction:cuff',resourceRoot,false,state.controls) end
  end
  if issuerLeaving then
   local clear={};for target,cuff in pairs(F.cuffs) do if cuff.issuer==p then clear[#clear+1]=target end end
@@ -96,8 +97,16 @@ addCommandHandler('cuff',function(p,_,id)
  else
   local controls={};for _,control in ipairs(cuffControls) do controls[control]=isControlEnabled(target,control);toggleControl(target,control,false) end
   F.cuffs[target]={issuer=p,controls=controls};setPedWeaponSlot(target,0);setElementData(target,'fraction:cuffed',true,true)
-  triggerClientEvent(target,'fraction:cuff',resourceRoot,true);F.notify(target,'На вас надеты наручники')
+  setPedAnimation(target,'POLICE','crm_drgbst_01',-1,true,false,true,false)
+  triggerClientEvent(target,'fraction:cuff',resourceRoot,true,controls);F.notify(target,'На вас надеты наручники')
  end
+end)
+addCommandHandler('uncuff',function(p,_,id)
+ local target=policeTarget(p,id,'uncuff',2)
+ if not target then return end
+ if not F.cuffs[target] then F.notify(p,'На игроке нет наручников');return end
+ F.clearCuffs(target);F.notify(target,'Наручники сняты',true)
+ if p~=target then F.notify(p,'Вы сняли наручники с игрока',true) end
 end)
 function F.applyJail(p,spawn)
  local s=F.state(p);if not s or tonumber(s.jail_remaining)<=0 then return false end
@@ -187,8 +196,18 @@ addEventHandler('onPlayerWasted',root,function(ammo,killer)
  local stars=getPlayerWantedLevel(victim)
  local police=killer
  if isElement(killer) and getElementType(killer)=='vehicle' then police=getVehicleOccupant(killer,0) end
- if stars>0 and isElement(police) and F.active(police,2,2) and not F.jailed(victim) then
+ local member=isElement(police) and F.account(police) and F.member(police)
+ if stars>0 and police~=victim and member and member.faction_id==2 and not F.jailed(victim) then
   F.arrest(victim,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Задержание при гибели от полиции',true)
  end
  if F.returnVehicleKeys then F.returnVehicleKeys(victim,true) end
 end,true,'high+10')
+
+addEvent('fraction:syncCuffs',true)
+addEventHandler('fraction:syncCuffs',resourceRoot,function()
+ if source~=resourceRoot or not client or not F.account(client) or not F.throttle(client,'cuffSync') then return end
+ local state=F.cuffs[client];local controls={}
+ if state then controls=state.controls
+ else for _,name in ipairs(cuffControls) do controls[name]=isControlEnabled(client,name) end end
+ triggerClientEvent(client,'fraction:cuff',resourceRoot,state~=nil,controls)
+end)

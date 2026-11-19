@@ -18,6 +18,7 @@ function tocolor(r,g,b,a) return r*1000000+g*1000+b end
 function getCursorPosition() return false end
 function dxDrawRectangle() end
 function dxGetTextWidth(text) return #text*7 end
+function dxGetFontHeight() return 16 end
 function dxDrawText(value,x,y,right,bottom,color,size,font) draws[#draws+1]={text=value,x=x,y=y,right=right,bottom=bottom,color=color,size=size,font=font} end
 function getElementPosition() return unpack(position) end
 function getElementInterior() return 0 end
@@ -26,11 +27,17 @@ function getDistanceBetweenPoints3D(x,y,z,a,b,c) return math.sqrt((x-a)^2+(y-b)^
 function getScreenFromWorldPosition() return 960,540 end
 function getWeaponNameFromID(id) return 'Weapon '..id end
 function getTickCount() return now end
-function isControlEnabled() return true end
-function toggleControl() end
+local controlState={}
+function isControlEnabled(name) return controlState[name]~=false end
+function toggleControl(name,state) controlState[name]=state end
+function getElementData() return false end
 function cancelEvent() end
 exports={rp_core={openUI=function() return true end,closeUI=function() end}}
 assert(loadfile('resources/rp_fraction/client/main.lua'))()
+controlState.enter_exit=false
+handlers['fraction:cuff'](true,{enter_exit=true,fire=true,jump=false})
+handlers['fraction:cuff'](false,{enter_exit=true,fire=true,jump=false})
+assert(controlState.enter_exit and controlState.fire and not controlState.jump,'uncuff restores authoritative states, including F, rather than the already blocked client snapshot')
 local payloads={
  invite={inviter='Leader',name='LSPD',seconds=60},duty={name='LSPD',working=false},
  armory={name='LSPD',rank=5,weapons=FractionConfig.policeWeapons},
@@ -89,6 +96,9 @@ for _,d in ipairs(draws) do
  if d.text=='Причина: Test fine reason' then reasonShown=true end
 end
 assert(amountShown and reasonShown,'fine window displays persisted amount and reason')
+local top,bottom
+for _,d in ipairs(draws) do if d.text=='ШТРАФ' then top=d.y end;if d.text=='Закрыть' then bottom=d.bottom end end
+assert(bottom-top<170,'short fine reason uses compact window without empty area')
 clickText('Оплатить');assert(sent[#sent].name=='payticket' and sent[#sent].data.id==11,'fine button pays only shown ticket ID')
 handlers['fraction:ticketPaid'](99);draws={};handlers.onClientRender();assert(#draws>0,'unrelated payment does not close fine window')
 handlers['fraction:ticketPaid'](11);draws={};handlers.onClientRender();assert(#draws==0,'successful fine payment closes window')

@@ -1,3 +1,4 @@
+function setVehicleDamageProof() end
 -- Reproduce updated files with stale loaded dependency exports, then recovery.
 dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua')
 root,resourceRoot={},{}

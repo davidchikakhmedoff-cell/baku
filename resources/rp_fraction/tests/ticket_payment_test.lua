@@ -23,6 +23,7 @@ FractionDB={
  end
 }
 exports={rp_core={getAuthPlayerBalance=function(_,p) return p.money end}}
+function addEvent() end
 function addCommandHandler(name,fn) commands[name]=fn end
 function addEventHandler() end
 function triggerClientEvent(player,event,source,kind,data)

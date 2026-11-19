@@ -43,12 +43,21 @@ addEventHandler('fraction:megaphone',resourceRoot,function(vehicle,text) if isEl
 local cuffSnapshot
 local controls=FractionConfig.cuffControls
 addEvent('fraction:cuff',true)
-addEventHandler('fraction:cuff',resourceRoot,function(enabled)
- if enabled and not cuffSnapshot then
-  cuffSnapshot={};for _,name in ipairs(controls) do cuffSnapshot[name]=isControlEnabled(name);toggleControl(name,false) end
- elseif not enabled and cuffSnapshot then
-  for name,wasEnabled in pairs(cuffSnapshot) do toggleControl(name,wasEnabled) end;cuffSnapshot=nil
+addEventHandler('fraction:cuff',resourceRoot,function(enabled,serverControls)
+ if enabled then
+  -- The server captured these states before disabling them. Reading local
+  -- controls now would save the already disabled enter/exit key as false.
+  cuffSnapshot=serverControls or cuffSnapshot or {}
+  for _,name in ipairs(controls) do toggleControl(name,false) end
+ elseif cuffSnapshot or serverControls then
+  for name,wasEnabled in pairs(serverControls or cuffSnapshot) do
+   if not getElementData(localPlayer,'admin:frozen') then toggleControl(name,wasEnabled) end
+  end
+  cuffSnapshot=nil
  end
+end)
+addEventHandler('onClientResourceStart',resourceRoot,function()
+ triggerServerEvent('fraction:syncCuffs',resourceRoot)
 end)
 local function text(value,x,y,w,h,color,font,align)
  dxDrawText(tostring(value or ''),math.floor(x),math.floor(y),math.floor(x+w),math.floor(y+h),color or tocolor(245,245,245,alpha),1,font or 'default-bold',align or 'left','center',true,false,false,false,false)
@@ -66,12 +75,21 @@ local function renderMenu()
  alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
  if window=='ticket' then
-  local w,h=s(480),s(240);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
+  local w=s(420)
+  local reason='Причина: '..tostring(data.reason or '')
+  local lineWidth,lineCount=0,1
+  for word in reason:gmatch('%S+') do
+   local width=dxGetTextWidth(word..' ',1,'default-bold')
+   if lineWidth>0 and lineWidth+width>w-s(24) then lineCount=lineCount+1;lineWidth=0 end
+   lineWidth=lineWidth+width
+  end
+  local reasonHeight=math.ceil(dxGetFontHeight(1,'default-bold')*lineCount)
+  local h=s(112)+reasonHeight;local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
   dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130))
   hits={}
   text('ШТРАФ',x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
-  text('Сумма: $'..tostring(data.amount),x+s(16),y+s(42),w-s(32),s(30))
-  dxDrawText('Причина: '..tostring(data.reason or ''),x+s(16),y+s(82),x+w-s(16),y+h-s(55),tocolor(245,245,245),1,'default-bold','left','top',true,true)
+  text('Сумма: $'..tostring(data.amount),x+s(12),y+s(32),w-s(24),s(26))
+  dxDrawText(reason,x+s(12),y+s(66),x+w-s(12),y+s(66)+reasonHeight,tocolor(245,245,245),1,'default-bold','left','top',true,true)
   local bw=(w-s(28))/2
   button('payCurrentTicket','Оплатить',x+s(10),y+h-s(40),bw,s(30))
   button('close','Закрыть',x+s(18)+bw,y+h-s(40),bw,s(30))
@@ -260,5 +278,5 @@ addEventHandler('onClientKey',root,function(key,down)
 end)
 addEventHandler('onClientResourceStop',resourceRoot,function()
  stopping=true;close();if isElement(titleFont) then destroyElement(titleFont) end
- if cuffSnapshot then for name,enabled in pairs(cuffSnapshot) do toggleControl(name,enabled) end end
+ if cuffSnapshot and not getElementData(localPlayer,'admin:frozen') then for name,enabled in pairs(cuffSnapshot) do toggleControl(name,enabled) end end
 end)

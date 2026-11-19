@@ -81,3 +81,14 @@ assert(v.lights==1,'cancelled timers do not override manual light choice')
 assert(lockSounds==2,'lock and unlock each play the personal vehicle sound once')
 sourceResource=fractionResource;assert(unregisterFactionVehicle(v),'service car deregisters')
 print('Faction vehicle adapter: registration, rank/duty, engine, fuel, lights, brake and locks passed')
+
+-- Helicopters have automatic engine startup, no lock and no parking handbrake.
+function getVehicleType() return 'Helicopter' end
+sourceResource=fractionResource;v.locked=true;v.engine=false
+assert(registerFactionVehicle(v,'fraction:2:17',30))
+assert(not v.locked and not v.frozen and not v['car:handbrake'] and not v['car:parkingPending'],'helicopter starts unlocked without a handbrake')
+source=v;handlers.onVehicleEnter(p,0);assert(v.engine,'authorized helicopter pilot starts engine automatically')
+for _,kind in ipairs({'engine','brake','lock'}) do FactionVehicleAdapter.handle(p,kind,{v}) end
+assert(v.engine and not v.locked and not v.frozen and not v['car:handbrake'],'helicopter ignores manual engine, brake and lock actions')
+fuel=0;handlers.onVehicleEnter(p,0);assert(not v.engine,'helicopter still requires fuel')
+fuel=30;p.duty=false;handlers.onVehicleEnter(p,0);assert(not v.engine,'unauthorized pilot cannot start helicopter');p.duty=true

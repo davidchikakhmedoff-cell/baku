@@ -1,5 +1,11 @@
 local F=Fraction
 F.keyHolders={};F.playerKeys={};F.keyMenus={};F.returningVehicles={}
+function F.setFleetIssued(vehicle,issued)
+ if not isElement(vehicle) then return end
+ setVehicleDamageProof(vehicle,not issued)
+ setElementData(vehicle,'fraction:issued',issued==true,true)
+ if not issued then fixVehicle(vehicle) end
+end
 local function keyFor(fid,slot) return 'fraction:'..fid..':'..slot end
 local function holderName(holder)
  return holder and isElement(holder.player) and F.name(holder.player) or 'Игрок вышел'
@@ -48,6 +54,7 @@ function F.takeVehicleKeys(p,slot)
  if not isElement(v) or not spec or spec.destroyAt or F.returningVehicles[key] then F.notify(p,'Транспорт пока недоступен или возвращается на парковку');return end
  F.keyHolders[key]={player=p,account=F.account(p),faction=m.faction_id,index=index}
  F.playerKeys[p]=key
+ F.setFleetIssued(v,true)
  F.notify(p,'Вы взяли ключи от '..getVehicleNameFromModel(cfg.model)..'.',true)
  F.keyMenus[p]=nil;triggerClientEvent(p,'fraction:closeKeys',resourceRoot)
  F.refreshKeyMenus(m.faction_id)
@@ -117,3 +124,15 @@ function F.vehicleKeysTick()
  end
  F.processVehicleReturns();F.refreshKeyMenus()
 end
+
+addEventHandler('onVehicleDamage',root,function()
+ local spec=F.vehicles[source]
+ if spec and not spec.destroyAt and not F.keyHolders[spec.key] and getElementHealth(source)>0 then F.setFleetIssued(source,false) end
+end)
+addEventHandler('onElementDataChange',root,function(key)
+ local spec=F.vehicles[source]
+ if client and spec and key=='fraction:issued' then
+  local expected=F.keyHolders[spec.key]~=nil
+  if getElementData(source,key)~=expected then setElementData(source,key,expected,true) end
+ end
+end)

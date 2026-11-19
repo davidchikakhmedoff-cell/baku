@@ -186,6 +186,7 @@ local function spawnVehicle(fid,index)
  F.vehicleByKey[key]=vehicle
  setVehicleColor(vehicle,unpack(f.vehicleColor))
  setVehicleEngineState(vehicle,false);setVehicleLocked(vehicle,true)
+ setVehicleDamageProof(vehicle,true);setElementData(vehicle,'fraction:issued',false,true)
  setElementData(vehicle,'fraction:vehicle',fid,true);setElementData(vehicle,'fraction:minRank',cfg.rank,true)
  local ok,registered=pcall(function() return exports.rp_car:registerFactionVehicle(vehicle,key,tonumber(saved.fuel)) end)
  if not ok or registered~=true then

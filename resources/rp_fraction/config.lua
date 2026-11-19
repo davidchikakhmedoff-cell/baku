@@ -1,7 +1,7 @@
 FractionConfig = {
     dimensionBase=20000, inviteSeconds=60, proximity=5,
     healPrice=100, smsPrice=1, newsReward=150, textLimit=160,
-    cooldown={radio=1,invite=5,heal=5,ticket=10,su=5,cuff=2,arrest=5,unarrest=2,m=5,add=30,sms=3},
+    cooldown={radio=1,invite=5,heal=5,ticket=10,su=5,cuff=2,uncuff=2,arrest=5,unarrest=2,m=5,add=30,sms=3},
     ticket={min=10,max=50000,rank=2,officerPercent=60}, jail={min=1,max=120,perStar=5,radius=15,stationRange=40},
     megaphone={range=80,durationMs=10000,maxLength=100},
     cuffControls={'sprint','jump','fire','aim_weapon','vehicle_fire','vehicle_secondary_fire','enter_exit'},

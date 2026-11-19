@@ -8,10 +8,14 @@ end
 A.canAccess = permission
 function registerFactionVehicle(vehicle,key,fuel)
  if sourceResource~=getResourceFromName('rp_fraction') or not isElement(vehicle) or type(key)~='string' or not key:match('^fraction:%d+:%d+$') then return false end
- A.vehicles[vehicle]={key=key,engine=false,lights=false,brake=false,parkingPending=true,settleAt=getTickCount()+(tonumber(CarConfig.parkingSettleDelay) or 1000)}
+ local helicopter=getVehicleType(vehicle)=='Helicopter'
+ A.vehicles[vehicle]={key=key,helicopter=helicopter,engine=false,lights=false,brake=false,parkingPending=not helicopter,settleAt=getTickCount()+(tonumber(CarConfig.parkingSettleDelay) or 1000)}
  setElementFrozen(vehicle,false)
- setElementData(vehicle,'car:parkingPending',true,true)
+ setElementData(vehicle,'car:parkingPending',not helicopter,true)
  FuelSystem.attachExternal(vehicle,key,fuel)
+ if helicopter then
+  setVehicleLocked(vehicle,false);setElementData(vehicle,'car:handbrake',false,true);return true
+ end
  setTimer(function(v)
   local state=A.vehicles[v]
   if isElement(v) and state and state.parkingPending and not getVehicleEngineState(v) then
@@ -37,6 +41,7 @@ function A.handle(p,kind,target)
  end
  local state=vehicle and A.vehicles[vehicle];if not state then return false end
  if not CarInteraction.ready(p) or not permission(p,vehicle) then return true end
+ if state.helicopter and (kind=='lock' or kind=='brake' or kind=='engine') then return true end
  local px,py,pz=getElementPosition(p);local x,y,z=getElementPosition(vehicle)
  if getElementDimension(p)~=getElementDimension(vehicle) or getElementInterior(p)~=getElementInterior(vehicle) or getDistanceBetweenPoints3D(px,py,pz,x,y,z)>CarConfig.lockServerDistance then return true end
  if kind~='lock' and (getPedOccupiedVehicle(p)~=vehicle or getPedOccupiedVehicleSeat(p)~=0) then return true end
@@ -67,7 +72,11 @@ addEventHandler('onVehicleEnter',root,function(player,seat)
  local state=A.vehicles[source]
  if not state or seat~=0 then return end
  -- GTA's automatic engine start must not bypass the resource's 2 key or fuel.
- local running=getVehicleOccupant(source,0)==player and permission(player,source) and state.engine and FuelSystem.canStart(source) or false
+ local running=getVehicleOccupant(source,0)==player and permission(player,source) and (state.helicopter or state.engine) and FuelSystem.canStart(source) or false
+ if state.helicopter then
+  state.engine=running;setElementFrozen(source,false);setVehicleLocked(source,false)
+  setElementData(source,'car:engineOn',running,true)
+ end
  setVehicleEngineState(source,running)
 end)
 

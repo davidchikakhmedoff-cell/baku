@@ -38,6 +38,9 @@ FractionDB.change=function(sql,id)
  return false
 end
 function setPedRotation(p,value) p.rotation=value end
+function getElementData(p,key) return p[key] end
+function setPedAnimation(p,block,name) p.animation=block and {block,name} or nil;return true end
+function addEvent() end
 function addCommandHandler(name,fn) commands[name]=fn end
 function addEventHandler(name,element,fn) events[name]=fn end
 function isElement(p) return type(p)=='table' end
@@ -62,7 +65,8 @@ function triggerClientEvent(p,event) if event=='fraction:megaphone' then megapho
 function getElementsByType() return {officer,suspect} end
 function takeAllWeapons() end
 function setCameraTarget() end
-function getElementType() return 'player' end
+function getElementType(e) return e.type or 'player' end
+function getVehicleOccupant(v) return v.driver end
 function getCivilianSkin() return 0 end
 function spawnPlayer(p,x,y,z) p.dead=false;p.x,p.y,p.z=x,y,z end
 root,resourceRoot={},{}
@@ -71,8 +75,8 @@ commands.su(officer,'su','2','6','reason');assert(suspect.stars==6,'wanted cappe
 assert(dispatch[1].player==officer and dispatch[1].text=='Внимание всем постам! Объявлен в розыск Player2. Уровень розыска - 6. Причина: reason.' and dispatch[1].color[2]==195,'wanted dispatch uses visible custom chat and final level')
 commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==0,'deputy clears wanted')
 officer.rank=2;suspect.stars=3;commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==3,'ordinary officer cannot clear wanted')
-commands.cuff(officer,'cuff','2');assert(F.cuffs[suspect] and suspect.controls.fire==false and suspect.controls.sprint==false,'cuffs disable attacks/sprint')
-commands.cuff(officer,'cuff','2');assert(not F.cuffs[suspect] and suspect.controls.fire and suspect.controls.jump==false,'uncuff restores prior controls')
+commands.cuff(officer,'cuff','2');assert(suspect.animation and suspect.animation[1]=='POLICE' and suspect.animation[2]=='crm_drgbst_01','cuffed player takes arrest pose');assert(F.cuffs[suspect] and suspect.controls.fire==false and suspect.controls.sprint==false,'cuffs disable attacks/sprint')
+commands.uncuff(officer,'uncuff','2');assert(not suspect.animation and suspect.controls.enter_exit,'uncuff clears pose and restores vehicle entry control');assert(not F.cuffs[suspect] and suspect.controls.fire and suspect.controls.jump==false,'uncuff restores prior controls')
 commands.cuff(officer,'cuff','2');F.clearCuffs(officer,true);assert(not F.cuffs[suspect],'officer quit/dismissal clears issued cuffs')
 suspect.far=true;commands.cuff(officer,'cuff','2');assert(not F.cuffs[suspect],'remote cuff rejected');suspect.far=false
 atBooking(officer);atBooking(suspect)
@@ -145,3 +149,14 @@ atBooking(officer);atBooking(suspect);commands.arrest(officer,'arrest','2');asse
 officer.rank=8;commands.unarrest(officer,'unarrest','2');assert(F.jailed(suspect),'rank eight cannot release prisoner')
 officer.rank=9;commands.unarrest(officer,'unarrest','2');assert(not F.jailed(suspect) and suspect.x==Fractions[2].outsideSpawn.x,'deputy release moves prisoner outside LSPD')
 commands.unarrest(officer,'unarrest','2');assert(not F.jailed(suspect),'repeated release is harmless')
+
+-- Death arrest requires a different police killer; environmental/civilian deaths do not count.
+suspect.dead=true;suspect.stars=2;states[2].jail_remaining=0;source=suspect
+events.onPlayerWasted(0,nil);assert(not F.jailed(suspect),'fall/environment death does not jail wanted player')
+local civilian={id=4,faction=3,rank=5};events.onPlayerWasted(0,civilian);assert(not F.jailed(suspect),'civilian kill does not jail wanted player')
+events.onPlayerWasted(0,offDuty);assert(F.jailed(suspect) and states[2].jail_remaining==600,'any police rank killing wanted player causes five-minute-per-star sentence')
+source=officer;officer.dead=true;officer.stars=2;states[1].jail_remaining=0
+events.onPlayerWasted(0,officer);assert(not F.jailed(officer),'police suicide is not a police arrest')
+source=suspect;states[2].jail_remaining=0;suspect.stars=3;car.type='vehicle';car.driver=officer
+events.onPlayerWasted(0,car);assert(states[2].jail_remaining==900,'police driver killing wanted player triggers prison')
+states[2].jail_remaining=0;suspect.stars=0;events.onPlayerWasted(0,offDuty);assert(not F.jailed(suspect),'no stars means no automatic prison')
