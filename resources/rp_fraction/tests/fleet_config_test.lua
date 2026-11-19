@@ -38,7 +38,7 @@ function addEventHandler() end
 function getElementsByType() return {} end
 function getTickCount() return 0 end
 function createVehicle(model) return {model=model} end
-function setVehicleColor() end
+function setVehicleColor(v,...) v.colors={...} end
 function setVehicleEngineState() end
 function setVehicleLocked() end
 function setElementData() end
@@ -48,12 +48,16 @@ exports={rp_car={registerFactionVehicle=function(self,vehicle,key) registered[ke
 dofile('resources/rp_fraction/server/world.lua')
 Fraction.spawnFleet()
 assert(registered['fraction:1:3'].model==487 and registered['fraction:1:20'].model==400,'native adapter fuel keys follow stable configured slots')
+assert(registered['fraction:5:6'].model==404 and table.concat(registered['fraction:5:6'].colors,',')=='35,5,12,0,0,0','actual Toyota spawn applies group color')
+assert(table.concat(registered['fraction:5:1'].colors,',')=='65,12,25,0,0,0','actual Lexus spawn retains faction default')
 
 defaults()
 FractionFleetConfig[1][1].count=1000;build()
 assert(#Fractions[1].vehicles==4 and #FractionFleetWarnings==1,'excess count capped to configured parking capacity with one diagnostic')
 FractionFleetConfig[1][1].parking[2].slot=1;build()
 assert(#Fractions[1].vehicles==3 and #FractionFleetWarnings==2,'duplicate slot cannot register duplicate vehicle/fuel identity')
+defaults();FractionFleetConfig[5][2].color={-1,5,12,0,0,0};build()
+assert(#FractionFleetWarnings==1 and not Fractions[5].vehicles[6].color,'invalid optional colors safely fall back to faction color')
 defaults();FractionFleetConfig[1][1].parking[1].x=0/0;build()
 assert(#Fractions[1].vehicles==3 and #FractionFleetWarnings==1,'non-finite parking coordinates rejected')
 

@@ -187,7 +187,7 @@ local function spawnVehicle(fid,index)
  if not vehicle then return end
  F.vehicles[vehicle]={faction=fid,index=index,rank=cfg.rank,key=key}
  F.vehicleByKey[key]=vehicle
- setVehicleColor(vehicle,unpack(f.vehicleColor))
+ setVehicleColor(vehicle,unpack(cfg.color or f.vehicleColor))
  setVehicleEngineState(vehicle,false);setVehicleLocked(vehicle,true)
  setVehicleDamageProof(vehicle,true);setElementData(vehicle,'fraction:issued',false,true)
  setElementData(vehicle,'fraction:vehicle',fid,true);setElementData(vehicle,'fraction:minRank',cfg.rank,true)

@@ -92,12 +92,18 @@ local function configureFleet(id,f)
    local count=group.count==nil and #group.parking or group.count
    if not integer(count,0,2147483647) then fleetWarning(id,name,'count должен быть целым неотрицательным числом');count=0 end
    if count>#group.parking then fleetWarning(id,name,'count больше числа parking; добавьте места. Используется '..#group.parking);count=#group.parking end
+   local color
+   if group.color~=nil then
+    local valid=type(group.color)=='table' and #group.color==6
+    if valid then for i=1,6 do if not integer(group.color[i],0,255) then valid=false;break end end end
+    if valid then color=group.color else fleetWarning(id,name,'color должен содержать 6 целых RGB-значений от 0 до 255') end
+   end
    for index,p in ipairs(group.parking) do
     if type(p)~='table' or not integer(p.slot,1,2147483647) or used[p.slot] or not finite(p.x) or not finite(p.y) or not finite(p.z) or not finite(p.rotation or 0) then
      fleetWarning(id,name,'некорректное место parking #'..index..' или повторяющийся slot')
     else
      used[p.slot]=true
-     if index<=count then f.vehicles[#f.vehicles+1]={slot=p.slot,model=group.model,rank=group.rank,p=point(p.x,p.y,p.z,p.rotation),helipad=group.helipad==true,roofDeck=group.roofDeck==true} end
+     if index<=count then f.vehicles[#f.vehicles+1]={slot=p.slot,model=group.model,rank=group.rank,color=color,p=point(p.x,p.y,p.z,p.rotation),helipad=group.helipad==true,roofDeck=group.roofDeck==true} end
     end
    end
   end
