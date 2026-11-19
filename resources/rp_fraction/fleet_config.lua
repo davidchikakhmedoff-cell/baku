@@ -195,11 +195,11 @@ FractionFleetConfig = {
             rank = 2,
             count = 5,
             parking = {
-                { slot=1, x=1089, y=-1708, z=13.6, rotation=0 },
-                { slot=2, x=1093.5, y=-1708, z=13.6, rotation=0 },
-                { slot=3, x=1098, y=-1708, z=13.6, rotation=0 },
-                { slot=4, x=1089, y=-1715, z=13.6, rotation=0 },
-                { slot=5, x=1093.5, y=-1715, z=13.6, rotation=0 },
+                { slot=1, x=1759.88, y=2010.14, z=14.13, rotation=180 },
+                { slot=2, x=1764.38, y=2010.14, z=14.13, rotation=180 },
+                { slot=3, x=1768.88, y=2010.14, z=14.13, rotation=180 },
+                { slot=4, x=1759.88, y=2003.14, z=14.13, rotation=180 },
+                { slot=5, x=1764.38, y=2003.14, z=14.13, rotation=180 },
             },
         },
         {
@@ -208,9 +208,9 @@ FractionFleetConfig = {
             rank = 4,
             count = 3,
             parking = {
-                { slot=6, x=1098, y=-1715, z=13.6, rotation=0 },
-                { slot=7, x=1089, y=-1722, z=13.6, rotation=0 },
-                { slot=8, x=1093.5, y=-1722, z=13.6, rotation=0 },
+                { slot=6, x=1768.88, y=2003.14, z=14.13, rotation=180 },
+                { slot=7, x=1759.88, y=1996.14, z=14.13, rotation=180 },
+                { slot=8, x=1764.38, y=1996.14, z=14.13, rotation=180 },
             },
         },
         {
@@ -219,7 +219,7 @@ FractionFleetConfig = {
             rank = 5,
             count = 1,
             parking = {
-                { slot=9, x=1098, y=-1722, z=13.6, rotation=0 },
+                { slot=9, x=1768.88, y=1996.14, z=14.13, rotation=180 },
             },
         },
     },
@@ -333,12 +333,12 @@ FractionLocationConfig = {
     -- Yakuza
     [5] = {
         interior=1, dimension=20005,
-        entrance={x=1081.0000,y=-1696.8000,z=13.5000,rotation=0.00},
+        entrance={x=1767.88,y=2020.14,z=14.13,rotation=180},
         inside={x=-2159.9000,y=641.5000,z=1052.4000,rotation=0.00},
         exit={x=-2159.9000,y=638.3000,z=1052.4000,rotation=0.00},
         keysPoint={x=-2163.0000,y=641.5000,z=1052.4000,rotation=0.00},
         armory={x=-2156.0000,y=641.5000,z=1052.4000,rotation=0.00},
-        outsideSpawn={x=1084.5000,y=-1696.8000,z=13.5000,rotation=0.00},
+        outsideSpawn={x=1767.88,y=2018.64,z=14.13,rotation=180},
     },
     -- Russian Mafia
     [6] = {

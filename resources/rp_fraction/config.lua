@@ -40,7 +40,7 @@ Fractions = {
  [4]={name="La Cosa Nostra",category="criminal",color={115,38,52},blip={icon=0,size=2},ranks=mafiaRanks,skins={124,124,125,125,126,126,127,127,113,113},
  entrance=point(1459.1,-1010.6,26.8),interior=5,inside=point(1262.1,-785.3,1091.9),exit=point(1262.1,-788.5,1091.9),keysPoint=point(1258,-785.3,1091.9),armory=point(1265,-785.3,1091.9)},
  [5]={name="Yakuza",category="criminal",color={90,93,99},blip={icon=0,size=2},ranks=mafiaRanks,skins={117,117,118,118,120,120,121,122,123,169},
- entrance=point(1081.0,-1696.8,13.5),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
+ entrance=point(1767.88,2020.14,14.13,180),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
  [6]={name="Russian Mafia",category="criminal",color={136,102,73},blip={icon=0,size=2},ranks=mafiaRanks,skins={111,111,112,112,113,113,111,112,113,223},
  entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
 }
