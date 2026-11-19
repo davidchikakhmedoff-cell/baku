@@ -142,9 +142,12 @@ local function hideHud(viewer)
     triggerClientEvent(viewer, EVENT_HIDE, resourceRoot)
 end
 
+addEvent("rp:timeRequested", false)
+
 function togglePlayerTime(player)
     if not isElement(player) or getElementType(player) ~= "player" then return false end
     triggerClientEvent(player, EVENT_TIME_TOGGLE, resourceRoot, getRealTime().timestamp)
+    triggerEvent("rp:timeRequested", player)
     return true
 end
 

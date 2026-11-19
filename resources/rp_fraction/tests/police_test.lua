@@ -86,6 +86,9 @@ assert(suspect.y==Fractions[2].jailSpawn.y and suspect.x==Fractions[2].jailSpawn
 local original=states[2].jail_remaining;F.arrest(suspect,10,'again');assert(states[2].jail_remaining==original,'duplicate arrest cannot extend sentence')
 F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==900,'reconnect reads persisted sentence')
 F.jailTick(suspect,60000);assert(states[2].jail_remaining==840,'online time decrements sentence')
+source=suspect;client=nil;events['rp:timeRequested']()
+assert(dispatch[#dispatch].player==suspect and dispatch[#dispatch].text=='КПЗ: осталось сидеть 14:00 (мин:сек).','time reports server sentence to requesting prisoner only')
+local count=#dispatch;client=suspect;events['rp:timeRequested']();assert(#dispatch==count+1,'custom chat retains its client context while dispatching local time event');client=nil
 F.jailTick(suspect,840000);assert(not F.jailed(suspect) and suspect.dimension==0 and suspect.x==Fractions[2].outsideSpawn.x and suspect.y==Fractions[2].outsideSpawn.y,'sentence ends in front of LSPD entrance')
 setStars(suspect,2);suspect.dead=true;suspect.duty=true;source=suspect
 events.onPlayerWasted(0,officer);assert(suspect.duty,'death and automatic arrest preserve shift');assert(F.jailed(suspect) and states[2].jail_remaining==600,'police kill uses five minutes per star')

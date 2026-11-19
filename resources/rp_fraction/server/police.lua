@@ -264,3 +264,13 @@ addEventHandler('fraction:requestJailClock',resourceRoot,function()
  if source~=resourceRoot or not client or not F.account(client) or not F.throttle(client,'jailClock') then return end
  F.sendJailClock(client)
 end)
+
+-- Shared by /time in the custom chat and the native command handler.
+addEventHandler('rp:timeRequested',root,function()
+ if not F.account(source) then return end
+ local state=F.state(source);local seconds=state and math.max(0,math.ceil(tonumber(state.jail_remaining) or 0)) or 0
+ F.sendJailClock(source)
+ if seconds>0 then
+  exports.rp_core:sendCoreChatMessage(source,string.format('КПЗ: осталось сидеть %02d:%02d (мин:сек).',math.floor(seconds/60),seconds%60),180,215,240)
+ end
+end)
