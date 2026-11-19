@@ -32,12 +32,25 @@
  <export function="getCivilianWeapons" type="server" />
  <export function="getCivilianSkin" type="server" />
  <export function="applyFactionJail" type="server" />
+
+ <file src="skins/p1.dff" />
+ <file src="skins/p1.txd" />
+ <file src="skins/p2.dff" />
+ <file src="skins/p2.txd" />
+ <file src="skins/p3.dff" />
+ <file src="skins/p3.txd" />
+ <file src="skins/p4.dff" />
+ <file src="skins/p4.txd" />
+
  <file src="skins/pw1.dff" />
  <file src="skins/pw1.txd" />
  <file src="skins/pw2.dff" />
  <file src="skins/pw2.txd" />
  <file src="skins/pw3.dff" />
  <file src="skins/pw3.txd" />
+ <file src="skins/pw4.dff" />
+ <file src="skins/pw4.txd" />
  <file src="skins/pw5.dff" />
  <file src="skins/pw5.txd" />
+
 </meta>
