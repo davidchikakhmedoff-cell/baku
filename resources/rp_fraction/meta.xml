@@ -3,6 +3,7 @@
  <include resource="rp_core" />
  <include resource="rp_car" />
  <script src="skins/config.lua" type="shared" />
+ <script src="cars/config.lua" type="shared" />
  <script src="fleet_config.lua" type="shared" />
  <script src="config.lua" type="shared" />
  <script src="shared.lua" type="shared" />
@@ -17,7 +18,8 @@
  <script src="server/radio.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
- <script src="cars/config.lua" type="client" />
+ <script src="cars/server.lua" type="server" />
+ <script src="cars/controls.lua" type="client" />
  <script src="cars/patterns.lua" type="client" />
  <script src="cars/client.lua" type="client" />
  <script src="skins/models.lua" type="client" />

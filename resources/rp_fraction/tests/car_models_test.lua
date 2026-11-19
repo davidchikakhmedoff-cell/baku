@@ -17,6 +17,7 @@ local handlers,elements,timers,restored={}, {},{},{}
 local clock=0;local applied,removed=0,0;local palette
 function addEventHandler(name,_,fn) handlers[name]=fn end
 function getElementModel(e) return e.model end
+function getElementData(e,key) return e[key] end
 function getElementType(e) return e.model and 'vehicle' or 'other' end
 function getElementPosition() return 0,0,0 end
 function getElementInterior() return 0 end
@@ -59,6 +60,9 @@ function engineApplyShaderToWorldTexture(_,_,v) assert(v==car);applied=applied+1
 function engineRemoveShaderFromWorldTexture(_,_,v) assert(v==car);removed=removed+1 end
 dofile('resources/rp_fraction/cars/client.lua');handlers.onClientResourceStart()
 local tick=timers[1].fn;tick();assert(palette[1][4]==0,'siren off hides lamp materials')
+car['fraction:sirenMode']=1;tick();assert(palette[1][4]==128 and not car.siren,'silent mode illuminates lamps without native siren audio')
+car['fraction:sirenMode']=0;tick();assert(palette[1][4]==0,'replicated off mode overrides native siren state')
+car['fraction:sirenMode']=nil
 car.siren=true;tick();assert(palette[1][3]==255 and palette[1][4]==128,'native siren enables JSON pattern')
 clock=100;tick();assert(palette[1][4]==0,'configured duration changes lamp state')
 car.siren=false;tick();assert(palette[3][4]==0,'turning siren off also stops steady lights')

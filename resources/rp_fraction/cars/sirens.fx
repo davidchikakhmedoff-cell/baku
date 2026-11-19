@@ -2,6 +2,8 @@
 texture gTexture0 < string textureState="0,Texture"; >;
 float4 gMaterialDiffuse < string materialState="Diffuse"; >;
 texture lightPalette;
+float lampBrightness=4;
+float lampOpacity=1.8;
 sampler BaseSampler=sampler_state { Texture=<gTexture0>; };
 sampler PaletteSampler=sampler_state { Texture=<lightPalette>; MinFilter=Point; MagFilter=Point; MipFilter=None; AddressU=Clamp; AddressV=Clamp; };
 float4 lightPixel(float2 uv:TEXCOORD0,float4 diffuse:COLOR0):COLOR0
@@ -13,7 +15,7 @@ float4 lightPixel(float2 uv:TEXCOORD0,float4 diffuse:COLOR0):COLOR0
   float4 lamp=tex2D(PaletteSampler,float2((id+0.5)/64.0,0.5));
   float3 tex=tex2D(BaseSampler,uv).rgb;
   // Transparent diffuse materials are intentional lamp faces, not invisible lamps.
-  return float4(tex*lamp.rgb*2.0, lamp.a);
+  return float4(tex*lamp.rgb*lampBrightness, saturate(lamp.a*lampOpacity));
  }
  return base;
 }

@@ -27,7 +27,8 @@ local function updateLights()
    local x,y,z=getElementPosition(v)
    local visible=getElementInterior(v)==interior and getElementDimension(v)==dimension
     and (px-x)^2+(py-y)^2+(pz-z)^2<=FractionCarConfig.sirenDistance^2
-   local enabled=visible and getVehicleSirensOn(v) and not isVehicleBlown(v)
+   local mode=tonumber(getElementData(v,'fraction:sirenMode'))
+   local enabled=visible and (mode and mode>0 or (not mode and getVehicleSirensOn(v))) and not isVehicleBlown(v)
    local lights=patterns[getElementModel(v)]
    if visible and lights and not state.failed then
     if not state.shader then
@@ -39,6 +40,8 @@ local function updateLights()
      else
       state.pixels=dxGetTexturePixels(state.texture)
       dxSetShaderValue(state.shader,'lightPalette',state.texture)
+      dxSetShaderValue(state.shader,'lampBrightness',FractionCarConfig.sirenBrightness)
+      dxSetShaderValue(state.shader,'lampOpacity',FractionCarConfig.sirenOpacity)
      end
     end
     if state.shader then
