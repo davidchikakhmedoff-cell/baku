@@ -1,4 +1,10 @@
 VehicleHandling = {
+    -- Shared by dealership/personal cars and faction fleet registration.
+    [421] = {
+        name = "Yakuza sedan (421)",
+        driveType = "awd",
+        suspensionLowerLimit = -0.23
+    },
     [560] = {
         name = "BMW M5 F90",
         maxVelocity = 250,

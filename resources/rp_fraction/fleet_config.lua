@@ -191,7 +191,7 @@ FractionFleetConfig = {
     [5] = {
         {
             name = "Седаны",
-            model = 405,
+            model = 421,
             rank = 2,
             count = 5,
             parking = {

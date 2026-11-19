@@ -8,6 +8,7 @@ end
 A.canAccess = permission
 function registerFactionVehicle(vehicle,key,fuel)
  if sourceResource~=getResourceFromName('rp_fraction') or not isElement(vehicle) or type(key)~='string' or not key:match('^fraction:%d+:%d+$') then return false end
+ if not applyConfiguredVehicleHandling(vehicle) then return false end
  local helicopter=getVehicleType(vehicle)=='Helicopter'
  A.vehicles[vehicle]={key=key,helicopter=helicopter,engine=false,lights=false,brake=false,parkingPending=not helicopter,settleAt=getTickCount()+(tonumber(CarConfig.parkingSettleDelay) or 1000)}
  setElementFrozen(vehicle,false)

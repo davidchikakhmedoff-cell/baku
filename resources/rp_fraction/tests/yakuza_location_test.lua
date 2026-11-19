@@ -10,12 +10,19 @@ local function oldFleet()
   p.x,p.y,p.z,p.rotation=1089+col*4.5,-1708-row*7,13.6,0
  end end
 end
-local function verify()
+local function verify(customParking)
  local f=Fractions[5]
  assert(f.entrance.x==1767.88 and f.entrance.y==-2020.14 and f.entrance.z==14.13 and f.entrance.rotation==180,'actual resolved entrance must use requested warehouse')
  assert(f.outsideSpawn.y==-2021.64 and #f.vehicles==9)
  for slot,v in ipairs(f.vehicles) do
-  assert(v.slot==slot and v.p.x>1750 and v.p.x<1780 and v.p.y>-2050 and v.p.y<-2025 and v.p.rotation==180,'each stable fleet slot moves to warehouse')
+  assert(v.slot==slot,'fleet identity preserved')
+  if customParking then
+   local x=slot==9 and 1807.7 or 1808.7
+   local z=slot<=5 and 13.25 or (slot<=8 and 13.12 or 13.22)
+   assert(v.p.x==x and v.p.y==-2021.5-(slot-1)*3.5 and v.p.z==z and v.p.rotation==90,'user uploaded parking must be retained exactly')
+  else
+   assert(v.p.x>1750 and v.p.x<1780 and v.p.y>-2050 and v.p.y<-2025 and v.p.rotation==180,'legacy parking migrates to warehouse')
+  end
  end
 end
 local function wrongCityFleet()
@@ -28,7 +35,10 @@ local function wrongCityFleet()
   p.x,p.y,p.z,p.rotation=1759.88+col*4.5,2010.14-row*7,14.13,180
  end end
 end
-defaults();load();verify()
+defaults();load();verify(true)
+assert(table.concat(Fractions[5].vehicleColor,',')=='115,38,52,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
+for index=1,5 do assert(Fractions[5].vehicles[index].model==421,'five Yakuza sedans use new model 421') end
+assert(Fractions[5].vehicles[6].model==579 and Fractions[5].vehicles[9].model==409,'SUV and limousine groups retain their configured models')
 oldFleet();load();verify();load();verify() -- partial update and repeat initialization
 wrongCityFleet();load();verify();load();verify() -- wrong-city deployment migrates to Los Santos
 oldFleet();FractionFleetConfig[5][1].parking[1].x=1800

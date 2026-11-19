@@ -176,6 +176,7 @@ exports.rp_core={getAuthPlayerId=function(self,player) return player.id end}
 FuelSystem={attachExternal=function() end,canStart=function() return true end}
 CarLockFeedback={flash=function() end,cancel=function() end}
 CarInteraction={ready=function() return true end};CarConfig={lockServerDistance=25,events={playLockSound='car:playLockSound'}}
+function applyConfiguredVehicleHandling() return true end
 dofile('resources/rp_car/faction_adapter.lua')
 assert(registerFactionVehicle(controlled,carKey,23.4),'service car registered with actual adapter')
 FactionVehicleAdapter.handle(p,'engine');assert(controlled.engine,'key holder can start engine')

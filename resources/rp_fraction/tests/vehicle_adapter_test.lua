@@ -49,6 +49,7 @@ CarConfig={lockServerDistance=25,events={playLockSound='car:playLockSound'}}
 local file=assert(io.open('resources/rp_car/server.lua'));local code=file:read('*a');file:close()
 local helper=assert(code:match('(local function flashVehicleLights.-)local function canControlVehicleEngine'))
 assert(loadstring('local lightFlashTokens={}\nlocal lightFlashSequence=0\n'..helper))()
+function applyConfiguredVehicleHandling() return true end
 assert(loadfile('resources/rp_car/faction_adapter.lua'))()
 assert(registerFactionVehicle(v,'fraction:2:1',30),'own faction resource registers service car')
 local occupant=getVehicleOccupant;getVehicleOccupant=function() return nil end
