@@ -52,6 +52,7 @@ end
 function F.workSkin(p,m)
  m=m or F.member(p);local f=m and Fractions[m.faction_id]
  if not f then return getElementModel(p) end
+ if Wardrobe and Wardrobe.supports(m.faction_id) then return Wardrobe.resolve(p,m) end
  if f.femaleSkins then
   if not m.gender then
    local row=FractionDB.one('SELECT gender FROM players WHERE id=?',m.account_id)
@@ -89,6 +90,7 @@ function getCivilianWeapons(p)
 end
 function F.endDuty(p)
  local m=F.member(p);local s=F.sessions[p]
+ if s then s.uniformSkin=nil;s.wardrobe=nil end
  if F.returnVehicleKeys then F.returnVehicleKeys(p,true) end
  if not m then return end
  if (s and s.duty) or m.duty==1 or m.gear_issued==1 then
@@ -108,7 +110,9 @@ function F.toggleDuty(p)
  else
   m.civilian_skin=getElementModel(p);m.civilian_weapons=F.snapshotWeapons(p)
   if not FractionDB.change('UPDATE fraction_members SET duty=1,civilian_skin=?,civilian_weapons=? WHERE account_id=?',m.civilian_skin,m.civilian_weapons,m.account_id) then return end
-  s.duty=true;m.duty=1;setElementModel(p,F.workSkin(p,m));F.sync(p);F.notify(p,'Вы начали смену',true)
+  s.duty=true;m.duty=1;s.uniformSkin=nil;s.wardrobe=nil
+  F.sync(p);F.notify(p,'Вы начали смену',true)
+  if Wardrobe and Wardrobe.supports(m.faction_id) then Wardrobe.open(p) end
  end
 end
 function F.load(p)

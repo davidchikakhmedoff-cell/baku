@@ -20,10 +20,10 @@ F.near=function() return true end;F.jailed=function() return false end
 function isPedInVehicle() return false end
 F.snapshotWeapons=function() return '[]' end
 F.notify=function() end;F.clearCuffs=function() end;F.revokeDriver=function() end;F.restoreWeapons=function() end
-local expected={129,129,130,130,130,130,298,298,150,151}
+local expected={129,130,130,130,130,131,131,131,150,151}
 for rank,id in ipairs(expected) do m.rank=rank;assert(F.workSkin(p)==id,'female rank skin '..rank) end
 assert(queries==1,'account gender cached, no repeated query per sync')
-m.rank=2;F.toggleDuty(p);assert(p.model==129 and m.civilian_skin==9,'female uniform applied on shift without overwriting civilian skin')
+m.rank=2;F.toggleDuty(p);assert(p.model==130 and m.civilian_skin==9,'female uniform applied on shift without overwriting civilian skin')
 F.endDuty(p);assert(p.model==9,'civilian model restored after shift')
 gender='male';m.gender=nil
 for rank,id in ipairs(Fractions[2].skins) do m.rank=rank;assert(F.workSkin(p)==id,'male skin mapping preserved') end

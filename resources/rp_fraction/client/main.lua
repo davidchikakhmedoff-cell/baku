@@ -8,6 +8,7 @@ local scale=math.min(screenW/1920,screenH/1080)
 local titleFont=dxCreateFont(':rp_core/CompactC.ttf',math.max(11,math.floor(13*1.05*scale+0.5)),false,'cleartype')
 local megaphones={}
 local function close()
+ if window=='wardrobe' and WardrobeClient then WardrobeClient.close(not stopping) end
  if window=='keys' and not stopping then triggerServerEvent('fraction:action',resourceRoot,'keysClose',{}) end
  dragging=false;scrollBar=nil
  window=nil;input=nil;edit='';selected=nil;scroll=0
@@ -32,6 +33,8 @@ addEventHandler('fraction:closeKeys',resourceRoot,function() if window=='keys' t
 addEvent('fraction:menu',true)
 addEventHandler('fraction:menu',resourceRoot,function(kind,payload)
  if not exports.rp_core:openUI('fraction',true,'no_binds_when_editing') then return end
+ if window=='wardrobe' and WardrobeClient then WardrobeClient.close() end
+ if kind=='wardrobe' then WardrobeClient.open(payload or {}) end
  local oldSlot=window=='keys' and kind=='keys' and selected and data.rows[selected] and data.rows[selected].slot
  local same=window=='keys' and kind=='keys'
  if kind=='armory' then weaponSelection={} end
@@ -74,6 +77,12 @@ local function renderMenu()
  if not window then return end
  alpha=255;scrollBar=nil
  local function s(v) return math.floor(v*scale+0.5) end
+ if window=='wardrobe' then
+  hits={}
+  scroll,scrollBar=WardrobeClient.render(data,{s=s,width=screenW,height=screenH,scroll=scroll,font=titleFont,text=text,button=button,
+   hit=function(id,x,y,w,h) hits[#hits+1]={id=id,x=x,y=y,w=w,h=h} end})
+  return
+ end
  if window=='ticket' then
   local w=s(420)
   local reason='Причина: '..tostring(data.reason or '')
@@ -99,15 +108,18 @@ local function renderMenu()
   local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
   local limit=visibleRows()
   local visible=window=='members' and limit or math.min(limit,#rows)
-  local w=s(window=='duty' and 340 or (window=='armory' and 480 or (window=='members' and 540 or 660)))
+  local w=s(window=='duty' and (data.wardrobe and data.working and 480 or 340) or (window=='armory' and 480 or (window=='members' and 540 or 660)))
   local h=s(window=='duty' and 130 or (visible*32+88))
   local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
   dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130))
   hits={};scrollBar=nil
   text(window=='duty' and 'РАБОЧАЯ СМЕНА' or (window=='armory' and 'ОРУЖЕЙНАЯ' or (window=='members' and 'СОСТАВ ФРАКЦИИ' or 'КЛЮЧИ ТРАНСПОРТА')),x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
   if window=='duty' then
-   text(data.working and 'Завершить работу?' or 'Начать работу?',x+s(10),y+s(35),w-s(20),s(30))
-   button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),s(170),s(30))
+   text(data.working and (data.wardrobe and 'Вы на смене' or 'Завершить работу?') or 'Начать работу?',x+s(10),y+s(35),w-s(20),s(30))
+   if data.working and data.wardrobe then
+    button('wardrobeOpen','Сменить одежду',x+s(10),y+h-s(42),s(160),s(30))
+    button('duty','Завершить работу',x+s(180),y+h-s(42),s(190),s(30))
+   else button('duty',data.working and 'Завершить работу' or 'Начать работу',x+s(10),y+h-s(42),s(170),s(30)) end
    button('close','Закрыть',x+w-s(100),y+h-s(42),s(90),s(30))
   else
    scroll=math.max(0,math.min(scroll,math.max(0,#rows-limit)))
@@ -242,6 +254,7 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
  end
  for _,box in ipairs(hits) do if cx>=box.x and cx<=box.x+box.w and cy>=box.y and cy<=box.y+box.h then
   local id=box.id
+  if window=='wardrobe' and WardrobeClient.click(id,data) then return end
   if id:sub(1,7)=='weapon:' then
    local weaponId=id:sub(8);if weaponId~='armor' then weaponId=tonumber(weaponId) end
    for _,w in ipairs(data.weapons or {}) do if w.id==weaponId then weaponSelection[weaponId]=not weaponSelection[weaponId] end end

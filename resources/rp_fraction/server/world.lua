@@ -102,7 +102,7 @@ local function markerHit(p,matching)
   local out=f.roof.outside
   teleport(p,f.roof.arrival or {x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)
  elseif info.kind=='keys' then F.keysMenu(p)
- elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name})
+ elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name,wardrobe=Wardrobe and Wardrobe.supports(info.id) or false})
  elseif info.kind=='armory' then
   if not F.active(p,f.id) then F.notify(p,'Начните смену');return end
   triggerClientEvent(p,'fraction:menu',resourceRoot,'armory',{weapons=f.weapons,rank=m.rank,name=f.name})

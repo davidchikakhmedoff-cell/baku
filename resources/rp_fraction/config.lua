@@ -11,7 +11,6 @@ FractionConfig = {
     markerLabel={distance=12,zOffset=1.2,scale=1,font='default-bold',color={0,190,255,255},outlineColor={0,0,0,220}},
     wantedNoticeColor={125,195,255},
     radio={fractionColor={90,155,255},departmentColor={240,135,195},department={[1]=true,[2]=true,[3]=true}},
-    femaleModels={[129]={txd='skins/pw1.txd',dff='skins/pw1.dff'},[130]={txd='skins/pw2.txd',dff='skins/pw2.dff'},[298]={txd='skins/pw3.txd',dff='skins/pw3.dff'},[151]={txd='skins/pw5.txd',dff='skins/pw5.dff'}},
     armoryPickupModel=2040, -- GTA SA ammo_box_M1.
     interactionIconZOffset=0.5, -- Clothes and keys: height above the configured point.
     roofDeckModel=3095,
@@ -30,7 +29,7 @@ Fractions = {
  entrance=point(1172.0,-1323.3,15.4),interior=3,inside=point(830.6016,5.9404,1004.1797),exit=point(834.0016,5.9404,1004.1797),dutyPoint=point(830.6016,10.3404,1004.1797),keysPoint=point(827.0016,5.9404,1004.1797),roof={inside=point(834.0016,10.3404,1004.1797),slot=3},
  },
  [2]={name="Los Santos Police Department",category="state",color={65,130,231},blip={icon=30,size=2},duty=true,
- ranks={"Кадет","Офицер","Старший офицер","Сержант","Лейтенант","Капитан","Майор","Полковник","Заместитель шефа","Шеф полиции"},skins={280,280,284,281,281,281,285,285,61,61},femaleSkins={129,129,130,130,130,130,298,298,150,151},
+ ranks={"Кадет","Офицер","Старший офицер","Сержант","Лейтенант","Капитан","Майор","Полковник","Заместитель шефа","Шеф полиции"},skins={280,281,281,281,281,285,285,285,283,61},femaleSkins={129,130,130,130,130,131,131,131,150,151},
  entrance=point(1554.9,-1675.5,16.2),interior=6,inside=point(246.8,65.7,1003.6),exit=point(246.5,62.6,1003.6),dutyPoint=point(253.5,68.8,1003.6),keysPoint=point(248.5,70.8,1003.6),armory=point(257.7,69.2,1003.6),jailBooking=point(264.28,80.64,1001.03),roof={inside=point(253.5,64.4,1003.6),slot=17}},
  [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=0,size=2},duty=true,
  ranks={"Стажёр","Журналист","Редактор","Заместитель директора","Директор"},skins={171,186,187,147,147},
@@ -79,6 +78,14 @@ for id,f in pairs(Fractions) do
  else f.vehicleColor={f.color[1],f.color[2],f.color[3],f.color[1],f.color[2],f.color[3]} end
  f.id=id;f.dimension=FractionConfig.dimensionBase+id;f.salaries=f.salaries or {}
  for rank=1,#f.ranks do f.salaries[rank]=f.salaries[rank] or FractionConfig.salaries[rank] end
+ if SkinConfig and SkinConfig.factions[id] then
+  f.femaleSkins={}
+  for rank=1,#f.ranks do
+   local male=SkinConfig.list(id,'male',rank);local female=SkinConfig.list(id,'female',rank)
+   f.skins[rank]=male[#male] and male[#male].model or f.skins[rank]
+   f.femaleSkins[rank]=female[#female] and female[#female].model or f.skins[rank]
+  end
+ end
  configureFleet(id,f)
  if f.roof then for _,v in ipairs(f.vehicles) do if v.slot==f.roof.slot then
   f.roof.outside=point(v.p.x+5.5,v.p.y,v.p.z,90)

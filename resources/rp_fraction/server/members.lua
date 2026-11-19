@@ -35,10 +35,20 @@ function F.rank(p,targetId,rank)
  local target=targetId and F.reload(targetId);local f=actor and Fractions[actor.faction_id]
  rank=f and FractionRules.integer(rank,1,#f.ranks-1)
  if not rank or not FractionRules.canManage(actor,target,'rank') then F.notify(p,'Изменение ранга запрещено');return end
- for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then F.endDuty(online) end end
+ for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then
+  if Wardrobe and Wardrobe.supports(target.faction_id) and F.sessions[online] and F.sessions[online].duty then
+   if target.gear_issued==1 then
+    F.restoreWeapons(online,target.civilian_weapons);target.gear_issued=0
+    FractionDB.exec('UPDATE fraction_members SET gear_issued=0 WHERE account_id=?',targetId)
+   end
+   F.clearCuffs(online,true)
+  else F.endDuty(online) end
+ end end
  FractionDB.exec('UPDATE fraction_members SET rank=? WHERE account_id=?',rank,targetId);F.reload(targetId)
  for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then
-  F.sync(online);if F.sessions[online] and F.sessions[online].duty then setElementModel(online,F.workSkin(online)) end;F.revokeDriver(online)
+  if Wardrobe and Wardrobe.supports(target.faction_id) and F.sessions[online] and F.sessions[online].duty then Wardrobe.rankChanged(online)
+  else F.sync(online) end
+  F.revokeDriver(online)
  end end
  F.membersMenu(p)
 end
@@ -109,11 +119,14 @@ addEvent('fraction:action',true)
 addEventHandler('fraction:action',resourceRoot,function(action,data)
  local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' then return end
  if action=='keysClose' then F.keyMenus[p]=nil;return end
- if not F.throttle(p,'ui') then return end
  data=type(data)=='table' and data or {}
+ if action=='wardrobeClose' then Wardrobe.close(p,data.token);return end
+ if action=='wardrobeWear' then Wardrobe.wear(p,data);return end
+ if not F.throttle(p,'ui') then return end
  if action=='accept' then F.respondInvite(p,true)
  elseif action=='decline' then F.respondInvite(p,false)
  elseif action=='duty' then F.toggleDuty(p)
+ elseif action=='wardrobeOpen' then Wardrobe.open(p)
  elseif action=='members' then F.membersMenu(p)
  elseif action=='keysTake' then F.takeVehicleKeys(p,data.slot)
  elseif action=='keysReturn' then F.returnVehicleKeys(p,false)

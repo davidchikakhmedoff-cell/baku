@@ -2,12 +2,14 @@
  <info name="RP Fractions" author="Baku" version="1.0.0" type="script" />
  <include resource="rp_core" />
  <include resource="rp_car" />
+ <script src="skins/config.lua" type="shared" />
  <script src="fleet_config.lua" type="shared" />
  <script src="config.lua" type="shared" />
  <script src="shared.lua" type="shared" />
  <script src="server/dependencies.lua" type="server" />
  <script src="server/database.lua" type="server" />
  <script src="server/main.lua" type="server" />
+ <script src="skins/server.lua" type="server" />
  <script src="server/portal.lua" type="server" />
  <script src="server/members.lua" type="server" />
  <script src="server/world.lua" type="server" />
@@ -15,8 +17,9 @@
  <script src="server/radio.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
- <script src="client/skins.lua" type="client" />
+ <script src="skins/models.lua" type="client" />
  <script src="client/jail_clock.lua" type="client" />
+ <script src="skins/client.lua" type="client" />
  <script src="client/main.lua" type="client" />
  <script src="client/cuff_pose.lua" type="client" />
  <script src="client/key_marker.lua" type="client" />

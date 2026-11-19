@@ -1,6 +1,6 @@
 local models={}
 addEventHandler('onClientResourceStart',resourceRoot,function()
- for id,paths in pairs(FractionConfig.femaleModels) do
+ for id,paths in pairs(SkinConfig.models) do
   local txd=engineLoadTXD(paths.txd)
   local imported=txd and engineImportTXD(txd,id)
   local dff=imported and engineLoadDFF(paths.dff)

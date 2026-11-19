@@ -1,3 +1,5 @@
+dofile('resources/rp_fraction/skins/config.lua')
+dofile('resources/rp_fraction/skins/client.lua')
 dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/config.lua');dofile('resources/rp_fraction/shared.lua')
 local handlers,draws,sent={}, {}, {}
 root,resourceRoot,localPlayer={}, {}, {}
@@ -41,6 +43,7 @@ assert(controlState.enter_exit and controlState.fire and not controlState.jump,'
 local payloads={
  invite={inviter='Leader',name='LSPD',seconds=60},duty={name='LSPD',working=false},
  armory={name='LSPD',rank=5,weapons=FractionConfig.policeWeapons},
+ wardrobe={title='ГАРДЕРОБ LSPD',subtitle='Выберите служебную форму',token=123,current=281,rows=SkinConfig.list(2,'male',3)},
  members={faction=2,rank=10,rows={{account_id=2,rp_name='Test_Player',rank=2}}},
  news={rows={{id=1,author='Test_Player',original='Original ad',edited='Original ad'}}},
  ticket={id=11,amount=250,reason='Test fine reason'},
@@ -89,6 +92,14 @@ local function clickText(needle)
  for _,d in ipairs(draws) do if d.text:find(needle,1,true) then handlers.onClientClick('left','down',(d.x+d.right)/2,(d.y+d.bottom)/2);return end end
  error('missing UI text '..needle)
 end
+handlers['fraction:menu']('duty',{working=true,wardrobe=true});draws={};handlers.onClientRender()
+clickText('Сменить одежду');assert(sent[#sent].name=='wardrobeOpen','on-duty LSPD marker offers changing clothes')
+handlers['fraction:menu']('wardrobe',payloads.wardrobe);draws={};handlers.onClientRender()
+local equipped=false;for _,d in ipairs(draws) do if d.text:find('Надето',1,true) and d.text:find('281',1,true) then equipped=true end end
+assert(equipped,'current uniform has equipped status')
+clickText('Полицейская форма');clickText('Надеть')
+assert(sent[#sent].name=='wardrobeWear' and sent[#sent].data.model==280 and sent[#sent].data.token==123,'wardrobe sends selected model and server token')
+clickText('Закрыть');assert(sent[#sent].name=='wardrobeClose' and sent[#sent].data.token==123,'closing wardrobe releases only its own session')
 handlers['fraction:menu']('ticket',payloads.ticket);draws={};handlers.onClientRender()
 local amountShown,reasonShown=false,false
 for _,d in ipairs(draws) do
@@ -124,6 +135,19 @@ draws={};handlers.onClientRender();local bottom=false
 for _,d in ipairs(draws) do if d.text:find('Car 12',1,true) then bottom=true end end
 assert(bottom,'dragging right scrollbar reaches end of key list')
 handlers['fraction:closeKeys']()
+local wardrobe={title='ГАРДЕРОБ LSPD',token=124,current=280,rows={}}
+for i=1,12 do wardrobe.rows[i]={model=270+i,name='Uniform '..i,minRank=1} end
+handlers['fraction:menu']('wardrobe',wardrobe);draws={};handlers.onClientRender()
+handlers.onClientKey('mouse_wheel_down',true);draws={};handlers.onClientRender()
+local eighth=false;for _,d in ipairs(draws) do if d.text:find('Uniform 8 |',1,true) then eighth=true end end
+assert(eighth,'wardrobe supports mouse wheel scrolling')
+handlers.onClientClick('left','down',1276,445)
+handlers.onClientCursorMove(0,0,1276,640)
+handlers.onClientClick('left','up',1276,640)
+draws={};handlers.onClientRender();local last=false
+for _,d in ipairs(draws) do if d.text:find('Uniform 12 |',1,true) then last=true end end
+assert(last,'wardrobe scrollbar reaches final configured form')
+handlers.onClientKey('escape',true)
 local members={faction=2,rows={}}
 for i=1,35 do members.rows[i]={rank=2,rp_name='Member_'..i} end
 local function memberVisible(name)
