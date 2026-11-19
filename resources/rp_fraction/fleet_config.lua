@@ -233,11 +233,11 @@ FractionFleetConfig = {
             rank = 2,
             count = 5,
             parking = {
-                { slot=1, x=1019, y=-1140, z=23.9, rotation=180 },
-                { slot=2, x=1023.5, y=-1140, z=23.9, rotation=180 },
-                { slot=3, x=1028, y=-1140, z=23.9, rotation=180 },
-                { slot=4, x=1019, y=-1147, z=23.9, rotation=180 },
-                { slot=5, x=1023.5, y=-1147, z=23.9, rotation=180 },
+                { slot=1, x=2417.88, y=1201.13, z=25.51, rotation=180 },
+                { slot=2, x=2422.38, y=1201.13, z=25.51, rotation=180 },
+                { slot=3, x=2426.88, y=1201.13, z=25.51, rotation=180 },
+                { slot=4, x=2417.88, y=1194.13, z=25.51, rotation=180 },
+                { slot=5, x=2422.38, y=1194.13, z=25.51, rotation=180 },
             },
         },
         {
@@ -246,9 +246,9 @@ FractionFleetConfig = {
             rank = 4,
             count = 3,
             parking = {
-                { slot=6, x=1028, y=-1147, z=23.9, rotation=180 },
-                { slot=7, x=1019, y=-1154, z=23.9, rotation=180 },
-                { slot=8, x=1023.5, y=-1154, z=23.9, rotation=180 },
+                { slot=6, x=2426.88, y=1194.13, z=25.51, rotation=180 },
+                { slot=7, x=2417.88, y=1187.13, z=25.51, rotation=180 },
+                { slot=8, x=2422.38, y=1187.13, z=25.51, rotation=180 },
             },
         },
         {
@@ -257,7 +257,7 @@ FractionFleetConfig = {
             rank = 5,
             count = 1,
             parking = {
-                { slot=9, x=1028, y=-1154, z=23.9, rotation=180 },
+                { slot=9, x=2426.88, y=1187.13, z=25.51, rotation=180 },
             },
         },
     },
@@ -346,11 +346,11 @@ FractionLocationConfig = {
     -- Russian Mafia
     [6] = {
         interior=12, dimension=20006,
-        entrance={x=1022.7000,y=-1121.2000,z=23.9000,rotation=0.00},
+        entrance={x=2421.58,y=1219.93,z=25.51,rotation=0.00},
         inside={x=2324.5000,y=-1147.1000,z=1050.7000,rotation=0.00},
         exit={x=2324.5000,y=-1150.4000,z=1050.7000,rotation=0.00},
         keysPoint={x=2321.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
         armory={x=2327.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
-        outsideSpawn={x=1026.2000,y=-1121.2000,z=23.9000,rotation=0.00},
+        outsideSpawn={x=2425.08,y=1219.93,z=25.51,rotation=0.00},
     },
 }

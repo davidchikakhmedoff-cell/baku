@@ -42,7 +42,7 @@ Fractions = {
  [5]={name="Yakuza",category="criminal",color={90,93,99},blip={icon=58,size=2},ranks=mafiaRanks,skins={117,117,118,118,120,120,121,122,123,169},
  entrance=point(1767.88,-2020.14,14.13,180),interior=1,inside=point(-2159.9,641.5,1052.4),exit=point(-2159.9,638.3,1052.4),keysPoint=point(-2163,641.5,1052.4),armory=point(-2156,641.5,1052.4)},
  [6]={name="Russian Mafia",category="criminal",color={136,102,73},blip={icon=58,size=2},ranks=mafiaRanks,skins={111,111,112,112,113,113,111,112,113,223},
- entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
+ entrance=point(2421.58,1219.93,25.51),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
 }
 -- A retained pre-relocation fleet_config.lua must not restore the old Yakuza site.
 -- Migrate the exact former defaults and the mistaken positive-Y destination.
