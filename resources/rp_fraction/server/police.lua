@@ -117,10 +117,10 @@ addCommandHandler('uncuff',function(p,_,id)
 end)
 function F.applyJail(p,spawn)
  local s=F.state(p);if not s or tonumber(s.jail_remaining)<=0 then return false end
- local cell=FractionConfig.jailCells[(F.account(p)%#FractionConfig.jailCells)+1]
+ local cell=Fractions[2].jailSpawn or FractionConfig.jailCells[1]
  if isPedInVehicle(p) then removePedFromVehicle(p) end
  if spawn and isPedDead(p) then spawnPlayer(p,cell.x,cell.y,cell.z,0,getCivilianSkin(p),6,FractionConfig.dimensionBase+100) end
- setElementInterior(p,6);setElementDimension(p,FractionConfig.dimensionBase+100);setElementPosition(p,cell.x,cell.y,cell.z)
+ setElementInterior(p,6);setElementDimension(p,FractionConfig.dimensionBase+100);setElementPosition(p,cell.x,cell.y,cell.z);setPedRotation(p,cell.rotation or 180)
  setCameraTarget(p,p);takeAllWeapons(p);wanted(p,0)
  return true
 end
@@ -131,27 +131,58 @@ function F.applyJustice(p)
 end
 function F.arrest(target,minutes,reason,keepDuty)
  local s=F.state(target);if not s or tonumber(s.jail_remaining)>0 then return false end
+ if not FractionDB.exec('UPDATE fraction_state SET jail_remaining=?,jail_reason=?,last_jail=? WHERE account_id=?',minutes*60,reason,F.now(),F.account(target)) then return false end
  s.jail_remaining=minutes*60;s.jail_reason=reason
- FractionDB.exec('UPDATE fraction_state SET jail_remaining=?,jail_reason=?,last_jail=? WHERE account_id=?',s.jail_remaining,reason,F.now(),F.account(target))
  F.clearCuffs(target)
  if not keepDuty then F.endDuty(target) end
  wanted(target,0);F.applyJail(target,false)
  F.notify(target,'КПЗ: '..minutes..' мин.');return true
 end
 function F.atJailBooking(p)
- local f=Fractions[2];local point=f.jailBooking
- if getElementInterior(p)~=f.interior or getElementDimension(p)~=f.dimension then return false end
+ local f=Fractions[2];local area=f.jailBooking or {}
+ local point=f.jailSpawn or (area.x and area) or FractionConfig.jailCells[1]
+ local dimension=getElementDimension(p)
+ -- The same stock prison is used by the HQ, sentenced players and native
+ -- interior teleports. Accept only these worlds, never houses/other factions.
+ if getElementInterior(p)~=f.interior or (dimension~=f.dimension and dimension~=FractionConfig.dimensionBase+100 and dimension~=0) then return false,'world' end
  local x,y,z=getElementPosition(p)
- return math.abs(z-point.z)<=1.2 and getDistanceBetweenPoints3D(x,y,z,point.x,point.y,point.z)<=(point.radius or 3)
+ if math.abs(z-point.z)>(area.height or 1.2) then return false,'floor' end
+ local distance=math.sqrt((x-point.x)^2+(y-point.y)^2)
+ if distance>(area.radius or 5) then return false,'distance',distance end
+ return true
 end
-addCommandHandler('arrest',function(p,_,id)
- local target=policeTarget(p,id,'arrest',2)
- if not target then return end
- if not F.atJailBooking(p) then F.notify(p,'Оформить арест можно только перед КПЗ LSPD');return end
+local function arrestReply(player,message,good)
+ local color=good and {103,196,216} or {239,120,100}
+ exports.rp_core:sendCoreChatMessage(player,message,color[1],color[2],color[3])
+end
+function F.commandArrest(p,id)
+ if not F.account(p) then arrestReply(p,'Система фракций ещё не готова');return end
+ local member=F.member(p)
+ if not member or member.faction_id~=2 or member.rank<2 then arrestReply(p,'Арест доступен сотруднику LSPD со 2 ранга');return end
+ if F.jailed(p) then arrestReply(p,'Вы уже отбываете срок в КПЗ');return end
+ if not F.active(p,2,2) then arrestReply(p,'Начните рабочую смену LSPD перед оформлением ареста');return end
+ id=FractionRules.integer(id,1,2147483647)
+ if not id then arrestReply(p,'Используйте /arrest ID игрока');return end
+ local target
+ if tonumber(exports.rp_core:getPlayerDynamicID(p))==id then target=p else target=F.player(id) end
+ if not F.account(target) then arrestReply(p,'Игрок с таким игровым ID не найден');return end
+ if isPedDead(target) then arrestReply(p,'Нельзя оформить арест погибшего игрока');return end
+ if not F.near(p,target) then arrestReply(p,'Игрок должен находиться рядом с вами у КПЗ');return end
+ local inside,reason,distance=F.atJailBooking(p)
+ if not inside then
+  local text=reason=='floor' and 'Спуститесь к решётке на этаж КПЗ' or 'Оформить арест можно только у КПЗ внутри LSPD'
+  if reason=='distance' then text=text..' (до центра зоны '..math.ceil(distance)..' м)' end
+  arrestReply(p,text);return
+ end
+ if F.jailed(target) then arrestReply(p,'Этот игрок уже находится в КПЗ');return end
  local stars=F.wantedLevel(target)
- if stars<1 then F.notify(p,'/arrest ID — у игрока должен быть розыск');return end
- F.arrest(target,math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar),'Арест по уровню розыска')
-end)
+ if stars<1 then arrestReply(p,'У игрока нет розыска. Для проверки на себе сначала используйте /su ID 1 тест');return end
+ if not F.throttle(p,'arrest') then arrestReply(p,'Подождите перед повторным арестом');return end
+ local minutes=math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar)
+ if not F.arrest(target,minutes,'Арест по уровню розыска') then arrestReply(p,'Не удалось сохранить арест. Повторите команду');return end
+ arrestReply(p,'Игрок '..F.name(target)..' помещён в КПЗ на '..minutes..' мин.',true)
+end
+addCommandHandler('arrest',function(p,_,id) F.commandArrest(p,id) end)
 local function releasePosition(p)
  local pos=Fractions[2].outsideSpawn or FractionConfig.release
  F.clearCuffs(p,true)
@@ -181,7 +212,7 @@ function F.jailTick(p,elapsed)
   releasePosition(p)
   F.notify(p,'Срок заключения завершён',true)
  else
-  local cell=FractionConfig.jailCells[1];local x,y,z=getElementPosition(p)
+  local cell=Fractions[2].jailSpawn or FractionConfig.jailCells[1];local x,y,z=getElementPosition(p)
   if getElementDimension(p)~=FractionConfig.dimensionBase+100 or getElementInterior(p)~=6 or getDistanceBetweenPoints3D(x,y,z,cell.x,cell.y,cell.z)>FractionConfig.jail.radius then F.applyJail(p,false) end
  end
 end

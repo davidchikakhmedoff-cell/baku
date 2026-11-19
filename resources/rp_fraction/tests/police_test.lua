@@ -4,10 +4,10 @@ local officer={id=1,faction=2,rank=9,duty=true,x=1554,y=-1675,z=16,interior=0,di
 local suspect={id=2,x=1554,y=-1675,z=16,interior=0,dimension=0,stars=3,controls={jump=false}}
 local states={}
 local dispatch={}
-exports={rp_core={sendCoreChatMessage=function(_,p,text,r,g,b) dispatch[#dispatch+1]={player=p,text=text,color={r,g,b}} end}}
+exports={rp_core={sendCoreChatMessage=function(_,p,text,r,g,b) dispatch[#dispatch+1]={player=p,text=text,color={r,g,b}} end,getPlayerDynamicID=function(_,p) return p.id end}}
 local ticketWrites,megaphones=0,0
 local lastTicket
-local booking=Fractions[2].jailBooking
+local booking=Fractions[2].jailSpawn or Fractions[2].jailBooking
 local function setStars(player,level) player.stars=level;if states[player.id] then states[player.id].wanted=level end end
 local function atBooking(player) player.x,player.y,player.z=booking.x,booking.y,booking.z;player.interior,player.dimension=6,Fractions[2].dimension end
 Fraction={cuffs={},vehicles={},sessions={}}
@@ -82,7 +82,7 @@ commands.cuff(officer,'cuff','2');F.clearCuffs(officer,true);assert(not F.cuffs[
 suspect.far=true;commands.cuff(officer,'cuff','2');assert(not F.cuffs[suspect],'remote cuff rejected');suspect.far=false
 atBooking(officer);atBooking(suspect)
 commands.arrest(officer,'arrest','2');assert(F.jailed(suspect) and suspect.stars==0 and suspect.dimension==20100,'arrest teleports and clears wanted')
-assert(suspect.y==FractionConfig.jailCells[3].y,'prisoner spawns behind the requested grille')
+assert(suspect.y==Fractions[2].jailSpawn.y and suspect.x==Fractions[2].jailSpawn.x and suspect.rotation==180,'prisoner spawns at the exact coordinates supplied by user')
 local original=states[2].jail_remaining;F.arrest(suspect,10,'again');assert(states[2].jail_remaining==original,'duplicate arrest cannot extend sentence')
 F.justice={};assert(F.jailed(suspect) and states[2].jail_remaining==900,'reconnect reads persisted sentence')
 F.jailTick(suspect,60000);assert(states[2].jail_remaining==840,'online time decrements sentence')
@@ -142,7 +142,7 @@ assert(suspect.stars==0 and not F.cuffs[suspect] and not F.jailed(suspect) and t
 
 -- Arrest is possible only at the booking point, never outside or at another floor.
 officer.duty=true;officer.vehicle=nil;setStars(suspect,1);states[2].jail_remaining=0
-for _,position in ipairs({{1554,-1675,16,0,0},{booking.x,booking.y,1003.6,6,Fractions[2].dimension},{booking.x+4,booking.y,booking.z,6,Fractions[2].dimension}}) do
+for _,position in ipairs({{1554,-1675,16,0,0},{booking.x,booking.y,1003.6,6,Fractions[2].dimension},{booking.x+6,booking.y,booking.z,6,Fractions[2].dimension}}) do
  officer.x,officer.y,officer.z,officer.interior,officer.dimension=unpack(position)
  commands.arrest(officer,'arrest','2');assert(not F.jailed(suspect),'arrest outside booking point rejected')
 end

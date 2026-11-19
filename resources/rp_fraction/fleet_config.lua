@@ -248,7 +248,9 @@ FractionFleetConfig = {
 -- МАРКЕРЫ И ТОЧКИ ПОЯВЛЕНИЯ. ID разделов совпадают с ID фракций.
 -- entrance/exit — маркеры входа/выхода; inside/outsideSpawn — точки появления.
 -- keysPoint/dutyPoint/armory — ключи/смена/оружейная в интерьере.
--- jailBooking — место оформления ареста перед КПЗ LSPD; radius — допустимый радиус.
+-- jailSpawn — появление арестованного и центр зоны команды у КПЗ.
+-- jailBooking — размеры зоны; отдельного центра нет, чтобы точки не расходились.
+-- radius — горизонтальный радиус; height — допустимая разница высоты этажа.
 -- roof/garage: inside — маркер внутри, outside — маркер снаружи,
 -- arrival — появление снаружи, returnSpawn — появление после возврата внутрь.
 -- triggerRadius — радиус входа с крыши/гаража, по умолчанию 0.9 метра.
@@ -276,7 +278,8 @@ FractionLocationConfig = {
         keysPoint={x=239.4000,y=73.6000,z=1004.6000,rotation=0.00},
         dutyPoint={x=254.5000,y=77.0800,z=1003.3000,rotation=0.00},
         armory={x=256.000,y=74.3000,z=1003.1000,rotation=0.00},
-        jailBooking={x=264.28,y=80.64,z=1001.03,rotation=180,radius=3},
+        jailSpawn={x=264.28,y=80.64,z=1001.03,rotation=180},
+        jailBooking={radius=5,height=1.2},
         outsideSpawn={x=1552.4000,y=-1675.5000,z=16.2000,rotation=90.00},
         roof={triggerRadius=0.5, slot=17, inside={x=243.0500,y=66.4000,z=1003.6000,rotation=0.00}, outside={x=1565.0700,y=-1684.9000,z=28.4000,rotation=90.00},
             arrival={x=1565.0700,y=-1687.0000,z=28.4000,rotation=180.00}, returnSpawn={x=244.5000,y=66.4000,z=1003.6000,rotation=270.00}},

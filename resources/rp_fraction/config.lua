@@ -16,7 +16,7 @@ FractionConfig = {
     roofDeckModel=3095,
     salaries={500,650,800,950,1100,1300,1500,1750,2000,2500},
     release={x=1552.4,y=-1675.5,z=16.2,rotation=90,interior=0,dimension=0},
-    jailCells={{x=263.93,y=78.64,z=1001.03},{x=264.28,y=78.64,z=1001.03},{x=264.63,y=78.64,z=1001.03}},
+    jailCells={{x=264.28,y=80.64,z=1001.03,rotation=180}},
     policeWeapons={{id=3,name='Дубинка',ammo=1,rank=1},{id=24,name='Desert Eagle',ammo=70,rank=2},{id=29,name='MP5',ammo=180,rank=3},{id=31,name='M4',ammo=200,rank=5},{id=34,name='Снайперская винтовка',ammo=20,rank=5},{id='armor',name='Бронежилет',armor=100,rank=1}},
     mafiaWeapons={{id=5,name='Бита',ammo=1,rank=1},{id=23,name='Пистолет с глушителем',ammo=70,rank=2},{id=28,name='Uzi',ammo=180,rank=3},{id=30,name='AK-47',ammo=200,rank=5},{id=34,name='Снайперская винтовка',ammo=20,rank=5},{id='armor',name='Бронежилет',armor=100,rank=1}}
 }

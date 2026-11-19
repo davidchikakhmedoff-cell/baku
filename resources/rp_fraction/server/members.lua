@@ -98,7 +98,11 @@ local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvit
 function executeFractionCommand(p,command,args)
  if sourceResource~=getResourceFromName('rp_core') or not chatCommands[command] then return false end
  if not F.account(p) then F.notify(p,'Система фракций ещё не готова. Дождитесь загрузки зависимостей');return true end
- executeCommandHandler(command,p,type(args)=='string' and args or '')
+ if command=='arrest' then
+  F.commandArrest(p,type(args)=='string' and args:match('^%s*(%S+)') or nil)
+ elseif executeCommandHandler(command,p,type(args)=='string' and args or '')==false then
+  F.notify(p,'Не удалось выполнить /'..command..'. Проверьте обновление rp_fraction')
+ end
  return true
 end
 addEvent('fraction:action',true)
