@@ -22,9 +22,9 @@ function F.clearCuffs(p,issuerLeaving)
   for _,target in ipairs(clear) do F.clearCuffs(target) end
  end
 end
-local function policeTarget(p,id,action,rank)
+local function policeTarget(p,id,action,rank,resolved)
  if not F.active(p,2,rank or 2) then F.notify(p,'Нужен '..(rank or 2)..' ранг LSPD и активная смена. В КПЗ полицейские действия недоступны');return end
- local target=F.player(id)
+ local target=resolved or F.player(id)
  if not F.account(target) or isPedDead(target) or not F.near(p,target) then F.notify(p,'Игрок должен находиться рядом и быть жив');return end
  if not F.throttle(p,action) then F.notify(p,'Подождите перед повторным использованием команды');return end
  return target
@@ -95,10 +95,21 @@ addCommandHandler('su',function(p,_,id,level,...)
   if member and member.faction_id==2 then exports.rp_core:sendCoreChatMessage(other,message,color[1],color[2],color[3]) end
  end
 end)
-addCommandHandler('clearwanted',function(p,_,id)
- local target=policeTarget(p,id,'su',9);if not target then return end
- wanted(target,0);F.notify(target,'Розыск снят',true)
-end)
+function F.commandClearWanted(p,id)
+ id=FractionRules.integer(id,1,2147483647)
+ if not id then F.notify(p,'Используйте /clearwanted ID игрока');return end
+ if not F.account(p) then return end
+ local self=tonumber(exports.rp_core:getPlayerDynamicID(p))==id and p or nil
+ local target=policeTarget(p,id,'clearwanted',9,self);if not target then return end
+ local state=F.state(target)
+ if not state or not FractionDB.exec('UPDATE fraction_state SET wanted=? WHERE account_id=?',0,F.account(target)) then
+  F.notify(p,'Не удалось сохранить снятие розыска');return
+ end
+ state.wanted=0;setPlayerWantedLevel(target,0)
+ F.notify(target,'Розыск снят',true)
+ if p~=target then F.notify(p,'Розыск игрока '..F.name(target)..' снят',true) end
+end
+addCommandHandler('clearwanted',function(p,_,id) F.commandClearWanted(p,id) end)
 addCommandHandler('cuff',function(p,_,id)
  local target=policeTarget(p,id,'cuff',2);if not target or F.jailed(target) or isPedInVehicle(target) then return end
  if F.cuffs[target] then F.clearCuffs(target);F.notify(target,'Наручники сняты',true)

@@ -2598,34 +2598,52 @@ end
 
 local function ejectPassengerCommand(player, targetId)
     if not isLogged(player) then return end
-    local vehicle = getPedOccupiedVehicle(player)
-    if not vehicle or (not CarInteraction.ready(player) or getPedOccupiedVehicleSeat(player) ~= 0) then
-        notify(player, "Вы должны быть водителем транспорта.", false)
-        return
-    end
-
     local target = resolvePlayerById(targetId)
     if not target then notify(player, "Игрок с таким ID не найден.", false); return end
+    local vehicle = getPedOccupiedVehicle(player)
+    local driver = vehicle and CarInteraction.ready(player) and getPedOccupiedVehicleSeat(player) == 0
+    if not driver then
+        vehicle = false
+        local fraction = getResourceFromName("rp_fraction")
+        if fraction and getResourceState(fraction) == "running" then
+            for _, name in ipairs(getResourceExportedFunctions(fraction) or {}) do
+                if name == "getPoliceEjectVehicle" then
+                    vehicle = call(fraction, name, player, target)
+                    break
+                end
+            end
+        end
+        if not isElement(vehicle) then
+            notify(player, "Сядьте за руль или подойдите к своей патрульной машине с задержанным.", false)
+            return
+        end
+    end
     if target == player then notify(player, "Нельзя высадить самого себя.", false); return end
     if getPedOccupiedVehicle(target) ~= vehicle then
         notify(player, "Игрок с указанным ID не находится в вашем транспорте.", false)
         return
     end
 
-    triggerClientEvent(target, CarConfig.events.forceExitVehicle, resourceRoot)
     local exitPoint = vehicleExitPoint(vehicle)
-    setTimer(function(driver, passenger, sourceVehicle, point)
-        if not isElement(passenger) or getPedOccupiedVehicle(passenger) ~= sourceVehicle then return end
-        removePedFromVehicle(passenger)
-        setTimer(function(targetPlayer, fallbackPoint)
-            if isElement(targetPlayer) and not getPedOccupiedVehicle(targetPlayer) then
-                movePlayerToSafeExit(targetPlayer, fallbackPoint)
-            end
-        end, 100, 1, passenger, point)
-    end, 2200, 1, player, target, vehicle, exitPoint)
+    if getElementData(target, "fraction:cuffed") == true then
+        -- A forced native exit would enable enter_exit and let a cuffed player escape.
+        if not removePedFromVehicle(target) then return end
+        movePlayerToSafeExit(target, exitPoint)
+    else
+        triggerClientEvent(target, CarConfig.events.forceExitVehicle, resourceRoot)
+        setTimer(function(driver, passenger, sourceVehicle, point)
+            if not isElement(passenger) or getPedOccupiedVehicle(passenger) ~= sourceVehicle then return end
+            removePedFromVehicle(passenger)
+            setTimer(function(targetPlayer, fallbackPoint)
+                if isElement(targetPlayer) and not getPedOccupiedVehicle(targetPlayer) then
+                    movePlayerToSafeExit(targetPlayer, fallbackPoint)
+                end
+            end, 100, 1, passenger, point)
+        end, 2200, 1, player, target, vehicle, exitPoint)
+    end
 
     notify(player, "Вы высадили игрока " .. rpName(target) .. " из транспорта.", true)
-    notify(target, "Водитель высадил вас из транспорта.", false)
+    notify(target, "Вас высадили из транспорта.", false)
     return true
 end
 
@@ -2635,6 +2653,7 @@ end)
 
 addEvent("car:ejectCommand", true)
 addEventHandler("car:ejectCommand", root, function(targetId)
+    if client and client ~= source then return end
     ejectPassengerCommand(source, targetId)
 end)
 

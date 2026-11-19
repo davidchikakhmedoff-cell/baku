@@ -99,3 +99,17 @@ assert(row.remaining==0 and replies[#replies]:find('не найден',1,true),'
 prepare(Fractions[2].dimension);RPChat.processMessage(p,'/arrest')
 assert(row.remaining==0 and replies[#replies]:find('/arrest ID',1,true),'missing ID gets usage')
 print('Arrest integration: real chat/permissions/geometry, direct dispatch, self ID, exact spawn and all refusal messages passed')
+
+prepare(Fractions[2].dimension,0,nil,true,4)
+p.stars=4;F.cooldowns[p]={su=clock}
+RPChat.processMessage(p,'/clearwanted 15')
+assert(row.wanted==0 and p.stars==0 and F.wantedLevel(p)==0,'clearwanted reaches real handler from custom chat, survives stale self-ID cache and does not share su cooldown')
+prepare(Fractions[2].dimension,0,nil,true,4);F.members[87].rank=8
+RPChat.processMessage(p,'/clearwanted 15');assert(row.wanted==4,'rank below deputy still cannot clear wanted')
+prepare(Fractions[2].dimension,0,nil,false,4)
+RPChat.processMessage(p,'/clearwanted 15');assert(row.wanted==4,'off-duty clearwanted rejected')
+prepare(Fractions[2].dimension,0,nil,true,4)
+local putId
+F.commandPutCar=function(actor,id) assert(actor==p);putId=id end
+RPChat.processMessage(p,'/putcar 2');assert(putId=='2','custom chat dispatches putcar directly without native execution')
+print('Police chat: clearwanted persistence/self ID/separate cooldown/rank/duty and putcar direct dispatch passed')

@@ -18,6 +18,7 @@
  <script src="server/radio.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
+ <script src="server/police_transport.lua" type="server" />
  <script src="cars/server.lua" type="server" />
  <script src="cars/controls.lua" type="client" />
  <script src="cars/patterns.lua" type="client" />
@@ -32,6 +33,7 @@
  <script src="client/garage_visibility.lua" type="client" />
  <script src="client/jail_safezone.lua" type="client" />
  <script src="client/parked_vehicles.lua" type="client" />
+ <export function="getPoliceEjectVehicle" type="server" />
  <export function="canDriveFactionVehicle" type="server" />
  <export function="executeFractionCommand" type="server" />
  <export function="getCivilianWeapons" type="server" />

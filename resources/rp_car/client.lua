@@ -1104,7 +1104,6 @@ addEventHandler("onClientKey", root, function(key, press)
             debugKey("Active UI name: " .. tostring(activeName))
         end
         debugKey("Blocked by UI: YES")
-        if key == "n" then controlFeedback("Замок: сначала закройте меню автомобиля.") end
         if key == "2" then
             cancelEvent()
         end

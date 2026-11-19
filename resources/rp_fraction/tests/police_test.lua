@@ -74,6 +74,10 @@ root,resourceRoot={},{}
 assert(loadfile('resources/rp_fraction/server/police.lua'))()
 commands.su(officer,'su','2','6','reason');assert(suspect.stars==6,'wanted capped at 6')
 assert(dispatch[1].player==officer and dispatch[1].text=='Внимание всем постам! Объявлен в розыск Player2. Уровень розыска - 6. Причина: reason.' and dispatch[1].color[2]==195,'wanted dispatch uses visible custom chat and final level')
+local savedExec=FractionDB.exec
+FractionDB.exec=function(sql,...) if sql:find('SET wanted=?',1,true) then return false end;return savedExec(sql,...) end
+commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==6 and F.wantedLevel(suspect)==6,'database failure does not report a successful removal or desynchronize wanted state')
+FractionDB.exec=savedExec
 commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==0,'deputy clears wanted')
 officer.rank=2;setStars(suspect,3);commands.clearwanted(officer,'clearwanted','2');assert(suspect.stars==3,'ordinary officer cannot clear wanted')
 commands.cuff(officer,'cuff','2');assert(suspect['fraction:cuffed']==true,'handcuffs synchronize arm pose flag');assert(F.cuffs[suspect] and suspect.controls.fire==false and suspect.controls.sprint==false,'cuffs disable attacks/sprint')

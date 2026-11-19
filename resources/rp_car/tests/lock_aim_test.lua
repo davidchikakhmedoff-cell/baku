@@ -70,3 +70,12 @@ for key,event in pairs({['2']='car:toggleEngine',l='car:toggleLights',b='car:tog
  assert(press(key,'test') and sent.event==event,'key '..key..' must reach '..event)
 end
 print('Vehicle keys: engine 2, lights L and handbrake B request paths passed')
+
+-- The separate menu branch previously retained one notification after dispatch was silenced.
+local menuCallback=assert(code:match('addEventHandler%("onClientKey", root, function%(key, press%).-\nend%)'))
+local menuKey
+function addEventHandler(_,_,fn) menuKey=fn end
+assert(loadstring('local UI={mode="tuning"}\n'..menuCallback))()
+feedback=nil;sent=nil;menuKey('n',true)
+assert(not feedback and not sent,'N inside vehicle menu/chat is silent in the raw key handler as well')
+print('N raw menu handler: no remaining close-window notification passed')
