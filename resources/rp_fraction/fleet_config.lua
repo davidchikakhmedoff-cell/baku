@@ -159,11 +159,11 @@ FractionFleetConfig = {
             rank = 2,
             count = 5,
             parking = {
-                { slot=1, x=1468, y=-1027, z=23.8, rotation=90 },
-                { slot=2, x=1472.5, y=-1027, z=23.8, rotation=90 },
-                { slot=3, x=1477, y=-1027, z=23.8, rotation=90 },
-                { slot=4, x=1468, y=-1034, z=23.8, rotation=90 },
-                { slot=5, x=1472.5, y=-1034, z=23.8, rotation=90 },
+                { slot=1, x=872, y=-1255, z=14.8, rotation=90 },
+                { slot=2, x=879, y=-1255, z=14.8, rotation=90 },
+                { slot=3, x=886, y=-1255, z=14.8, rotation=90 },
+                { slot=4, x=872, y=-1259, z=14.8, rotation=90 },
+                { slot=5, x=879, y=-1259, z=14.8, rotation=90 },
             },
         },
         {
@@ -172,9 +172,9 @@ FractionFleetConfig = {
             rank = 4,
             count = 3,
             parking = {
-                { slot=6, x=1477, y=-1034, z=23.8, rotation=90 },
-                { slot=7, x=1468, y=-1041, z=23.8, rotation=90 },
-                { slot=8, x=1472.5, y=-1041, z=23.8, rotation=90 },
+                { slot=6, x=886, y=-1259, z=14.8, rotation=90 },
+                { slot=7, x=872, y=-1263, z=14.8, rotation=90 },
+                { slot=8, x=879, y=-1263, z=14.8, rotation=90 },
             },
         },
         {
@@ -183,7 +183,7 @@ FractionFleetConfig = {
             rank = 5,
             count = 1,
             parking = {
-                { slot=9, x=1477, y=-1041, z=23.8, rotation=90 },
+                { slot=9, x=886, y=-1263, z=14.8, rotation=90 },
             },
         },
     },
@@ -324,12 +324,12 @@ FractionLocationConfig = {
     -- La Cosa Nostra
     [4] = {
         interior=5, dimension=20004,
-        entrance={x=1459.1000,y=-1010.6000,z=26.8000,rotation=0.00},
+        entrance={x=862.08,y=-1245.18,z=14.8,rotation=0.00},
         inside={x=1262.1000,y=-785.3000,z=1091.9000,rotation=0.00},
         exit={x=1262.1000,y=-788.5000,z=1091.9000,rotation=0.00},
         keysPoint={x=1258.0000,y=-785.3000,z=1091.9000,rotation=0.00},
         armory={x=1265.0000,y=-785.3000,z=1091.9000,rotation=0.00},
-        outsideSpawn={x=1462.6000,y=-1010.6000,z=26.8000,rotation=0.00},
+        outsideSpawn={x=865.58,y=-1245.18,z=14.8,rotation=90.00},
     },
     -- Yakuza
     [5] = {
