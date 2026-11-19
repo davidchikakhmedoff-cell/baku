@@ -40,3 +40,24 @@ p.logged=false;handlers.onPlayerQuit()
 assert(savedWanted==4,'disconnect saves authoritative wanted even if native stars reset to zero')
 assert(not F.sessions[p] and member.duty==0 and member.gear_issued==0 and p.model==7 and returned,'disconnect ends shift, clears equipment, returns keys and restores civilian skin')
 print('Duty lifecycle: working respawn and disconnect cleanup passed')
+
+-- Mafia equipment cleanup and membership synchronization must never replace clothing.
+for _,fid in ipairs({4,5,6}) do
+ p.logged=true;p.model=46
+ local mafia={account_id=1,faction_id=fid,rank=1,civilian_skin=7,civilian_weapons='[]',duty=0,gear_issued=1}
+ F.members[1]=mafia;F.sessions[p]={account=1,duty=false}
+ F.sync(p)
+ assert(p.model==46 and getCivilianSkin(p)==46,'mafia sync and account save preserve current skin')
+ mafia.rank=#Fractions[fid].ranks;F.sync(p)
+ assert(p.model==46,'mafia promotion does not apply a rank skin')
+ F.endDuty(p)
+ assert(p.model==46 and mafia.gear_issued==0,'mafia equipment cleanup preserves current clothing')
+ local savedSkin
+ FractionDB.exec=function(sql,value)
+  if sql:find('UPDATE fraction_members SET civilian_skin=',1,true) then savedSkin=value end
+  return true
+ end
+ F.disconnect(p,true)
+ assert(p.model==46 and savedSkin==46 and not F.sessions[p],'mafia resource stop preserves and saves current skin')
+end
+print('Mafia clothing: all three factions preserve current skin through sync, promotion, equipment cleanup and restart')

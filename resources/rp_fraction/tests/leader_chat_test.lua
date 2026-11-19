@@ -103,7 +103,7 @@ RPChat.processMessage(owner,'/setleader 15 0');assert(writes==afterRemoval,'repe
 RPChat.processMessage(owner,'/setleader 15 1');assert(db[87].rank==6,'removed leader can be appointed again')
 db[89]={account_id=89,faction_id=4,rank=10,civilian_skin=12};F.reload(89);other.model=113
 RPChat.processMessage(owner,'/setleader 17 0')
-assert(not db[89] and not F.members[89] and other.model==12 and other.driverRevoked,'criminal leader removal restores civilian skin and revokes access')
+assert(not db[89] and not F.members[89] and other.model==113 and other.driverRevoked,'criminal leader removal preserves current skin and revokes access')
 db[901]={account_id=901,faction_id=2,rank=10,civilian_skin=7};F.reload(901)
 RPChat.processMessage(owner,'/setleader 1 0')
 assert(not db[901] and isCoreFounder(owner),'founder may remove own leadership through the administrative command')

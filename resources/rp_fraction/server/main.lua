@@ -66,7 +66,7 @@ function F.sync(p)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
  setElementData(p,'rp:nametagColor',f and f.color or {255,255,255},true)
  setElementData(p,'rp:faction',f and f.name or false,true)
- if f and (f.category=='criminal' or (F.sessions[p] and F.sessions[p].duty)) then setElementModel(p,F.workSkin(p,m)) end
+ if f and f.duty and F.sessions[p] and F.sessions[p].duty then setElementModel(p,F.workSkin(p,m)) end
  triggerClientEvent(p,'fraction:state',resourceRoot,m and {id=m.faction_id,rank=m.rank,duty=F.sessions[p] and F.sessions[p].duty or false} or false)
 end
 function F.snapshotWeapons(p)
@@ -80,7 +80,7 @@ function F.restoreWeapons(p,json)
 end
 function getCivilianSkin(p)
  local m=F.member(p);local s=F.sessions[p]
- return m and ((s and s.duty) or m.duty==1 or Fractions[m.faction_id].category=="criminal") and m.civilian_skin or getElementModel(p)
+ return m and Fractions[m.faction_id].category~="criminal" and ((s and s.duty) or m.duty==1) and m.civilian_skin or getElementModel(p)
 end
 function getCivilianWeapons(p)
     local m=F.member(p);local s=F.sessions[p]
@@ -94,7 +94,8 @@ function F.endDuty(p)
  if F.returnVehicleKeys then F.returnVehicleKeys(p,true) end
  if not m then return end
  if (s and s.duty) or m.duty==1 or m.gear_issued==1 then
-  setElementModel(p,m.civilian_skin);F.restoreWeapons(p,m.civilian_weapons)
+  if Fractions[m.faction_id].category~='criminal' then setElementModel(p,m.civilian_skin) end
+  F.restoreWeapons(p,m.civilian_weapons)
   FractionDB.exec('UPDATE fraction_members SET duty=0,gear_issued=0 WHERE account_id=?',m.account_id);m.duty=0;m.gear_issued=0
  end
  if s then s.duty=false end
@@ -132,8 +133,7 @@ function F.disconnect(p,resourceStopping)
   F.endDuty(p)
   local m=F.member(p)
   if m then
-   if Fractions[m.faction_id].category=='criminal' then setElementModel(p,m.civilian_skin)
-   else FractionDB.exec('UPDATE fraction_members SET civilian_skin=? WHERE account_id=?',getElementModel(p),id) end
+   FractionDB.exec('UPDATE fraction_members SET civilian_skin=? WHERE account_id=?',getElementModel(p),id)
   end
   if not resourceStopping then FractionDB.exec("DELETE FROM fraction_ads WHERE account_id=? AND status='pending'",id) end
  end

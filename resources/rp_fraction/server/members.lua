@@ -25,7 +25,7 @@ function F.dismiss(p,targetId)
  local actor=F.member(p);targetId=FractionRules.integer(targetId,1,2147483647)
  local target=targetId and F.reload(targetId)
  if not FractionRules.canManage(actor,target,'dismiss') then F.notify(p,'Недостаточно полномочий для увольнения');return end
- for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then F.endDuty(online);if Fractions[target.faction_id].category=='criminal' then setElementModel(online,target.civilian_skin) end;F.clearCuffs(online,true) end end
+ for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then F.endDuty(online);F.clearCuffs(online,true) end end
  FractionDB.exec('DELETE FROM fraction_members WHERE account_id=?',targetId);F.members[targetId]=nil
  for _,online in ipairs(getElementsByType('player')) do if F.account(online)==targetId then F.sync(online);F.revokeDriver(online);F.notify(online,'Вы уволены из фракции') end end
  F.membersMenu(p)
@@ -82,7 +82,6 @@ addCommandHandler('setleader',function(p,_,id,fid)
    F.notify(p,'Не удалось сохранить снятие лидера');return
   end
   F.members[targetId]=nil
-  if definition.category=='criminal' then setElementModel(target,existing.civilian_skin) end
   F.sync(target);F.revokeDriver(target)
   F.notify(p,'Лидер '..definition.name..' снят и уволен: '..F.name(target),true)
   if target~=p then F.notify(target,'Вы сняты с должности лидера и уволены из '..definition.name) end
