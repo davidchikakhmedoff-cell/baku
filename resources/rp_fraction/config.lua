@@ -44,6 +44,34 @@ Fractions = {
  [6]={name="Russian Mafia",category="criminal",color={136,102,73},blip={icon=0,size=2},ranks=mafiaRanks,skins={111,111,112,112,113,113,111,112,113,223},
  entrance=point(1022.7,-1121.2,23.9),interior=12,inside=point(2324.5,-1147.1,1050.7),exit=point(2324.5,-1150.4,1050.7),keysPoint=point(2321,-1147.1,1050.7),armory=point(2327,-1147.1,1050.7)}
 }
+-- A retained pre-relocation fleet_config.lua must not restore the old Yakuza site.
+-- Only the exact former defaults are migrated; custom sites/parking stay editable.
+do
+ local location=FractionLocationConfig and FractionLocationConfig[5]
+ local function at(p,x,y,z)
+  return type(p)=='table' and type(p.x)=='number' and type(p.y)=='number' and type(p.z)=='number'
+   and math.abs(p.x-x)<0.01 and math.abs(p.y-y)<0.01 and math.abs(p.z-z)<0.01
+ end
+ if location and at(location.entrance,1081,-1696.8,13.5) then
+  location.entrance=point(1767.88,2020.14,14.13,180)
+  location.outsideSpawn=point(1767.88,2018.64,14.13,180)
+ end
+ local entrance=location and location.entrance or Fractions[5].entrance
+ if at(entrance,1767.88,2020.14,14.13) then
+  local oldX={1089,1093.5,1098}
+  for _,group in ipairs(FractionFleetConfig and FractionFleetConfig[5] or {}) do
+   for _,p in ipairs(group.parking or {}) do
+    local slot=p.slot
+    if type(slot)=='number' and slot%1==0 and slot>=1 and slot<=9 then
+     local col=(slot-1)%3;local row=math.floor((slot-1)/3)
+     if at(p,oldX[col+1],-1708-row*7,13.6) and (p.rotation or 0)==0 then
+      p.x,p.y,p.z,p.rotation=1759.88+col*4.5,2010.14-row*7,14.13,180
+     end
+    end
+   end
+  end
+ end
+end
 FractionFleetWarnings={}
 local function finite(value) return type(value)=='number' and value==value and value>-math.huge and value<math.huge end
 local function integer(value,min,max) return finite(value) and value%1==0 and value>=min and value<=max end

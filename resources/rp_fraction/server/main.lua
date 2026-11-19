@@ -160,6 +160,11 @@ function F.tryStart()
  if not FractionDependencies.ready() then return false end
  for _,warning in ipairs(FractionFleetWarnings or {}) do outputDebugString('[Fraction] '..warning,2) end
  FractionDB.init();F.ready=true;F.createWorld();F.spawnFleet()
+ local yakuza=Fractions[5]
+ if yakuza then
+  local entry=yakuza.entrance
+  outputDebugString(string.format('[Fraction] Yakuza loaded: entrance=%.2f, %.2f, %.2f; rotation=%.0f; vehicles=%d',entry.x,entry.y,entry.z,entry.rotation or 0,#yakuza.vehicles),3)
+ end
  for _,p in ipairs(getElementsByType('player')) do if F.account(p) then F.load(p) end end
  setTimer(F.tick,FractionConfig.tickMs,0)
  setTimer(function()
