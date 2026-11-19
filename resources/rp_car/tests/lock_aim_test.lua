@@ -15,7 +15,7 @@ function getElementDimension(v) return v.dimension or 0 end
 function getElementsByType() return cars end
 function getDistanceBetweenPoints3D(x,y,z,a,b,c) return math.abs(x-a) end
 function getScreenFromWorldPosition(x) for _,v in ipairs(cars) do if v.x==x then return v.sx,v.sy end end end
-function isLineOfSightClear(cx,cy,cz,x) return x~=centred.blockedX end
+function isLineOfSightClear(cx,cy,cz,x,y,z,buildings,checkVehicles) assert(checkVehicles==true,'visibility must detect the target vehicle collision');return x~=centred.blockedX end
 assert(loadstring(selector))()
 assert(getLookedVehicle()==centred,'screen centre outranks physical distance')
 centred.blockedX=9;assert(getLookedVehicle()==near,'occluded car ignored')
@@ -79,3 +79,15 @@ assert(loadstring('local UI={mode="tuning"}\n'..menuCallback))()
 feedback=nil;sent=nil;menuKey('n',true)
 assert(not feedback and not sent,'N inside vehicle menu/chat is silent in the raw key handler as well')
 print('N raw menu handler: no remaining close-window notification passed')
+
+local blockedHelper=assert(code:match('(local function isInputBlocked%(.-\nend)'))
+function coreClientRunning() return true end
+exports={rp_core={isTextInputActive=function() return true end,isAnyBlockingUIOpen=function() return true end}}
+local cursor=false
+function isCursorShowing() return cursor end
+local inputCheck=assert(loadstring('local UI={}\n'..blockedHelper..'\nreturn isInputBlocked'))()
+assert(not inputCheck(),'stale hidden input state after closing key menu must not block vehicle keys')
+cursor=true;assert(inputCheck(),'visible editing window still blocks keys')
+cursor=false;function isChatBoxInputActive() return true end
+assert(inputCheck(),'open chat always blocks lock requests without feedback')
+print('Vehicle input: hidden stale editor no longer blocks, real UI/chat still protected')

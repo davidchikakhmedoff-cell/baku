@@ -23,7 +23,8 @@ function F.hasVehicleKey(p,key)
 end
 local function vehicleName(cfg)
  local custom=FractionCarConfig and FractionCarConfig.models[cfg.model]
- return custom and custom.name or getVehicleNameFromModel(cfg.model) or tostring(cfg.model)
+ if custom and custom.name then return custom.name end
+ return exports.rp_car:getConfiguredVehicleName(cfg.model)
 end
 function F.keysMenu(p)
  if not atKeys(p) then F.notify(p,'Начните смену и подойдите к маркеру ключей');return end

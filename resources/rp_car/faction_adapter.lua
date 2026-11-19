@@ -33,11 +33,12 @@ end
 function A.handle(p,kind,target)
  local vehicle=getPedOccupiedVehicle(p)
  if kind=='lock' then
-  local candidates=type(target)=='table' and target or {target}
+  local candidates=A.vehicles[target] and {target} or (type(target)=='table' and target or {target})
+  local accountId=tonumber(exports.rp_core:getAuthPlayerId(p))
   for i=1,math.min(64,#candidates) do
    local v=candidates[i]
    if A.vehicles[v] and permission(p,v) then vehicle=v;break end
-   if isElement(v) and tonumber(getElementData(v,'car:ownerAccountId'))==tonumber(exports.rp_core:getAuthPlayerId(p)) then return false end
+   if accountId and isElement(v) and tonumber(getElementData(v,'car:ownerAccountId'))==accountId then return false end
   end
  end
  local state=vehicle and A.vehicles[vehicle];if not state then return false end
@@ -59,6 +60,9 @@ function A.handle(p,kind,target)
   state.parkingPending=false;setElementData(vehicle,'car:parkingPending',false,true)
   state.brake=not state.brake;setElementFrozen(vehicle,state.brake);setElementData(vehicle,'car:handbrake',state.brake,true)
  elseif kind=='lock' then
+  local now=getTickCount()
+  if state.lastLockAt and now-state.lastLockAt<250 then return true end
+  state.lastLockAt=now
   setVehicleLocked(vehicle,not isVehicleLocked(vehicle))
   triggerClientEvent(p,CarConfig.events.playLockSound,resourceRoot,vehicle)
   CarLockFeedback.flash(vehicle,state)

@@ -63,7 +63,7 @@ function isPedDead(player) return player.dead or false end
 function getVehicleNameFromModel(id) return id==487 and 'Maverick' or 'Ambulance' end
 function triggerClientEvent(player,event,element,kind,data) if event=='fraction:menu' then menus[player]=data end end
 local saved,registered=0,{}
-exports={rp_car={registerFactionVehicle=function(self,v,key,fuel) registered[key]=v;v.key=key;v.fuel=fuel;return true end,
+exports={rp_car={getConfiguredVehicleName=function(self,model) return getVehicleNameFromModel(model) end,registerFactionVehicle=function(self,v,key,fuel) registered[key]=v;v.key=key;v.fuel=fuel;return true end,
  unregisterFactionVehicle=function(self,v) saved=saved+1;fuelRows[v.key]=v.fuel end}}
 dofile('resources/rp_fraction/server/world.lua');dofile('resources/rp_fraction/server/vehicle_keys.lua')
 -- Only this faction has a fleet in this fixture.
@@ -185,4 +185,6 @@ FactionVehicleAdapter.handle(p,'brake');assert(controlled.frozen,'key holder can
 FactionVehicleAdapter.handle(p,'lock',{controlled});local lock=controlled.locked
 for _,kind in ipairs({'engine','lights','brake','lock'}) do FactionVehicleAdapter.handle(q,kind,{controlled}) end
 assert(controlled.engine and controlled.lights==2 and controlled.frozen and controlled.locked==lock,'coworker without key cannot change engine/lights/handbrake/locks')
+p.vehicle=nil;controlled.occupants[0]=nil;clock=clock+300
+assert(FactionVehicleAdapter.handle(p,'lock',controlled) and controlled.locked~=lock,'actual issued keys work on foot with a direct vehicle target without a personal-car spawn')
 print('Vehicle keys: exclusivity, one-per-player, faction/rank/duty, live menus, return/fuel, passenger/parking waits, logout, loss and shutdown passed')

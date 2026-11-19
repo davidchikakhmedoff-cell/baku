@@ -4,7 +4,7 @@ FractionDependencies={blocked=false}
 local D=FractionDependencies
 local required={
  {name='rp_core',exports={'AuthDBQuery','AuthDBExec','getAuthPlayerId','getPlayerByDynamicID','getPlayerDynamicID','takeAuthPlayerMoney','getAuthPlayerBalance','isCoreFounder','sendCoreNotification'}},
- {name='rp_car',exports={'registerFactionVehicle','unregisterFactionVehicle'}}
+ {name='rp_car',exports={'registerFactionVehicle','unregisterFactionVehicle','getConfiguredVehicleName'}}
 }
 function D.hasExports(name,names)
  local resource=getResourceFromName(name)

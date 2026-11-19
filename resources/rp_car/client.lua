@@ -70,7 +70,7 @@ local function isInputBlocked()
     if isMTAWindowActive and isMTAWindowActive() then return true end
     if coreClientRunning() then
         local okText, textActive = pcall(function() return exports.rp_core:isTextInputActive() end)
-        if okText and textActive then return true end
+        if okText and textActive and isCursorShowing() then return true end
         local okUI, uiActive = pcall(function() return exports.rp_core:isAnyBlockingUIOpen() end)
         if okUI and uiActive and isCursorShowing() then return true end
     end
@@ -826,9 +826,9 @@ function getLookedVehicle()
     if occupied then return occupied,{occupied} end
     local cx, cy, cz = getCameraMatrix()
     local function visible(x,y,z,vehicle)
-        if isLineOfSightClear(cx,cy,cz,x,y,z,true,false,false,true,false,false,false,localPlayer) then return true end
+        if isLineOfSightClear(cx,cy,cz,x,y,z,true,true,false,true,false,false,false,localPlayer) then return true end
         if processLineOfSight then
-            local hit,_,_,_,element=processLineOfSight(cx,cy,cz,x,y,z,true,false,false,true,false,false,false,false,localPlayer)
+            local hit,_,_,_,element=processLineOfSight(cx,cy,cz,x,y,z,true,true,false,true,false,false,false,false,localPlayer)
             if hit and element and (element==vehicle or (getElementAttachedTo and getElementAttachedTo(element)==vehicle)) then return true end
         end
         return false

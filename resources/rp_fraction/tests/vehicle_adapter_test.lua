@@ -1,5 +1,6 @@
 local fractionResource={};local p={rank=2,duty=true};local v={};local outsider={rank=1,duty=true}
 root,resourceRoot={},{}
+exports={rp_core={getAuthPlayerId=function() return 1 end}}
 local lockSounds=0
 function triggerClientEvent(player,event,element,vehicle)
  assert(player==p and event=='car:playLockSound' and element==resourceRoot and vehicle==v,'reuse personal vehicle sound event and source')
@@ -83,11 +84,16 @@ FactionVehicleAdapter.handle(outsider,'engine');assert(not v.engine,'insufficien
 p.duty=false;FactionVehicleAdapter.handle(p,'engine');assert(not v.engine,'off-duty driver denied');p.duty=true
 FactionVehicleAdapter.handle(p,'lights');assert(v.lights==2,'headlights use rp_car adapter')
 FactionVehicleAdapter.handle(p,'brake');assert(v['car:handbrake'] and v.frozen,'custom handbrake integrates HUD')
-FactionVehicleAdapter.handle(p,'lock',{v});assert(v.locked,'screen-selected service car locks')
+local authLookup=exports.rp_core.getAuthPlayerId
+exports.rp_core.getAuthPlayerId=function() return nil end
+FactionVehicleAdapter.handle(p,'lock',{outsider,v});assert(v.locked,'unidentified preceding candidate cannot masquerade as an owned personal car')
+exports.rp_core.getAuthPlayerId=authLookup
 local flashTimers=timers;timers={}
 for i=2,#flashTimers do flashTimers[i].fn(unpack(flashTimers[i].args));assert(v.lights==(i%2==0 and 2 or 1),'lock alternates headlights') end
 assert(#timers==1);timers[1].fn(unpack(timers[1].args));assert(v.lights==2,'flash restores enabled headlights')
-FactionVehicleAdapter.handle(p,'lock',{v});assert(not v.locked,'second N unlocks')
+FactionVehicleAdapter.handle(p,'lock',{v});assert(v.locked,'duplicate lock event cannot undo the first toggle')
+clock=clock+300
+FactionVehicleAdapter.handle(p,'lock',v);assert(not v.locked,'later N with a direct element unlocks')
 FactionVehicleAdapter.handle(p,'lights');assert(v.lights==1,'manual light toggle cancels lock flash')
 for i=2,#timers do timers[i].fn(unpack(timers[i].args)) end
 assert(v.lights==1,'cancelled timers do not override manual light choice')
