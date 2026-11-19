@@ -1,22 +1,27 @@
-// The uploaded DFF identifies each ELS lamp by material RGB (ID,255,255).
+// Only rp_pd_els_* textures use this shader. The mask stores lamp ID in R,
+// original light intensity in G and the original texture alpha in A.
 texture gTexture0 < string textureState="0,Texture"; >;
-float4 gMaterialDiffuse < string materialState="Diffuse"; >;
 texture lightPalette;
 float lampBrightness=4;
 float lampOpacity=1.8;
-sampler BaseSampler=sampler_state { Texture=<gTexture0>; };
+sampler MaskSampler=sampler_state { Texture=<gTexture0>; };
 sampler PaletteSampler=sampler_state { Texture=<lightPalette>; MinFilter=Point; MagFilter=Point; MipFilter=None; AddressU=Clamp; AddressV=Clamp; };
-float4 lightPixel(float2 uv:TEXCOORD0,float4 diffuse:COLOR0):COLOR0
+float4 lightPixel(float2 uv:TEXCOORD0):COLOR0
 {
- float4 base=tex2D(BaseSampler,uv)*diffuse;
- float id=floor(gMaterialDiffuse.r*255.0+0.5);
- if(gMaterialDiffuse.g>0.998 && gMaterialDiffuse.b>0.998 && id>=1 && id<=63)
- {
-  float4 lamp=tex2D(PaletteSampler,float2((id+0.5)/64.0,0.5));
-  float3 tex=tex2D(BaseSampler,uv).rgb;
-  // Transparent diffuse materials are intentional lamp faces, not invisible lamps.
-  return float4(tex*lamp.rgb*lampBrightness, saturate(lamp.a*lampOpacity));
- }
- return base;
+ float4 mask=tex2D(MaskSampler,uv);
+ float id=floor(mask.r*255.0+0.5);
+ float4 lamp=tex2D(PaletteSampler,float2((id+0.5)/64.0,0.5));
+ return float4(lamp.rgb*mask.g*lampBrightness,saturate(lamp.a*lampOpacity)*mask.a);
 }
-technique SirenMaterials { pass P0 { PixelShader=compile ps_2_0 lightPixel(); } }
+technique SirenMaterials
+{
+ pass P0
+ {
+  AlphaBlendEnable=true;
+  SrcBlend=SrcAlpha;
+  DestBlend=InvSrcAlpha;
+  AlphaTestEnable=false;
+  ZWriteEnable=false;
+  PixelShader=compile ps_2_0 lightPixel();
+ }
+}

@@ -5,7 +5,7 @@ local function destroy(e) if e and isElement(e) then destroyElement(e) end end
 local function removeLights(v)
  local state=vehicles[v]
  if not state then return end
- if state.shader then engineRemoveShaderFromWorldTexture(state.shader,'*',v) end
+ if state.shader then engineRemoveShaderFromWorldTexture(state.shader,'rp_pd_els_*',v) end
  destroy(state.shader);destroy(state.texture);vehicles[v]=nil
 end
 local function addVehicle(v)
@@ -31,7 +31,7 @@ local function updateLights()
    local mode=tonumber(getElementData(v,'fraction:sirenMode'))
    local enabled=visible and ((mode and mode>0) or getVehicleSirensOn(v)) and not isVehicleBlown(v)
    local lights=patterns[getElementModel(v)]
-   if visible and lights and not state.failed then
+   if lights and not state.failed then
     if not state.shader then
      local detail
      state.shader,detail=dxCreateShader('cars/sirens.fx',1,0,false,'vehicle')
@@ -51,7 +51,7 @@ local function updateLights()
      end
     end
     if state.shader then
-     if not state.applied then engineApplyShaderToWorldTexture(state.shader,'*',v);state.applied=true end
+     if not state.applied then engineApplyShaderToWorldTexture(state.shader,'rp_pd_els_*',v);state.applied=true end
      if enabled and not state.enabled then state.started=now end
      if enabled or state.enabled~=enabled then
       local pixels=state.pixels
@@ -64,8 +64,6 @@ local function updateLights()
      end
      state.enabled=enabled
     end
-   elseif state.applied then
-    engineRemoveShaderFromWorldTexture(state.shader,'*',v);state.applied=false;state.enabled=nil
    end
   end
  end

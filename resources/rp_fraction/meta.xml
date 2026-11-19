@@ -60,16 +60,16 @@
  <file src="skins/pw5.dff" />
  <file src="skins/pw5.txd" />
 
- <file src="cars/ford_explorer/copcarla.txd" />
- <file src="cars/ford_explorer/copcarla.dff" />
  <file src="cars/ford_explorer/596.json" />
  <file src="cars/vert_pd/vert_pd.txd" />
  <file src="cars/vert_pd/vert_pd.dff" />
  <file src="cars/sirens.fx" />
- <file src="cars/ford_taurus/copcarsf.dff" />
- <file src="cars/ford_taurus/copcarsf.txd" />
  <file src="cars/ford_taurus/597.json" />
- <file src="cars/dodge_charger/copcarvg.dff" />
- <file src="cars/dodge_charger/copcarvg.txd" />
  <file src="cars/dodge_charger/598.json" />
+ <file src="cars/prepared/596.dff" />
+ <file src="cars/prepared/596.txd" />
+ <file src="cars/prepared/597.dff" />
+ <file src="cars/prepared/597.txd" />
+ <file src="cars/prepared/598.dff" />
+ <file src="cars/prepared/598.txd" />
 </meta>

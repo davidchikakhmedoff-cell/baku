@@ -1,5 +1,5 @@
 dofile('resources/rp_fraction/cars/config.lua');dofile('resources/rp_fraction/cars/patterns.lua')
-assert(FractionCarConfig.models[596].dff=='cars/ford_explorer/copcarla.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
+assert(FractionCarConfig.models[596].dff=='cars/prepared/596.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
 assert(FractionCarConfig.models[497].dff=='cars/vert_pd/vert_pd.dff','PD helicopter only')
 local P=FractionSirenPatterns
 local fixture={references={colors={blue={red=2,green=96,blue=255,alpha=128}}},states={emergency={
@@ -56,8 +56,8 @@ function dxCreateShader(path)
  assert(path=='cars/sirens.fx')
  if shaderFail then return false,'unsupported shader' end
  local file=assert(io.open('resources/rp_fraction/'..path,'rb'));local shader=file:read('*a');file:close()
- -- MTA exposes D3DMATERIAL9.Diffuse via materialState, not a render state.
- assert(shader:find('materialState="Diffuse"',1,true) and not shader:find('MATERIALDIFFUSE',1,true),'shader must bind the actual material color used by uploaded ELS lamp markers')
+ -- Lamp ID is sampled from dedicated masks, never vehicle material lighting.
+ assert(shader:find('mask.r*255.0',1,true) and not shader:find('materialState',1,true),'shader must use stable texture IDs independently of GTA material color')
  return element('shader'),'SirenMaterials'
 end
 function dxCreateTexture(w,h) assert(w==64 and h==1);return element('texture') end
@@ -65,8 +65,8 @@ function dxGetTexturePixels() return {} end
 function dxSetPixelColor(pixels,x,y,r,g,b,a) pixels[x]={r,g,b,a} end
 function dxSetTexturePixels(_,pixels) palette=pixels end
 function dxSetShaderValue() end
-function engineApplyShaderToWorldTexture(_,_,v) assert(v==car);applied=applied+1 end
-function engineRemoveShaderFromWorldTexture(_,_,v) assert(v==car);removed=removed+1 end
+function engineApplyShaderToWorldTexture(_,pattern,v) assert(v==car and pattern=='rp_pd_els_*','ordinary headlight/body textures must not be overridden');applied=applied+1 end
+function engineRemoveShaderFromWorldTexture(_,pattern,v) assert(v==car and pattern=='rp_pd_els_*');removed=removed+1 end
 dofile('resources/rp_fraction/cars/client.lua');handlers.onClientResourceStart()
 local tick=timers[1].fn;tick();assert(palette[1][4]==0,'siren off hides lamp materials')
 car['fraction:sirenMode']=1;tick();assert(palette[1][4]==128 and not car.siren,'silent mode illuminates lamps without native siren audio')
@@ -81,9 +81,9 @@ car.siren=true;clock=200;tick();assert(palette[1][4]==128,'restart resets phase'
 car.blown=true;tick();assert(palette[1][4]==0,'explosion switches lights off')
 assert(applied==1,'reuse one shader across pulse updates')
 car.blown=false;tick();car.dimension=1;tick();car.siren=false;car.dimension=0;tick()
-assert(palette[1][4]==0,'returning from another dimension with siren off clears old lit palette')
-source=car;handlers.onClientElementStreamOut();assert(removed==2,'stream out detaches shader')
-car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==3,'stream in restores animation')
+assert(palette[1][4]==0 and applied==1 and removed==0,'invisible/distant cars retain an unlit mask shader so encoded textures never appear raw')
+source=car;handlers.onClientElementStreamOut();assert(removed==1,'stream out detaches shader')
+car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==2,'stream in restores animation')
 handlers.onClientResourceStop();assert(restored[596] and restored[597] and restored[598] and restored[497],'restore both stock models on stop')
 for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
 shaderFail=true;handlers.onClientResourceStart();timers[#timers].fn();timers[#timers].fn()
