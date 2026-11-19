@@ -1,6 +1,6 @@
 // The uploaded DFF identifies each ELS lamp by material RGB (ID,255,255).
 texture gTexture0 < string textureState="0,Texture"; >;
-float4 gMaterialDiffuse < string renderState="MATERIALDIFFUSE"; >;
+float4 gMaterialDiffuse < string materialState="Diffuse"; >;
 texture lightPalette;
 sampler BaseSampler=sampler_state { Texture=<gTexture0>; };
 sampler PaletteSampler=sampler_state { Texture=<lightPalette>; MinFilter=Point; MagFilter=Point; MipFilter=None; AddressU=Clamp; AddressV=Clamp; };

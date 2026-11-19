@@ -1,5 +1,5 @@
 dofile('resources/rp_fraction/cars/config.lua');dofile('resources/rp_fraction/cars/patterns.lua')
-assert(FractionCarConfig.models[599].dff=='cars/for_explorer/copcarla.dff' and not FractionCarConfig.models[596],'Ranger replacement must not replace patrol sedans')
+assert(FractionCarConfig.models[596].dff=='cars/for_explorer/copcarla.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
 assert(FractionCarConfig.models[497].dff=='cars/vert_pd/vert_pd.dff','PD helicopter only')
 local P=FractionSirenPatterns
 local fixture={references={colors={blue={red=2,green=96,blue=255,alpha=128}}},states={emergency={
@@ -11,8 +11,8 @@ assert(compiled[1].color[3]==255 and P.sample(compiled[1],0)==1 and P.sample(com
 assert(P.sample(compiled[2],0)==0 and P.sample(compiled[2],100)==1 and P.sample(compiled[2],400)==1 and P.sample(compiled[2],800)==0,'odd pattern flips on alternating cycles')
 assert(P.sample(compiled[3],99999)==1 and P.sample(compiled[4],25)==0.5,'steady lights and inertia fade')
 root,resourceRoot,localPlayer={},{},{model=0}
-local car={model=599,siren=false}
-local heli={model=497};local sedan={model=596}
+local car={model=596,siren=false}
+local heli={model=497};local sedan={model=599}
 local handlers,elements,timers,restored={}, {},{},{}
 local clock=0;local applied,removed=0,0;local palette
 function addEventHandler(name,_,fn) handlers[name]=fn end
@@ -30,7 +30,7 @@ function destroyElement(e) e.dead=true end
 function engineLoadTXD() return element('txd') end
 function engineImportTXD() return true end
 function engineLoadDFF() return element('dff') end
-function engineReplaceModel(_,id) assert(id==599 or id==497);return true end
+function engineReplaceModel(_,id) assert(id==596 or id==497);return true end
 function engineRestoreModel(id) restored[id]=true end
 function fileOpen(path) return assert(io.open('resources/rp_fraction/'..path,'rb')) end
 function fileGetSize(f) local n=f:seek('end');f:seek('set');return n end
@@ -43,7 +43,13 @@ function isTimer(e) return isElement(e) end
 function killTimer(e) e.dead=true end
 function getVehicleSirensOn(v) return v.siren end
 function isVehicleBlown(v) return v.blown end
-function dxCreateShader(path) assert(path=='cars/sirens.fx');return element('shader') end
+function dxCreateShader(path)
+ assert(path=='cars/sirens.fx')
+ local file=assert(io.open('resources/rp_fraction/'..path,'rb'));local shader=file:read('*a');file:close()
+ -- MTA exposes D3DMATERIAL9.Diffuse via materialState, not a render state.
+ assert(shader:find('materialState="Diffuse"',1,true) and not shader:find('MATERIALDIFFUSE',1,true),'shader must bind the actual material color used by uploaded ELS lamp markers')
+ return element('shader'),'SirenMaterials'
+end
 function dxCreateTexture(w,h) assert(w==64 and h==1);return element('texture') end
 function dxGetTexturePixels() return {} end
 function dxSetPixelColor(pixels,x,y,r,g,b,a) pixels[x]={r,g,b,a} end
@@ -63,6 +69,6 @@ car.blown=false;tick();car.dimension=1;tick();car.siren=false;car.dimension=0;ti
 assert(palette[1][4]==0,'returning from another dimension with siren off clears old lit palette')
 source=car;handlers.onClientElementStreamOut();assert(removed==2,'stream out detaches shader')
 car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==3,'stream in restores animation')
-handlers.onClientResourceStop();assert(restored[599] and restored[497],'restore both stock models on stop')
+handlers.onClientResourceStop();assert(restored[596] and restored[497],'restore both stock models on stop')
 for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
 print('PD car models: mapping, JSON pulse semantics, siren toggle, explosion, streaming, reuse and cleanup passed')
