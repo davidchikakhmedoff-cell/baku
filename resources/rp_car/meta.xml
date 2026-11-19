@@ -8,6 +8,7 @@
     <script src="vehicles.lua" type="shared" />
     <script src="used_market.lua" type="shared" />
     <script src="handling/base.lua" type="shared" />
+    <script src="handling/compatibility_client.lua" type="client" />
     <script src="handling/suspension.lua" type="shared" />
     <script src="handling/acceleration.lua" type="shared" />
     <script src="handling/maxspeed.lua" type="shared" />

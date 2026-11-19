@@ -29,3 +29,17 @@ VehicleHandling[421].suspensionLowerLimit=-0.25
 local nextSpawn=vehicle();assert(registerFactionVehicle(nextSpawn,'fraction:5:2',30))
 assert(nextSpawn.handling.suspensionLowerLimit==-0.25,'editing the one shared profile reaches subsequent faction spawns')
 print('Faction handling: actual shared dealership function, 421 AWD/lowering and config changes applied on fleet registration passed')
+
+local donor={suspensionForceLevel=1.5,suspensionDamping=0.1,suspensionHighSpeedDamping=0,
+ suspensionUpperLimit=0.35,suspensionLowerLimit=-0.24,suspensionFrontRearBias=0.5,suspensionAntiDiveMultiplier=0.3,
+ mass=2500,driveType='awd'}
+function getOriginalHandling(model) assert(model==579);return donor end
+local toyota={model=404,handling={mass=1200,driveType='fwd'}}
+assert(applyConfiguredVehicleHandling(toyota))
+for _,property in ipairs(VehicleSuspensionReferenceProperties) do assert(toyota.handling[property]==donor[property],'Toyota suspension copies original Huntley '..property) end
+assert(toyota.handling.mass==1200 and toyota.handling.driveType=='fwd','unrequested engine/mass/drive properties remain untouched')
+local factionToyota={model=404,handling={}}
+assert(registerFactionVehicle(factionToyota,'fraction:5:6',30))
+assert(factionToyota.handling.suspensionLowerLimit==donor.suspensionLowerLimit,'real faction registration receives the same suspension correction')
+assert(donor.mass==2500 and donor.suspensionLowerLimit==-0.24,'original donor handling was not mutated')
+print('Toyota handling: original Huntley suspension shared by direct and faction spawns, donor/performance isolation passed')

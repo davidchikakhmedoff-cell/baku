@@ -493,6 +493,14 @@ local function applyConfiguredHandling(vehicle, row)
     if not isElement(vehicle) then return false end
     local model = tonumber(row and row.model) or getElementModel(vehicle)
     local base = VehicleHandling and VehicleHandling[model] or nil
+    if base and base.suspensionFromModel then
+        local original = getOriginalHandling(base.suspensionFromModel)
+        for _, property in ipairs(VehicleSuspensionReferenceProperties or {}) do
+            if original and original[property] ~= nil then
+                setVehicleHandling(vehicle, property, original[property])
+            end
+        end
+    end
     if base then
         for property, value in pairs(base) do
             if supportedHandlingProperties[property] and value ~= nil then

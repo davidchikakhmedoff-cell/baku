@@ -1,4 +1,17 @@
+-- Copy only suspension geometry/response from an original GTA model.
+VehicleSuspensionReferenceProperties = {
+    "suspensionForceLevel", "suspensionDamping", "suspensionHighSpeedDamping",
+    "suspensionUpperLimit", "suspensionLowerLimit", "suspensionFrontRearBias",
+    "suspensionAntiDiveMultiplier"
+}
+
 VehicleHandling = {
+    [404] = {
+        name = "TOYOTA SEQUOIA",
+        suspensionFromModel = 579,
+        wheelSizeFromModel = 579,
+        modelResource = "toyota_sequoia"
+    },
     -- Shared by dealership/personal cars and faction fleet registration.
     [421] = {
         name = "LEXUX LS 400 XF10",
