@@ -2,7 +2,7 @@
 -- Add entries/groups here; no server/client code changes are needed.
 SkinConfig={
  models={
-  [280]={txd='skins/p1.txd',dff='skins/pw1.dff'},
+  [280]={txd='skins/p1.txd',dff='skins/p1.dff'},
   [281]={txd='skins/p2.txd',dff='skins/p2.dff'},
   [285]={txd='skins/p3.txd',dff='skins/p3.dff'},
   [283]={txd='skins/p4.txd',dff='skins/p4.dff'},
