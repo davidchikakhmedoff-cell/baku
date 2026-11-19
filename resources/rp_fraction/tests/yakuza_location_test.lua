@@ -36,10 +36,10 @@ local function wrongCityFleet()
  end end
 end
 defaults();load();verify(true)
-assert(table.concat(Fractions[5].vehicleColor,',')=='65,12,25,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
+assert(table.concat(Fractions[5].vehicleColor,',')=='35,5,12,0,0,0','all Yakuza vehicles use burgundy primary and black secondary')
 for index=1,5 do assert(Fractions[5].vehicles[index].model==421,'five Yakuza sedans use new model 421') end
 assert(Fractions[5].vehicles[6].model==404 and Fractions[5].vehicles[9].model==409,'Toyota 404 replaces three SUVs while limousine stays unchanged')
-for slot=6,8 do assert(table.concat(Fractions[5].vehicles[slot].color,',')=='35,5,12,0,0,0','only Toyota uses the extra dark burgundy group color') end
+for slot=6,8 do assert(table.concat(Fractions[5].vehicles[slot].color,',')=='35,5,12,0,0,0','Toyota group matches the shared dark burgundy color') end
 assert(not Fractions[5].vehicles[1].color and not Fractions[5].vehicles[9].color,'Lexus and limousine keep the faction default color')
 oldFleet();load();verify();load();verify() -- partial update and repeat initialization
 wrongCityFleet();load();verify();load();verify() -- wrong-city deployment migrates to Los Santos
