@@ -19,3 +19,7 @@ assert(name({model=421})=='LEXUX LS 400 XF10' and name({model=404})=='TOYOTA SEQ
 assert(name({model=596})=='Ford Explorer','PD explicit replacement names remain intact')
 assert(getVehicleDisplayName(579,'Personal name')=='Personal name','stored personal names preserved')
 print('Vehicle names: real dealership lookup, automatic additions/renames, faction key menu, fallbacks and PD/personal names passed')
+
+assert(getConfiguredVehicleName(546)=='FORD CROWN VICTORIA' and getConfiguredVehicleName(479)=='HUMMER H2','new canonical model names are shared with dealership')
+assert(name({model=546})=='FORD CROWN VICTORIA' and name({model=479})=='HUMMER H2','La Cosa Nostra keys display canonical sedan/SUV names')
+assert(getVehicleDisplayName(479,'Regina')=='HUMMER H2' and getVehicleDisplayName(546,'Intruder')=='FORD CROWN VICTORIA','stock names do not override custom model names')

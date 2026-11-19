@@ -12,6 +12,12 @@ VehicleHandling = {
         wheelSizeFromModel = 579,
         modelResource = "toyota_sequoia"
     },
+    -- Hummer H2 replaces the smaller Regina; correct physical wheel radius too.
+    [479] = {
+        name = "HUMMER H2",
+        suspensionFromModel = 579,
+        wheelSizeFromModel = 579
+    },
     -- Shared by dealership/personal cars and faction fleet registration.
     [421] = {
         name = "LEXUX LS 400 XF10",

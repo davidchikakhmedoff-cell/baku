@@ -43,3 +43,11 @@ assert(registerFactionVehicle(factionToyota,'fraction:5:6',30))
 assert(factionToyota.handling.suspensionLowerLimit==donor.suspensionLowerLimit,'real faction registration receives the same suspension correction')
 assert(donor.mass==2500 and donor.suspensionLowerLimit==-0.24,'original donor handling was not mutated')
 print('Toyota handling: original Huntley suspension shared by direct and faction spawns, donor/performance isolation passed')
+
+local hummer={model=479,handling={mass=1700,driveType='rwd'}}
+assert(applyConfiguredVehicleHandling(hummer))
+for _,property in ipairs(VehicleSuspensionReferenceProperties) do assert(hummer.handling[property]==donor[property],'Hummer receives SUV suspension geometry') end
+assert(hummer.handling.mass==1700 and hummer.handling.driveType=='rwd','wheel correction does not change unrequested performance')
+local factionHummer={model=479,handling={}}
+assert(registerFactionVehicle(factionHummer,'fraction:4:6',30))
+assert(factionHummer.handling.suspensionLowerLimit==donor.suspensionLowerLimit,'Hummer faction registration receives shared suspension correction')

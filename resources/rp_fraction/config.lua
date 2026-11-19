@@ -113,6 +113,7 @@ for id,f in pairs(Fractions) do
  if id==1 then f.vehicleColor={245,245,245,232,91,122}
  elseif id==2 then f.vehicleColor={0,0,0,245,245,245}
  elseif id==3 then f.vehicleColor={181,163,215,245,245,245}
+ elseif id==4 then f.vehicleColor={35,19,12,35,19,12}
  elseif id==5 then f.vehicleColor={35,5,12,0,0,0}
  else f.vehicleColor={f.color[1],f.color[2],f.color[3],f.color[1],f.color[2],f.color[3]} end
  f.id=id;f.dimension=FractionConfig.dimensionBase+id;f.salaries=f.salaries or {}

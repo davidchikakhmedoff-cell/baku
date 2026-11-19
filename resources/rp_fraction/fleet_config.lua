@@ -155,7 +155,7 @@ FractionFleetConfig = {
     [4] = {
         {
             name = "Седаны",
-            model = 405,
+            model = 546,
             rank = 2,
             count = 5,
             parking = {
@@ -168,7 +168,7 @@ FractionFleetConfig = {
         },
         {
             name = "Внедорожники",
-            model = 579,
+            model = 479,
             rank = 4,
             count = 3,
             parking = {
@@ -180,6 +180,7 @@ FractionFleetConfig = {
         {
             name = "Лимузины",
             model = 409,
+            color = {0,0,0,35,19,12},
             rank = 5,
             count = 1,
             parking = {

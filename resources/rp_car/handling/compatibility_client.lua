@@ -25,7 +25,7 @@ local function update()
    if type(getVehicleModelWheelSize)~='function' or type(setVehicleModelWheelSize)~='function' then
     if active and not warned then
      warned=true
-     outputChatBox('[Toyota] Для правильной высоты колёс обновите MTA до актуальной версии 1.6: недоступна настройка размера колёс модели.',239,140,100)
+     outputChatBox('[Автомобили] Для правильной высоты колёс обновите MTA до актуальной версии 1.6: недоступна настройка размера колёс модели.',239,140,100)
     end
    elseif active then
     originals[model]=originals[model] or sizes(model)

@@ -48,6 +48,11 @@ exports={rp_car={registerFactionVehicle=function(self,vehicle,key) registered[ke
 dofile('resources/rp_fraction/server/world.lua')
 Fraction.spawnFleet()
 assert(registered['fraction:1:3'].model==487 and registered['fraction:1:20'].model==400,'native adapter fuel keys follow stable configured slots')
+for slot=1,9 do
+ local v=registered['fraction:4:'..slot]
+ assert(v.model==(slot<=5 and 546 or (slot<=8 and 479 or 409)),'La Cosa Nostra retains 5 sedans, 3 SUVs and limousine in stable fleet slots')
+ assert(table.concat(v.colors,',')==(slot==9 and '0,0,0,35,19,12' or '35,19,12,35,19,12'),'actual fleet spawn applies dark brown, with black/brown limousine')
+end
 assert(registered['fraction:5:6'].model==404 and table.concat(registered['fraction:5:6'].colors,',')=='35,5,12,0,0,0','actual Toyota spawn applies group color')
 assert(table.concat(registered['fraction:5:1'].colors,',')=='35,5,12,0,0,0','actual Lexus spawn retains faction default')
 assert(table.concat(registered['fraction:5:9'].colors,',')=='35,5,12,0,0,0','limousine matches Lexus and Toyota with black secondary color')
