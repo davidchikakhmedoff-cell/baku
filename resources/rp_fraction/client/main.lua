@@ -128,10 +128,12 @@ local function renderMenu()
   local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
   dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130));hits={}
   text('LS NEWS — ОБЪЯВЛЕНИЯ',x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  -- The same inset black list surface and selected row as the TAB scoreboard.
+  dxDrawRectangle(x+s(5),y+s(35),w-s(10),s(visible*32),tocolor(0,0,0,255))
   scroll=math.max(0,math.min(scroll,math.max(0,#rows-limit)))
   for i=scroll+1,math.min(#rows,scroll+limit) do
    local row=rows[i];local yy=y+s(35+(i-scroll-1)*32);local picked=selected==i
-   dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
+   if picked then dxDrawRectangle(x+s(7),yy,w-s(20),s(30),tocolor(47,113,151,255)) end
    text('#'..row.id..' '..row.author..': '..row.original,x+s(16),yy,w-s(42),s(30))
    hits[#hits+1]={id='row:'..i,x=x+s(10),y=yy,w=w-s(30),h=s(30)}
   end
@@ -144,9 +146,24 @@ local function renderMenu()
    scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-limit}
   end
   local ey=y+s(35+visible*32+8)
-  button('edit','',x+s(10),ey,w-s(20),s(54))
-  local value=selected and (edit..(input and '|' or '')) or 'Выберите объявление для редактирования'
-  dxDrawText(value,x+s(16),ey+s(5),x+w-s(16),ey+s(49),tocolor(245,245,245),1,'default-bold','left','top',true,true)
+  local ex,ew,eh=x+s(10),w-s(20),s(54)
+  dxDrawRectangle(ex,ey,ew,eh,tocolor(8,8,8,255))
+  hits[#hits+1]={id='edit',x=ex,y=ey,w=ew,h=eh}
+  local value=selected and (edit~='' and edit or 'Введите текст объявления') or 'Выберите объявление для редактирования'
+  local tint=selected and edit~='' and 190 or 105
+  local textX,textRight=ex+s(4),ex+ew-s(4)
+  dxDrawText(value,textX,ey+s(5),textRight,ey+eh-s(5),tocolor(tint,tint,tint,255),1,'default-bold','left','top',true,true)
+  if selected and input and getTickCount()%1000<520 then
+   local width,line=0,0
+   for word in edit:gmatch('%S+%s*') do
+    local wordWidth=dxGetTextWidth(word,1,'default-bold')
+    if width>0 and width+wordWidth>textRight-textX then line=line+1;width=0 end
+    width=width+wordWidth
+   end
+   local fontH=dxGetFontHeight(1,'default-bold')
+   local cursorY=math.min(ey+s(5)+line*fontH,ey+eh-s(5)-fontH)
+   dxDrawRectangle(math.floor(math.min(textX+width,textRight)+0.5),cursorY,1,fontH,tocolor(220,220,220,255))
+  end
   local bw=(w-s(36))/3
   button('publish','Опубликовать',x+s(10),y+h-s(40),bw,s(30))
   button('reject','Отклонить',x+s(18)+bw,y+h-s(40),bw,s(30))
