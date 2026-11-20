@@ -34,8 +34,8 @@ Fractions = {
  entrance=point(1554.9,-1675.5,16.2),interior=6,inside=point(246.8,65.7,1003.6),exit=point(246.5,62.6,1003.6),dutyPoint=point(253.5,68.8,1003.6),keysPoint=point(248.5,70.8,1003.6),armory=point(257.7,69.2,1003.6),jailBooking=point(264.28,77.64,1001.03),roof={inside=point(253.5,64.4,1003.6),slot=17}},
  [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=0,size=2},duty=true,
  ranks={"Стажёр","Журналист","Редактор","Заместитель директора","Директор"},skins={171,186,187,147,147},
- -- Stock Four Dragons Office (interior 11); old Z=33.008 was below the visible room.
- entrance=point(1653.96,-1655.8,22.51),interior=11,inside=point(2011.603,1017.023,39.091,0),exit=point(2011.603,1013.823,39.091),dutyPoint=point(2014.803,1017.023,39.091),keysPoint=point(2008.403,1017.023,39.091),roof=false,
+ -- User-selected Bike School interior (3).
+ entrance=point(1653.96,-1655.8,22.51),interior=3,inside=point(1494.85,1306.47,1093.29,0),exit=point(1494.85,1303.27,1093.29),dutyPoint=point(1498.05,1306.47,1093.29),keysPoint=point(1491.65,1306.47,1093.29),roof=false,
  },
  [4]={name="La Cosa Nostra",category="criminal",color={115,38,52},blip={icon=58,size=2},ranks=mafiaRanks,skins={124,124,125,125,126,126,127,127,113,113},
  entrance=point(862.08,-1245.18,14.8),interior=1,inside=point(621.45,-23.72,1000.92),exit=point(621.45,-26.92,1000.92),keysPoint=point(624.45,-23.72,1000.92),armory=point(618.45,-23.72,1000.92)},

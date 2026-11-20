@@ -47,7 +47,11 @@ function F.repairInteriorPosition(p)
   return
  end
  local f=Fractions[3]
- if getElementDimension(p)~=f.dimension or getElementInterior(p)~=f.interior then return end
+ if getElementDimension(p)~=f.dimension then return end
+ if getElementInterior(p)~=f.interior then
+  teleport(p,f.inside,f.interior,f.dimension)
+  return
+ end
  local x,y,z=getElementPosition(p)
  if math.abs(x-f.inside.x)<35 and math.abs(y-f.inside.y)<35 and (z<f.inside.z-3 or z>f.inside.z+3) then
   teleport(p,f.inside,f.interior,f.dimension)

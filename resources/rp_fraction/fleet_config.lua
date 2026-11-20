@@ -315,12 +315,12 @@ FractionLocationConfig = {
     },
     -- Los Santos News
     [3] = {
-        interior=11, dimension=20003,
+        interior=3, dimension=20003,
         entrance={x=1653.96,y=-1655.8,z=22.51,rotation=0.00},
-        inside={x=2011.6030,y=1017.0230,z=39.0910,rotation=0.00},
-        exit={x=2011.6030,y=1013.8230,z=39.0910,rotation=0.00},
-        keysPoint={x=2008.4030,y=1017.0230,z=39.0910,rotation=0.00},
-        dutyPoint={x=2014.8030,y=1017.0230,z=39.0910,rotation=0.00},
+        inside={x=1494.85,y=1306.47,z=1093.29,rotation=0.00},
+        exit={x=1494.85,y=1303.27,z=1093.29,rotation=0.00},
+        keysPoint={x=1491.65,y=1306.47,z=1093.29,rotation=0.00},
+        dutyPoint={x=1498.05,y=1306.47,z=1093.29,rotation=0.00},
         outsideSpawn={x=1657.46,y=-1655.8,z=22.51,rotation=0.00},
         roof=false, -- The helicopter is outside; use the main News entrance.
     },

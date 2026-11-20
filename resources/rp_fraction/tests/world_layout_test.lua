@@ -47,21 +47,23 @@ for _,key in ipairs({'exit','duty','keys'}) do
  assert(m.interior==3 and m.dimension==hospital.dimension and math.abs(m.z-(hospital.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'hospital markers use the stock interior floor')
 end
 local news=Fractions[3]
--- Use the stock Four Dragons Office spawn, above the obsolete lower collision floor.
-assert(news.interior==11 and news.inside.x==2011.603 and news.inside.y==1017.023 and math.abs(news.inside.z-39.091)<0.01,'News uses actual suite floor')
+-- Use the exact Bike School spawn requested for LS News.
+assert(news.interior==3 and news.inside.x==1494.85 and news.inside.y==1306.47 and math.abs(news.inside.z-1093.29)<0.01,'News uses requested Bike School interior')
 for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':3']
- assert(m.interior==11 and m.dimension==news.dimension and math.abs(m.z-(news.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'News marker is on same floor and dimension')
+ assert(m.interior==3 and m.dimension==news.dimension and math.abs(m.z-(news.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'News marker is on same floor and dimension')
 end
 local p=element('player',news.entrance.x,news.entrance.y,news.entrance.z)
 source=F.markers['enter:3'];handlers.onMarkerHit(p,true)
-assert(p.interior==11 and p.dimension==news.dimension and p.z==news.inside.z,'real entrance handler spawns on News floor')
-p.x,p.y,p.z=2003.1178,1018.3948,33.008
-F.repairInteriorPosition(p)
-assert(p.x==news.inside.x and p.z==news.inside.z,'players saved below visible office migrate to correct floor')
+assert(p.interior==3 and p.dimension==news.dimension and p.z==news.inside.z,'real entrance handler spawns on News floor')
+for _,old in ipairs({{2003.1178,1018.3948,33.008},{2011.603,1017.023,39.091}}) do
+ p.interior=11;p.x,p.y,p.z=unpack(old)
+ F.repairInteriorPosition(p)
+ assert(p.interior==3 and p.x==news.inside.x and p.z==news.inside.z,'both previous News positions migrate to Bike School')
+end
 p.x,p.y,p.z=news.inside.x+1,news.inside.y,news.inside.z
 F.repairInteriorPosition(p)
-assert(p.x==news.inside.x+1 and p.z==news.inside.z,'repair leaves players on the correct office floor untouched')
+assert(p.x==news.inside.x+1 and p.z==news.inside.z,'repair leaves players on the correct Bike School floor untouched')
 p.dimension=0;p.z=39.1;F.repairInteriorPosition(p)
 assert(p.z==39.1,'repair does not move unrelated exterior players')
 tick=12000
