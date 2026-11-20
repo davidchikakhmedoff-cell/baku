@@ -123,6 +123,7 @@ FractionFleetConfig = {
         {
             name = "Фургоны News Van",
             model = 582,
+            color = {255,255,255,255,255,255},
             rank = 2,
             count = 2,
             parking = {
@@ -143,7 +144,8 @@ FractionFleetConfig = {
         },
         {
             name = "Седаны",
-            model = 405,
+            model = 445,
+            color = {8,18,40,8,18,40},
             rank = 3,
             count = 1,
             parking = {
@@ -237,7 +239,7 @@ FractionFleetConfig = {
                 { slot=2, x=2434.5, y=-1222.7, z=25, rotation=180 },
                 { slot=3, x=2431, y=-1222.7, z=25, rotation=180 },
                 { slot=4, x=2427.5, y=-1222.7, z=25, rotation=180 },
-                { slot=5, x=2434, y=-1222.7, z=25, rotation=180 },
+                { slot=5, x=2424, y=-1222.7, z=25, rotation=180 },
             },
         },
         {
