@@ -1,6 +1,10 @@
 CarConfig = {
     DebugMode = false,
 
+    mapBlips = {
+        { x = 2489.6475, y = -1954.1689, z = 13.4189, icon = 47, size = 2, visibleDistance = 250 }
+    },
+
     database = {
         file = "rp_car.db"
     },

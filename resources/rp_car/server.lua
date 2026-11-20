@@ -371,6 +371,9 @@ end
 
 local function createMapBlips()
     destroyMapBlips()
+    for _, blip in ipairs(CarConfig.mapBlips or {}) do
+        createNamedBlip(blip.x, blip.y, blip.z, blip.icon, blip.size, blip.color, blip.visibleDistance, blip.name)
+    end
     for _, dealership in ipairs(Dealerships or {}) do
         local p = dealership.playerSpawn or dealership.purchasedVehicleSpawn or ((dealership.vehicles or {})[1] and (dealership.vehicles or {})[1].position)
         if p then

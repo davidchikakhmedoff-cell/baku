@@ -1,13 +1,15 @@
 dofile('resources/rp_car/dealerships.lua')
 dofile('resources/rp_car/tuning_shops.lua')
-local expected={europe={560,579,529,547,411,405,436,477,400,413,602,480,451,458,445},america={550,546,479},russia={},asia={421,404}}
+local expected={europe={560,579,529,547,411,405,436,477,400,602,480,451,458,445},america={550,546,479},russia={},asia={421,404}}
 local seen={}
 for _,dealer in ipairs(Dealerships) do
     local models=assert(expected[dealer.region])
     assert(#models==#dealer.vehicles)
     assert(dealer.blipIcon==55 and dealer.blipVisibleDistance==250)
+    local ids={}
     for index,vehicle in ipairs(dealer.vehicles) do
-        assert(vehicle.model==models[index] and vehicle.id==index)
+        assert(vehicle.model==models[index] and not ids[vehicle.id])
+        ids[vehicle.id]=true
         assert(not seen[vehicle.model], 'duplicate showroom model')
         seen[vehicle.model]=dealer.region
         assert(vehicle.price>0 and vehicle.price==math.floor(vehicle.price))
@@ -50,7 +52,7 @@ for repetition=1,2 do
     for _,e in ipairs(elements) do if isElement(e) then
         if e.kind=='vehicle' then count=count+1;assert(e['car:showcase']) else emptyMarker=e end
     end end
-    assert(count==20 and emptyMarker, 'showrooms replace previous elements without duplication')
+    assert(count==19 and emptyMarker, 'showrooms replace previous elements without duplication')
     assert(emptyMarker.x==getDealershipById(3).playerSpawn.x)
     handlers[emptyMarker]({logged=true},false)
     handlers[emptyMarker]({logged=false},true)

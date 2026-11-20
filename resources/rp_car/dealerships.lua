@@ -37,21 +37,20 @@ Dealerships = {
         purchasedVehicleSpawn=point(562.12,-1246.21,16.77,300),
         cancelExitPosition=point(562.2,-1292.8,17.2,0),
         vehicles={
-            offer(1,560,540000,270,562.5,-1291.2,17.1,0,"BMW M5 F90"), -- BMW M5 F90
-            offer(2,579,500000,220,558.5,-1290.7,17.09,0,"BMW X5M E70"), -- BMW X5M E70
-            offer(3,529,430000,250,554.5,-1291,17.12,0,"BMW M5 F10"), -- BMW M5 F10
-            offer(4,547,160000,190,550.5,-1291,17.1,0,"BMW M3 E46"), -- BMW M3 E46
+            offer(1,560,540000,270,564.5,-1291.2,17.1,0,"BMW M5 F90"), -- BMW M5 F90
+            offer(2,579,500000,220,560.5,-1290.7,17.09,0,"BMW X5M E70"), -- BMW X5M E70
+            offer(3,529,430000,250,556.5,-1291,17.12,0,"BMW M5 F10"), -- BMW M5 F10
+            offer(4,547,160000,190,552.5,-1291,17.1,0,"BMW M3 E46"), -- BMW M3 E46
             offer(5,411,670000,300,566,-1281,16.85,102,"AUDI R8"), -- AUDI R8
-            offer(6,405,220000,250,546.5,-1273,16.9,0), -- BMW E60
-            offer(7,436,190000,240,550.5,-1273,16.9,0), -- MERCEDES CLK 55
-            offer(8,477,460000,280,554.5,-1273,16.9,0), -- MERCEDES C63 COUPE
-            offer(9,400,360000,250,558.5,-1273,16.9,0), -- MERCEDES BENZ ML63 W164
-            offer(10,413,120000,165,562.5,-1273,16.9,0), -- MERCEDES SPRINTER
-            offer(11,602,650000,300,546.5,-1265,16.9,0), -- ASTON MARTIN DB9
-            offer(12,480,420000,260,550.5,-1265,16.9,0), -- BMW F12
-            offer(13,451,800000,280,554.5,-1265,16.9,0), -- BMW I8
-            offer(14,458,110000,210,558.5,-1265,16.9,0), -- SKODA OCTAVIA UNIVERSAL
-            offer(15,445,170000,230,562.5,-1265,16.9,0), -- VOLKSWAGEN PASSAT CC
+            offer(6,405,220000,250,548.5,-1291,17.1,0), -- BMW E60
+            offer(7,436,190000,240,544.5,-1291,17.1,0), -- MERCEDES CLK 55
+            offer(8,477,460000,280,540.5,-1291,17.1,0), -- MERCEDES C63 COUPE
+            offer(9,400,360000,250,536.5,-1291,17.1,0), -- MERCEDES BENZ ML63 W164
+            offer(11,602,650000,300,564.3,-1273,16.8,102), -- ASTON MARTIN DB9
+            offer(12,480,420000,260,532.5,-1291,17.1,0), -- BMW F12
+            offer(13,451,800000,280,565,-1277,16.95,102), -- BMW I8
+            offer(14,458,110000,210,528.5,-1291,17.1,0), -- SKODA OCTAVIA UNIVERSAL
+            offer(15,445,170000,230,524.5,-1291,17.1,0), -- VOLKSWAGEN PASSAT CC
         }
     },
     {
@@ -61,9 +60,9 @@ Dealerships = {
         purchasedVehicleSpawn=point(2135.56,1398.25,10.81,180),
         cancelExitPosition=point(2126.56,1398.25,10.81,180),
         vehicles={
-            offer(1,550,180000,220,2119.5,1405,10.9,180), -- FORD TAURUS
-            offer(2,546,150000,210,2124,1405,10.9,180), -- FORD CROWN VICTORIA
-            offer(3,479,320000,180,2128.5,1405,10.9,180), -- HUMMER H2
+            offer(1,550,180000,220,2100.7,1398.1,10.45,180), -- FORD TAURUS
+            offer(2,546,150000,210,2103.95,1397.8,10.5,180), -- FORD CROWN VICTORIA
+            offer(3,479,320000,180,2107.1,1398,11.03,180), -- HUMMER H2
         }
     },
     {
@@ -82,8 +81,8 @@ Dealerships = {
         purchasedVehicleSpawn=point(-1651,1207.5,7.25,180),
         cancelExitPosition=point(-1658.6,1206,7.25,270),
         vehicles={
-            offer(1,421,140000,230,-1666,1213,7.3,270), -- LEXUX LS 400 XF10 (configured name)
-            offer(2,404,290000,210,-1666,1220,7.3,270), -- TOYOTA SEQUOIA
+            offer(1,421,140000,230,-1655,1215,13.36,80), -- LEXUX LS 400 XF10 (configured name)
+            offer(2,404,290000,210,-1653,1211,13.52,80), -- TOYOTA SEQUOIA
         }
     }
 }
