@@ -128,6 +128,7 @@ addEventHandler('fraction:action',resourceRoot,function(action,data)
  if not F.throttle(p,'ui') then return end
  if action=='accept' then F.respondInvite(p,true)
  elseif action=='decline' then F.respondInvite(p,false)
+ elseif action=='selfHeal' then F.selfHeal(p)
  elseif action=='duty' then F.toggleDuty(p)
  elseif action=='wardrobeOpen' then Wardrobe.open(p)
  elseif action=='members' then F.membersMenu(p)

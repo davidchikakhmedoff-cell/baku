@@ -133,6 +133,25 @@ class HospitalAssets(unittest.TestCase):
         marker = tuple(map(float, re.search(r'exit=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', location).groups()))
         self.assertGreater(marker[1] - origin[1] - upper[1], 0.75, 'exit marker remains on lobby side with walking space')
 
+    def test_death_spawn_scatter_and_desk_have_solid_visible_floor(self):
+        source = (ROOT / 'fleet_config.lua').read_text().split('    -- Los Santos Hospital\n', 1)[1].split('    -- Los Santos Police Department\n', 1)[0]
+        center = tuple(map(float, re.search(r'respawnPoint=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', source).groups()))
+        desk = tuple(map(float, re.search(r'selfHealPoint=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', source).groups()))
+        offsets_source = (ROOT / 'server/hospital.lua').read_text().split('local offsets=', 1)[1].split('\n', 1)[0]
+        offsets = [tuple(map(float, v)) for v in re.findall(r'\{([\d.-]+),([\d.-]+)\}', offsets_source)]
+        self.assertEqual(len(offsets), 9)
+        collision = collision_triangles((ROOT / 'interior/laehospital1.col').read_bytes())
+        visual = visual_triangles((ROOT / 'interior/laehospital1.dff').read_bytes())
+        positions = [(center[0]+dx, center[1]+dy, center[2]) for dx, dy in offsets] + [desk]
+        for xx, yy, zz in positions:
+            x, y, z = xx-1500, yy-1500, zz-1200
+            heights = list(ray_heights(collision, x, y))
+            floor = max(h for h in heights if h < z)
+            self.assertGreater(z-floor, 0.75)
+            self.assertLess(z-floor, 1.2)
+            self.assertGreater(min(h for h in heights if h > z)-z, 2.3)
+            self.assertAlmostEqual(floor, max(h for h in ray_heights(visual, x, y) if h < z), delta=0.04)
+
     def test_spawn_and_interactions_have_visible_matching_floor(self):
         collision = collision_triangles((ROOT / 'interior/laehospital1.col').read_bytes())
         visual = visual_triangles((ROOT / 'interior/laehospital1.dff').read_bytes())

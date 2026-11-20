@@ -439,12 +439,14 @@ local function respawnAtHospital(player)
     if factionValue(player,"applyFactionJail")==true then return end
     if not isElement(player) or not getPlayerId(player) then return end
 
-    local h = AuthConfig.hospital
-    spawnAt(player, { x = h.x, y = h.y, z = h.z, rotation = h.rotation, skin = getElementModel(player) or h.skin, interior = h.interior, dimension = h.dimension })
-    setElementHealth(player, h.health)
+    local custom = factionValue(player,"getHospitalRespawnLocation")
+    local h = type(custom)=="table" and custom or AuthConfig.hospital
+    spawnAt(player, { x = h.x, y = h.y, z = h.z, rotation = h.rotation or 0, skin = getElementModel(player) or h.skin, interior = h.interior, dimension = h.dimension })
+    setElementHealth(player, 20)
     setPedArmor(player, 0)
     fadeCamera(player, true, 0)
     setCameraTarget(player, player)
+    if custom then factionValue(player,"completeHospitalRespawn") end
     savePlayerState(player)
 end
 

@@ -15,7 +15,7 @@ local function finish(p,success)
  if atTarget(p,state) then
   local pos=success and state.pos or state.fallback
   if not success then
-   setElementInterior(p,state.oldInterior);setElementDimension(p,state.oldDimension)
+   setElementInterior(p,pos.interior or state.oldInterior);setElementDimension(p,pos.dimension or state.oldDimension)
    F.notify(p,'Место перехода не загрузилось. Вы возвращены обратно; проверьте координаты появления')
   end
   setElementPosition(p,pos.x,pos.y,pos.z);setPedRotation(p,pos.rotation or 0)

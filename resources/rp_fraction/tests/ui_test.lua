@@ -183,3 +183,14 @@ for _,f in pairs(Fractions) do
  assert(count==9,'house-style eight-direction outline and single text pass')
 end
 print('Fraction UI: seven windows, keys and holder names, four resolutions, house-style labels, invite/news and megaphone passed')
+
+handlers['fraction:menu']('selfHeal',{price=250});draws={};handlers.onClientRender()
+local healing,cancel,message
+for _,d in ipairs(draws) do
+ if d.text=='Лечиться' then healing=d elseif d.text=='Отмена' then cancel=d elseif d.text=='Самолечение на стойке стоит 250$.' then message=d end
+end
+assert(healing and cancel and message,'compact desk menu shows server price and both requested buttons')
+handlers.onClientClick('left','down',(healing.x+healing.right)/2,(healing.y+healing.bottom)/2)
+assert(sent[#sent].name=='selfHeal','healing button invokes server action without client-supplied price or health')
+handlers['fraction:closeSelfHeal']();draws={};handlers.onClientRender()
+for _,d in ipairs(draws) do assert(d.text~='САМОЛЕЧЕНИЕ','successful payment closes healing window') end

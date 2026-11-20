@@ -28,6 +28,8 @@ addEventHandler('fraction:ticketPaid',resourceRoot,function(id)
 end)
 addEvent('fraction:closeArmory',true)
 addEventHandler('fraction:closeArmory',resourceRoot,function() if window=='armory' then close() end end)
+addEvent('fraction:closeSelfHeal',true)
+addEventHandler('fraction:closeSelfHeal',resourceRoot,function() if window=='selfHeal' then close() end end)
 addEvent('fraction:closeKeys',true)
 addEventHandler('fraction:closeKeys',resourceRoot,function() if window=='keys' then close() end end)
 addEvent('fraction:menu',true)
@@ -81,6 +83,16 @@ local function renderMenu()
   hits={}
   scroll,scrollBar=WardrobeClient.render(data,{s=s,width=screenW,height=screenH,scroll=scroll,font=titleFont,text=text,button=button,
    hit=function(id,x,y,w,h) hits[#hits+1]={id=id,x=x,y=y,w=w,h=h} end})
+  return
+ end
+ if window=='selfHeal' then
+  local w,h=s(430),s(148);local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
+  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130));hits={}
+  text('САМОЛЕЧЕНИЕ',x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  text('Самолечение на стойке стоит '..tostring(data.price or 250)..'$.',x+s(12),y+s(43),w-s(24),s(32))
+  local bw=(w-s(28))/2
+  button('selfHeal','Лечиться',x+s(10),y+h-s(40),bw,s(30))
+  button('close','Отмена',x+s(18)+bw,y+h-s(40),bw,s(30))
   return
  end
  if window=='ticket' then
@@ -203,6 +215,7 @@ for _,f in pairs(Fractions) do
  addMarkerLabel('Ключи транспорта',f.keysPoint,f.interior,f.dimension)
  if f.duty then addMarkerLabel('Начать / завершить смену',f.dutyPoint,f.interior,f.dimension) end
  addMarkerLabel('Оружейная',f.armory,f.interior,f.dimension)
+ addMarkerLabel('Самолечение',f.selfHealPoint,f.interior,f.dimension)
  if f.garage then
   addMarkerLabel('В гараж',f.garage.inside,f.interior,f.dimension)
   addMarkerLabel('В участок',f.garage.outside,0,0)
@@ -258,6 +271,7 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
   if id:sub(1,7)=='weapon:' then
    local weaponId=id:sub(8);if weaponId~='armor' then weaponId=tonumber(weaponId) end
    for _,w in ipairs(data.weapons or {}) do if w.id==weaponId then weaponSelection[weaponId]=not weaponSelection[weaponId] end end
+  elseif id=='selfHeal' then action('selfHeal')
   elseif id=='armory' then
    local chosen={};for _,w in ipairs(data.weapons or {}) do if weaponSelection[w.id] then chosen[#chosen+1]=w.id end end
    if #chosen>0 then action('armory',{weapons=chosen}) end

@@ -9,7 +9,7 @@ local function element(kind,x,y,z)
 end
 function createObject(model,x,y,z) return element('object',x,y,z) end
 function createColSphere(x,y,z,r) local e=element('colshape',x,y,z);e.radius=r;return e end
-function createMarker(x,y,z) return element('marker',x,y,z) end
+function createMarker(x,y,z,kind,size,r,g,b,a) local e=element('marker',x,y,z);e.markerType=kind;e.color={r,g,b,a};return e end
 function createPickup(x,y,z,kind,model) local p=element('pickup',x,y,z);p.model=model;return p end
 function createBlip(x,y,z,icon,size,r,g,b,alpha,ordering,distance) local e=element('blip',x,y,z);e.icon,e.size,e.color,e.visibleDistance=icon,size,{r,g,b},distance;return e end
 function setElementData(e,key,value) e.data[key]=value end
@@ -245,3 +245,10 @@ for _,v in ipairs(hospital.vehicles) do assert(not v.helipad and not v.roofDeck,
 for _,e in ipairs(elements) do
  assert(not(e.kind=='object' and math.abs(e.x-1176)<35 and math.abs(e.y+1326)<35),'hospital roof has no generated platform or helipad')
 end
+
+assert(hospital.vehicles[3].p.x==1163.55 and hospital.vehicles[3].p.y==-1329.41 and hospital.vehicles[3].p.z==31.48,'hospital helicopter uses user-measured real rooftop')
+assert(hospital.roof.outside.z==31.48 and hospital.roof.arrival.z==31.48,'both public rooftop portal endpoints follow real roof height')
+local treatment=F.markers['selfHeal:1']
+assert(treatment and treatment.interior==hospital.interior and treatment.dimension==hospital.dimension,'self-healing marker is inside custom hospital')
+
+assert(treatment.markerType=='cylinder' and table.concat(treatment.color,',')=='79,195,247,115','healing desk uses circular tuning-shop marker color')

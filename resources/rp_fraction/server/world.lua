@@ -2,7 +2,9 @@ local F=Fraction
 F.vehicleByKey={}
 local function marker(key,fid,kind,p,interior,dimension)
  local m
- if kind=='duty' then
+ if kind=='selfHeal' then
+  m=createMarker(p.x,p.y,p.z-0.9,'cylinder',1.5,79,195,247,115)
+ elseif kind=='duty' then
   m=createPickup(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,3,1275,1000)
  elseif kind=='armory' then
   m=createPickup(p.x,p.y,p.z+FractionConfig.interactionIconZOffset,3,FractionConfig.armoryPickupModel,1000)
@@ -81,6 +83,7 @@ function F.createWorld()
   marker('enter:'..id,id,'enter',f.entrance,0,0)
   marker('exit:'..id,id,'exit',f.exit,f.interior,f.dimension)
   marker('keys:'..id,id,'keys',f.keysPoint,f.interior,f.dimension)
+  if f.selfHealPoint then marker('selfHeal:'..id,id,'selfHeal',f.selfHealPoint,f.interior,f.dimension) end
   if f.roof and f.roof.outside then
    marker('roof:'..id,id,'roof',f.roof.inside,f.interior,f.dimension)
    marker('roofBack:'..id,id,'roofBack',f.roof.outside,0,0)
@@ -116,6 +119,7 @@ local function markerHit(p,matching)
  if info.kind=='enter' then
   teleport(p,f.inside,f.interior,f.dimension)
  elseif info.kind=='exit' then teleport(p,f.outsideSpawn or f.entrance,0,0)
+ elseif info.kind=='selfHeal' then F.openSelfHeal(p)
  elseif info.kind=='roofBack' then teleport(p,f.roof.returnSpawn or f.inside,f.interior,f.dimension)
  elseif info.kind=='garageBack' then teleport(p,f.garage.returnSpawn or f.inside,f.interior,f.dimension)
  elseif info.kind=='roof' then

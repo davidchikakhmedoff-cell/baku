@@ -47,3 +47,9 @@ poll.fn();assert(sent==0,'missing floor does not acknowledge spawn')
 waiting=true;hit=true;poll.fn();assert(sent==0,'world streaming must finish first')
 waiting=false;poll.fn();assert(sent==1 and not poll.live,'loaded garage floor acknowledges once and removes timer')
 print('Portal: fade/freeze ordering, streaming floor, private token, timeout recovery and timer cleanup passed')
+
+p.x,p.y,p.z=1479.2773,1509.4697,1183.5667;p.interior,p.dimension=1,20001
+local out={x=1174,y=-1323.3,z=14.4,interior=0,dimension=0}
+Fraction.safeTeleport(p,{x=p.x,y=p.y,z=p.z},1,20001,out)
+timers[#timers].fn();timers[#timers].fn()
+assert(p.interior==0 and p.dimension==0 and p.x==out.x and p.z==out.z,'hospital collision timeout returns outside in exterior world, not street coordinates inside virtual interior')

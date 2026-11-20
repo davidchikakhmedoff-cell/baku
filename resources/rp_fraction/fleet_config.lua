@@ -29,7 +29,7 @@ FractionFleetConfig = {
             helipad = false,
             roofDeck = false,
             parking = {
-                { slot=3, x=1176, y=-1326, z=26.5, rotation=0 },
+                { slot=3, x=1163.55, y=-1329.41, z=31.48, rotation=0 },
             },
         },
         {
@@ -281,14 +281,16 @@ FractionLocationConfig = {
     -- Los Santos Hospital
     [1] = {
         interior=1, dimension=20001,
+        respawnPoint={x=1479.2773,y=1509.4697,z=1183.5667,rotation=0},
+        selfHealPoint={x=1478,y=1513,z=1183.55,rotation=0},
         entrance={x=1172.0000,y=-1323.3000,z=15.4000,rotation=0.00},
         inside={x=1479.4,y=1505,z=1183.5,rotation=0.00},
         exit={x=1479.4,y=1503.6,z=1183.55,rotation=0.00},
         keysPoint={x=1486.8,y=1511.8,z=1183.15,rotation=0.00},
         dutyPoint={x=1472,y=1505.9,z=1183.2,rotation=0.00},
         outsideSpawn={x=1174.000,y=-1323.3000,z=14.4000,rotation=270.00},
-        roof={triggerRadius=0.9, slot=3, inside={x=1480,y=1512,z=1183.55,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
-            arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=1478,y=1506,z=1183.5,rotation=0.00}},
+        roof={triggerRadius=0.9, slot=3, inside={x=1480,y=1512,z=1183.55,rotation=0.00}, outside={x=1169.05,y=-1329.41,z=31.48,rotation=90.00},
+            arrival={x=1172.55,y=-1329.41,z=31.48,rotation=0.00}, returnSpawn={x=1478,y=1506,z=1183.5,rotation=0.00}},
     },
     -- Los Santos Police Department
     [2] = {

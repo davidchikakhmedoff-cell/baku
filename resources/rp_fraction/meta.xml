@@ -21,6 +21,7 @@
  <script src="server/world.lua" type="server" />
  <script src="server/vehicle_keys.lua" type="server" />
  <script src="server/radio.lua" type="server" />
+ <script src="server/hospital.lua" type="server" />
  <script src="server/services.lua" type="server" />
  <script src="server/police.lua" type="server" />
  <script src="server/police_transport.lua" type="server" />
@@ -43,6 +44,8 @@
  <export function="canDriveFactionVehicle" type="server" />
  <export function="executeFractionCommand" type="server" />
  <export function="getCivilianWeapons" type="server" />
+ <export function="getHospitalRespawnLocation" type="server" />
+ <export function="completeHospitalRespawn" type="server" />
  <export function="getCivilianSkin" type="server" />
  <export function="applyFactionJail" type="server" />
 
