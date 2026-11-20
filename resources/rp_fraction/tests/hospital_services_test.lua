@@ -12,6 +12,7 @@ function getElementInterior(e) return e.interior end
 function getElementDimension(e) return e.dimension end
 function getElementPosition(e) return e.x,e.y,e.z end
 function getElementHealth(e) return e.hp end
+function getElementData(e,key) return e[key] end
 function setElementHealth(e,hp) e.hp=hp end
 function getPedRotation() return 0 end
 function triggerClientEvent(e,event,_,kind,data)
@@ -25,7 +26,7 @@ F.near=function(e) return (e.x-f.selfHealPoint.x)^2+(e.y-f.selfHealPoint.y)^2<=4
 F.throttle=function() return true end
 F.notify=function(e,text) e.notice=text end
 F.charge=function(e,amount) if e.money<amount then return false end;e.money=e.money-amount;charged=charged+amount;return true end
-F.safeTeleport=function(e,pos,int,dim,fallback) e.prepared=pos;assert(fallback.interior==0 and fallback.dimension==0,'failed model loading returns to street world');return true end
+F.safeTeleport=function(e,pos,int,dim,fallback,onFinish) e.afterSpawn=onFinish;e.prepared=pos;assert(fallback.interior==0 and fallback.dimension==0,'failed model loading returns to street world');return true end
 dofile('resources/rp_fraction/server/hospital.lua')
 F.openSelfHeal(p);assert(menu.kind=='selfHeal' and menu.data.price==250,'desk opens server-priced healing window')
 F.selfHeal(p);assert(p.hp==100 and p.money==750 and charged==250 and closed==1,'desk heals exactly once and charges $250')
@@ -52,3 +53,24 @@ for i=1,9 do
  assert(completeHospitalRespawn(q) and q.prepared.x==q.x,'respawn waits for custom collision without moving outside scatter spot')
 end
 print('Hospital services: authoritative payment, shift availability, stale/spoofed requests, nine separated respawns and collision preparation passed')
+
+-- The doctor who is the patient cannot treat himself through /heal; his own
+-- duty status must not make the unattended desk permanently unavailable.
+players={p};p.faction=1;p.duty=true;p.hp=20;p.money=1000
+F.selfHeal(p);assert(p.hp==100 and p.money==750,'only on-duty doctor can use desk when no other doctor can treat him')
+p.hp=20;p['rp:transitionPending']=true;F.selfHeal(p)
+assert(p.hp==20 and p.money==750,'healing waits for death-spawn transition to complete');p['rp:transitionPending']=false
+local q=players[1];q.x,q.y,q.z=f.respawnPoint.x,f.respawnPoint.y,f.respawnPoint.z;q.interior,q.dimension=f.interior,f.dimension
+assert(completeHospitalRespawn(q) and q.afterSpawn and q.prepared.rotation==180,'death completion installs collision-ready health callback and reapplies 180-degree heading')
+q.hp=100;q.afterSpawn(q,true)
+assert(q.hp==20,'late default spawn initialization is overwritten only after player is ready')
+-- Real remote action route must not discard treatment because another menu
+-- recently used the shared UI cooldown.
+q.x,q.y,q.z=f.selfHealPoint.x,f.selfHealPoint.y,f.selfHealPoint.z;q.hp=20;q.money=1000
+local file=assert(io.open('resources/rp_fraction/server/members.lua'));local code=file:read('*a');file:close()
+local body=assert(code:match("addEventHandler%('fraction:action',resourceRoot,function%(action,data%)\n(.-)\nend%)"))
+local handler=assert(loadstring('local F=Fraction;return function(action,data)\n'..body..'\nend'))()
+source=resourceRoot;client=q
+F.throttle=function(_,action) return action~='ui' end
+handler('selfHeal',{price=0,health=999})
+assert(q.hp==100 and q.money==750,'real UI event uses dedicated healing throttle and server price')

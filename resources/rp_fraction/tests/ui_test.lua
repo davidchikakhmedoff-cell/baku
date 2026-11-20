@@ -194,3 +194,8 @@ handlers.onClientClick('left','down',(healing.x+healing.right)/2,(healing.y+heal
 assert(sent[#sent].name=='selfHeal','healing button invokes server action without client-supplied price or health')
 handlers['fraction:closeSelfHeal']();draws={};handlers.onClientRender()
 for _,d in ipairs(draws) do assert(d.text~='САМОЛЕЧЕНИЕ','successful payment closes healing window') end
+
+function setElementHealth(e,value) assert(e==localPlayer);e.hp=value end
+source=resourceRoot;handlers['fraction:healthSync'](20);assert(localPlayer.hp==20,'server health correction reaches the actual local ped')
+handlers['fraction:healthSync'](100);assert(localPlayer.hp==100,'successful treatment synchronizes local HP')
+handlers['fraction:healthSync'](999);assert(localPlayer.hp==100,'invalid health values ignored')

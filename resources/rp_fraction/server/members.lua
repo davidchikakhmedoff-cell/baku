@@ -121,6 +121,7 @@ end
 addEvent('fraction:action',true)
 addEventHandler('fraction:action',resourceRoot,function(action,data)
  local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' then return end
+ if action=='selfHeal' then F.selfHeal(p);return end
  if action=='keysClose' then F.keyMenus[p]=nil;return end
  data=type(data)=='table' and data or {}
  if action=='wardrobeClose' then Wardrobe.close(p,data.token);return end
@@ -128,7 +129,7 @@ addEventHandler('fraction:action',resourceRoot,function(action,data)
  if not F.throttle(p,'ui') then return end
  if action=='accept' then F.respondInvite(p,true)
  elseif action=='decline' then F.respondInvite(p,false)
- elseif action=='selfHeal' then F.selfHeal(p)
+
  elseif action=='duty' then F.toggleDuty(p)
  elseif action=='wardrobeOpen' then Wardrobe.open(p)
  elseif action=='members' then F.membersMenu(p)

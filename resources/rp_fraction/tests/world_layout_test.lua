@@ -252,3 +252,6 @@ local treatment=F.markers['selfHeal:1']
 assert(treatment and treatment.interior==hospital.interior and treatment.dimension==hospital.dimension,'self-healing marker is inside custom hospital')
 
 assert(treatment.markerType=='cylinder' and table.concat(treatment.color,',')=='79,195,247,115','healing desk uses circular tuning-shop marker color')
+
+assert(hospital.respawnPoint.rotation==180,'hospital death spawn faces the opposite direction')
+assert(hospital.selfHealPoint.x==1476.7939 and hospital.selfHealPoint.y==1509.0781 and hospital.selfHealPoint.z==1183.5555,'healing desk uses latest screenshot coordinates')

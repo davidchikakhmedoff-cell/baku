@@ -281,8 +281,8 @@ FractionLocationConfig = {
     -- Los Santos Hospital
     [1] = {
         interior=1, dimension=20001,
-        respawnPoint={x=1479.2773,y=1509.4697,z=1183.5667,rotation=0},
-        selfHealPoint={x=1478,y=1513,z=1183.55,rotation=0},
+        respawnPoint={x=1479.2773,y=1509.4697,z=1183.5667,rotation=180},
+        selfHealPoint={x=1476.7939,y=1509.0781,z=1183.5555,rotation=89.69},
         entrance={x=1172.0000,y=-1323.3000,z=15.4000,rotation=0.00},
         inside={x=1479.4,y=1505,z=1183.5,rotation=0.00},
         exit={x=1479.4,y=1503.6,z=1183.55,rotation=0.00},

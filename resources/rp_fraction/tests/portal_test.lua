@@ -53,3 +53,14 @@ local out={x=1174,y=-1323.3,z=14.4,interior=0,dimension=0}
 Fraction.safeTeleport(p,{x=p.x,y=p.y,z=p.z},1,20001,out)
 timers[#timers].fn();timers[#timers].fn()
 assert(p.interior==0 and p.dimension==0 and p.x==out.x and p.z==out.z,'hospital collision timeout returns outside in exterior world, not street coordinates inside virtual interior')
+
+p.x,p.y,p.z=1479.2773,1509.4697,1183.5667;p.interior,p.dimension=1,20001
+local completed=0
+Fraction.safeTeleport(p,{x=p.x,y=p.y,z=p.z},1,20001,out,function(player,success)
+ assert(player==p and success);completed=completed+1;player.hp=20
+end)
+timers[#timers].fn();local ready=events['fraction:portalPrepare'].token
+p.hp=100;source=resourceRoot;client=p;handlers['fraction:portalReady'](ready)
+assert(p.hp==20 and completed==1,'health commit runs after real collision acknowledgement')
+p.hp=100;handlers['fraction:portalReady'](ready)
+assert(p.hp==100 and completed==1,'stale readiness replay cannot undo later healing')

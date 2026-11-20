@@ -24,12 +24,13 @@ local function finish(p,success)
  setElementFrozen(p,state.frozen)
  setElementData(p,'rp:transitionPending',false,true);fadeCamera(p,true,0.35)
  triggerClientEvent(p,'fraction:portalFinished',resourceRoot,state.token)
+ if state.onFinish then state.onFinish(p,success) end
 end
-function F.safeTeleport(p,pos,interior,dimension,fallback)
+function F.safeTeleport(p,pos,interior,dimension,fallback,onFinish)
  if pending[p] or isPedInVehicle(p) or isPedDead(p) then return false end
  local x,y,z=getElementPosition(p);fallback=fallback or {x=x,y=y,z=z}
  serial=serial+1
- local state={pos=pos,interior=interior,dimension=dimension,oldInterior=getElementInterior(p),oldDimension=getElementDimension(p),fallback=fallback,token=serial,frozen=isElementFrozen(p)}
+ local state={pos=pos,interior=interior,dimension=dimension,oldInterior=getElementInterior(p),oldDimension=getElementDimension(p),fallback=fallback,token=serial,frozen=isElementFrozen(p),onFinish=onFinish}
  pending[p]=state
  setElementFrozen(p,true);setElementVelocity(p,0,0,0)
  setElementData(p,'rp:transitionPending',true,true);fadeCamera(p,false,0.2)
