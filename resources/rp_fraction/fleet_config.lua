@@ -126,8 +126,8 @@ FractionFleetConfig = {
             rank = 2,
             count = 2,
             parking = {
-                { slot=1, x=751, y=-1355, z=13.6, rotation=0 },
-                { slot=2, x=756, y=-1355, z=13.6, rotation=0 },
+                { slot=1, x=1663.96, y=-1676.8, z=22.61, rotation=0 },
+                { slot=2, x=1668.96, y=-1676.8, z=22.61, rotation=0 },
             },
         },
         {
@@ -135,10 +135,10 @@ FractionFleetConfig = {
             model = 487,
             rank = 4,
             count = 1,
-            helipad = true,
-            roofDeck = true,
+            helipad = false,
+            roofDeck = false,
             parking = {
-                { slot=3, x=741, y=-1348, z=24, rotation=0 },
+                { slot=3, x=1653.96, y=-1669.8, z=22.51, rotation=0 },
             },
         },
         {
@@ -147,7 +147,7 @@ FractionFleetConfig = {
             rank = 3,
             count = 1,
             parking = {
-                { slot=4, x=761, y=-1355, z=13.6, rotation=0 },
+                { slot=4, x=1673.96, y=-1676.8, z=22.61, rotation=0 },
             },
         },
     },
@@ -233,11 +233,11 @@ FractionFleetConfig = {
             rank = 2,
             count = 5,
             parking = {
-                { slot=1, x=2417.88, y=-1238.73, z=25.51, rotation=180 },
-                { slot=2, x=2422.38, y=-1238.73, z=25.51, rotation=180 },
-                { slot=3, x=2426.88, y=-1238.73, z=25.51, rotation=180 },
-                { slot=4, x=2417.88, y=-1245.73, z=25.51, rotation=180 },
-                { slot=5, x=2422.38, y=-1245.73, z=25.51, rotation=180 },
+                { slot=1, x=2438, y=-1222.7, z=25, rotation=180 },
+                { slot=2, x=2434.5, y=-1222.7, z=25, rotation=180 },
+                { slot=3, x=2431, y=-1222.7, z=25, rotation=180 },
+                { slot=4, x=2427.5, y=-1222.7, z=25, rotation=180 },
+                { slot=5, x=2434, y=-1222.7, z=25, rotation=180 },
             },
         },
         {
@@ -246,9 +246,9 @@ FractionFleetConfig = {
             rank = 4,
             count = 3,
             parking = {
-                { slot=6, x=2426.88, y=-1245.73, z=25.51, rotation=180 },
-                { slot=7, x=2417.88, y=-1252.73, z=25.51, rotation=180 },
-                { slot=8, x=2422.38, y=-1252.73, z=25.51, rotation=180 },
+                { slot=6, x=2431, y=-1243, z=24.6, rotation=0 },
+                { slot=7, x=2427.5, y=-1243, z=24.6, rotation=0 },
+                { slot=8, x=2424, y=-1243, z=24.6, rotation=0 },
             },
         },
         {
@@ -257,7 +257,7 @@ FractionFleetConfig = {
             rank = 5,
             count = 1,
             parking = {
-                { slot=9, x=2426.88, y=-1252.73, z=25.51, rotation=180 },
+                { slot=9, x=2406, y=-1237, z=23.85, rotation=180 },
             },
         },
     },
@@ -313,14 +313,14 @@ FractionLocationConfig = {
     -- Los Santos News
     [3] = {
         interior=11, dimension=20003,
-        entrance={x=741.0000,y=-1334.0000,z=13.5000,rotation=0.00},
+        entrance={x=1653.96,y=-1655.8,z=22.51,rotation=0.00},
         inside={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00},
         exit={x=2003.1178,y=1015.1948,z=33.0080,rotation=0.00},
         keysPoint={x=2007.0000,y=1014.7948,z=33.0080,rotation=0.00},
         dutyPoint={x=2007.0000,y=1018.3948,z=33.0080,rotation=0.00},
-        outsideSpawn={x=744.5000,y=-1334.0000,z=13.5000,rotation=0.00},
-        roof={triggerRadius=0.9, slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=746.5000,y=-1348.0000,z=24.0000,rotation=90.00},
-            arrival={x=750.0000,y=-1348.0000,z=24.0000,rotation=0.00}, returnSpawn={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00}},
+        outsideSpawn={x=1657.46,y=-1655.8,z=22.51,rotation=0.00},
+        roof={triggerRadius=0.9, slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=1659.46,y=-1669.8,z=22.51,rotation=90.00},
+            arrival={x=1662.96,y=-1669.8,z=22.51,rotation=0.00}, returnSpawn={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00}},
     },
     -- La Cosa Nostra
     [4] = {
@@ -347,10 +347,10 @@ FractionLocationConfig = {
     [6] = {
         interior=2, dimension=20006,
         entrance={x=2421.58,y=-1219.93,z=25.51,rotation=0.00},
-        inside={x=1204.66,y=-13.54,z=1000.92,rotation=0.00},
-        exit={x=1204.66,y=-16.74,z=1000.92,rotation=0.00},
-        keysPoint={x=1207.66,y=-13.54,z=1000.92,rotation=0.00},
-        armory={x=1201.66,y=-13.54,z=1000.92,rotation=0.00},
-        outsideSpawn={x=2425.08,y=-1219.93,z=25.51,rotation=0.00},
+        inside={x=1204.86,y=-11.64,z=1000.92,rotation=0.00},
+        exit={x=1204.86,y=-13.07,z=1000.92,rotation=0.00},
+        keysPoint={x=1213.95,y=-12.71,z=1000.42,rotation=0.00},
+        armory={x=1210.85,y=3.7,z=1000.42,rotation=0.00},
+        outsideSpawn={x=2421.58,y=-1221.4,z=25.51,rotation=180.00},
     },
 }

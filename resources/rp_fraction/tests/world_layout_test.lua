@@ -180,7 +180,7 @@ F.repairInteriorPosition(p)
 assert(p.x==1405.312 and p.dimension==0,'warehouse players outside faction dimension are not moved')
 
 local russian=Fractions[6]
-assert(russian.interior==2 and russian.inside.x==1204.66 and russian.inside.y==-13.54 and russian.inside.z==1000.92,'Russian Mafia uses requested Pig Pen coordinates')
+assert(russian.interior==2 and russian.inside.x==1204.86 and russian.inside.y==-11.64 and russian.inside.z==1000.92,'Russian Mafia uses requested Pig Pen coordinates')
 for _,key in ipairs({'exit','keys','armory'}) do
  assert(F.markers[key..':6'].interior==2 and F.markers[key..':6'].dimension==20006,'Russian Mafia interactions moved to isolated Pig Pen interior')
 end
@@ -200,3 +200,16 @@ for id,f in ipairs(Fractions) do
  assert(p.interior==0 and p.dimension==0 and p.x==(f.outsideSpawn or f.entrance).x,'visitors can leave every faction HQ')
 end
 print('Public headquarters: all six enter/exit routes accept visitors; faction vehicle keys remain protected')
+
+assert(news.entrance.x==1653.96 and news.entrance.y==-1655.8 and news.entrance.z==22.51,'News entrance uses requested new coordinates')
+assert(news.outsideSpawn.x==1657.46 and news.outsideSpawn.y==-1655.8,'News exit arrival follows relocated HQ')
+assert(#news.vehicles==4 and news.vehicles[3].slot==3,'News relocation retains complete fleet and stable helicopter key')
+for _,v in ipairs(news.vehicles) do
+ assert(v.p.x>1650 and v.p.x<1680 and v.p.y<-1655 and v.p.y>-1680,'all News parking positions follow new HQ')
+ assert(not v.helipad and not v.roofDeck,'News does not create artificial helipad or roof deck')
+end
+assert(news.roof.outside.x==news.vehicles[3].p.x+5.5 and news.roof.outside.y==news.vehicles[3].p.y and news.roof.outside.z==news.vehicles[3].p.z,'News roof return marker remains beside relocated helicopter')
+for _,e in ipairs(elements) do
+ assert(not(e.kind=='object' and math.abs(e.x-741)<40 and math.abs(e.y+1348)<40),'no artificial helicopter objects remain at old News location')
+end
+print('News relocation: entrance, exit, all four vehicles, roof return and removal of old helicopter deck verified')
