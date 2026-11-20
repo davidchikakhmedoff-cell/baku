@@ -35,7 +35,7 @@ Fractions = {
  [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=0,size=2},duty=true,
  ranks={"Стажёр","Журналист","Редактор","Заместитель директора","Директор"},skins={171,186,187,147,147},
  -- Four Dragons managerial suite floor/door: MTA amx scriptfiles/properties/interiors.txt.
- entrance=point(1653.96,-1655.8,22.51),interior=11,inside=point(2003.1178,1018.3948,33.008,0),exit=point(2003.1178,1015.1948,33.008),dutyPoint=point(2007.0,1018.3948,33.008),keysPoint=point(2007.0,1014.7948,33.008),roof={inside=point(1999.5178,1018.3948,33.008),slot=3},
+ entrance=point(1653.96,-1655.8,22.51),interior=11,inside=point(2003.1178,1018.3948,33.008,0),exit=point(2003.1178,1015.1948,33.008),dutyPoint=point(2007.0,1018.3948,33.008),keysPoint=point(2007.0,1014.7948,33.008),roof=false,
  },
  [4]={name="La Cosa Nostra",category="criminal",color={115,38,52},blip={icon=58,size=2},ranks=mafiaRanks,skins={124,124,125,125,126,126,127,127,113,113},
  entrance=point(862.08,-1245.18,14.8),interior=1,inside=point(621.45,-23.72,1000.92),exit=point(621.45,-26.92,1000.92),keysPoint=point(624.45,-23.72,1000.92),armory=point(618.45,-23.72,1000.92)},

@@ -72,7 +72,7 @@ for id,f in pairs(Fractions) do
  assert(not F.markers['desk:'..id] and F.markers['keys:'..id],'composition markers replaced with key desks')
  assert(F.markers['keys:'..id].kind=='colshape','key icon uses invisible interaction sphere')
  if f.duty then assert(F.markers['duty:'..id].kind=='pickup' and F.markers['duty:'..id].model==1275,'shift uses stock rotating clothes pickup') end
- if id<=3 then
+ if f.roof then
   local roof,back=F.markers['roof:'..id],F.markers['roofBack:'..id]
   assert(roof.interior==f.interior and roof.dimension==f.dimension and back.interior==0 and back.dimension==0,'roof portal is paired across correct dimensions')
   F.member=function() return {faction_id=id} end
@@ -208,8 +208,13 @@ for _,v in ipairs(news.vehicles) do
  assert(v.p.x>1650 and v.p.x<1680 and v.p.y<-1655 and v.p.y>-1680,'all News parking positions follow new HQ')
  assert(not v.helipad and not v.roofDeck,'News does not create artificial helipad or roof deck')
 end
-assert(news.roof.outside.x==news.vehicles[3].p.x+5.5 and news.roof.outside.y==news.vehicles[3].p.y and news.roof.outside.z==news.vehicles[3].p.z,'News roof return marker remains beside relocated helicopter')
+assert(not news.roof and not F.markers['roof:3'] and not F.markers['roofBack:3'],'News has no redundant roof/interior portal')
+assert(F.markers['enter:3'] and F.markers['exit:3'],'News main entrance and normal interior exit remain available')
+for _,e in ipairs(elements) do
+ local info=e.data['fraction:marker']
+ assert(not(info and info.id==3 and (info.kind=='roof' or info.kind=='roofBack')),'no invisible News roof return trigger remains')
+end
 for _,e in ipairs(elements) do
  assert(not(e.kind=='object' and math.abs(e.x-741)<40 and math.abs(e.y+1348)<40),'no artificial helicopter objects remain at old News location')
 end
-print('News relocation: entrance, exit, all four vehicles, roof return and removal of old helicopter deck verified')
+print('News relocation: entrance, exit, all four vehicles, single exterior entrance and removal of old helicopter deck verified')

@@ -321,8 +321,7 @@ FractionLocationConfig = {
         keysPoint={x=2007.0000,y=1014.7948,z=33.0080,rotation=0.00},
         dutyPoint={x=2007.0000,y=1018.3948,z=33.0080,rotation=0.00},
         outsideSpawn={x=1657.46,y=-1655.8,z=22.51,rotation=0.00},
-        roof={triggerRadius=0.9, slot=3, inside={x=1999.5178,y=1018.3948,z=33.0080,rotation=0.00}, outside={x=1659.46,y=-1669.8,z=22.51,rotation=90.00},
-            arrival={x=1662.96,y=-1669.8,z=22.51,rotation=0.00}, returnSpawn={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00}},
+        roof=false, -- The helicopter is outside; use the main News entrance.
     },
     -- La Cosa Nostra
     [4] = {
