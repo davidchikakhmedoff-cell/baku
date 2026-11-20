@@ -246,7 +246,7 @@ for _,e in ipairs(elements) do
  assert(not(e.kind=='object' and math.abs(e.x-1176)<35 and math.abs(e.y+1326)<35),'hospital roof has no generated platform or helipad')
 end
 
-assert(hospital.vehicles[3].p.x==1163.55 and hospital.vehicles[3].p.y==-1329.41 and hospital.vehicles[3].p.z==31.48,'hospital helicopter uses user-measured real rooftop')
+assert(hospital.vehicles[3].p.x==1163.55 and hospital.vehicles[3].p.y==-1320.41 and hospital.vehicles[3].p.z==31.48,'hospital helicopter uses user-measured real rooftop')
 assert(hospital.roof.outside.z==31.48 and hospital.roof.arrival.z==31.48,'both public rooftop portal endpoints follow real roof height')
 local treatment=F.markers['selfHeal:1']
 assert(treatment and treatment.interior==hospital.interior and treatment.dimension==hospital.dimension,'self-healing marker is inside custom hospital')

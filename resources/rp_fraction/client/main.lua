@@ -122,6 +122,37 @@ local function renderMenu()
   button('close','Закрыть',x+s(18)+bw,y+h-s(40),bw,s(30))
   return
  end
+ if window=='news' then
+  local rows=data.rows or {};local limit=7;local visible=math.max(1,math.min(limit,#rows))
+  local w,h=s(660),s(35+visible*32+8+54+10+30+10)
+  local x,y=math.floor((screenW-w)/2),math.floor((screenH-h)/2)
+  dxDrawRectangle(x,y,w,h,tocolor(0,0,0,230));dxDrawRectangle(x+1,y+1,w-2,h-2,tocolor(0,0,0,130));hits={}
+  text('LS NEWS — ОБЪЯВЛЕНИЯ',x+s(10),y+s(2),w-s(20),s(30),nil,titleFont)
+  scroll=math.max(0,math.min(scroll,math.max(0,#rows-limit)))
+  for i=scroll+1,math.min(#rows,scroll+limit) do
+   local row=rows[i];local yy=y+s(35+(i-scroll-1)*32);local picked=selected==i
+   dxDrawRectangle(x+s(10),yy,w-s(30),s(30),tocolor(picked and 29 or 14,picked and 35 or 14,picked and 42 or 14,255))
+   text('#'..row.id..' '..row.author..': '..row.original,x+s(16),yy,w-s(42),s(30))
+   hits[#hits+1]={id='row:'..i,x=x+s(10),y=yy,w=w-s(30),h=s(30)}
+  end
+  if #rows==0 then text('Нет ожидающих объявлений',x+s(16),y+s(35),w-s(42),s(30)) end
+  local tx,ty,trackH=x+w-s(15),y+s(35),s(visible*32)
+  dxDrawRectangle(tx,ty,s(5),trackH,tocolor(69,74,76,255))
+  if #rows>limit then
+   local thumb=math.max(s(24),trackH*limit/#rows)
+   dxDrawRectangle(tx,ty+(trackH-thumb)*scroll/(#rows-limit),s(5),thumb,tocolor(245,245,245,255))
+   scrollBar={x=tx,y=ty,w=s(10),h=trackH,thumb=thumb,max=#rows-limit}
+  end
+  local ey=y+s(35+visible*32+8)
+  button('edit','',x+s(10),ey,w-s(20),s(54))
+  local value=selected and (edit..(input and '|' or '')) or 'Выберите объявление для редактирования'
+  dxDrawText(value,x+s(16),ey+s(5),x+w-s(16),ey+s(49),tocolor(245,245,245),1,'default-bold','left','top',true,true)
+  local bw=(w-s(36))/3
+  button('publish','Опубликовать',x+s(10),y+h-s(40),bw,s(30))
+  button('reject','Отклонить',x+s(18)+bw,y+h-s(40),bw,s(30))
+  button('close','Закрыть',x+s(26)+bw*2,y+h-s(40),bw,s(30))
+  return
+ end
  if window=='duty' or window=='armory' or window=='keys' or window=='members' then
   local rows=window=='armory' and (data.weapons or {}) or (data.rows or {})
   local limit=visibleRows()
@@ -187,8 +218,7 @@ local function renderMenu()
   local rows=data.rows or {};local yy=y+s(52)
   for i=scroll+1,math.min(#rows,scroll+7) do
    local row=rows[i];local label
-   if window=='news' then label='#'..row.id..' '..row.author..': '..row.original
-   else label='#'..row.id..' | $'..row.amount..' | '..row.reason end
+   label='#'..row.id..' | $'..row.amount..' | '..row.reason
    if selected==i then dxDrawRectangle(x+s(16),yy,w-s(32),s(32),tocolor(47,113,151,255)) end
    if selected==i then
     local bx,by,bw,bh=x+s(7),yy,w-s(20),s(32)
@@ -204,10 +234,7 @@ local function renderMenu()
    dxDrawRectangle(trackX,trackY+(trackH-thumbH)*scroll/(#rows-7),s(6),thumbH,tocolor(255,255,255,255))
   end
   text('Строки '..math.min(#rows,scroll+1)..'–'..math.min(#rows,scroll+7)..' / '..#rows..'  • колесо мыши',x+s(20),y+s(301),w-s(40),s(25),tocolor(155,163,173,alpha))
-  if window=='news' then
-   button('edit',edit~='' and edit or 'Нажмите для редактирования текста',x+s(20),y+s(340),w-s(40),s(60))
-   button('publish','Опубликовать',x+s(20),y+s(415),s(305),s(34));button('reject','Отклонить',x+s(345),y+s(415),s(305),s(34))
-  elseif window=='tickets' then button('payticket','Оплатить выбранный штраф',x+s(20),y+s(380),w-s(40),s(36)) end
+  if window=='tickets' then button('payticket','Оплатить выбранный штраф',x+s(20),y+s(380),w-s(40),s(36)) end
  end
  button('close','Закрыть',x+w-s(150),y+h-s(45),s(130),s(30))
 end
@@ -282,7 +309,7 @@ addEventHandler('onClientClick',root,function(key,state,cx,cy)
    local chosen={};for _,w in ipairs(data.weapons or {}) do if weaponSelection[w.id] then chosen[#chosen+1]=w.id end end
    if #chosen>0 then action('armory',{weapons=chosen}) end
   elseif id:sub(1,4)=='row:' then selected=tonumber(id:sub(5));if window=='news' then edit=data.rows[selected].edited or data.rows[selected].original end
-  elseif id=='edit' then input=true
+  elseif id=='edit' then input=selected~=nil
   elseif id=='close' then if window=='invite' then action('decline') end;close()
   elseif id=='keysTake' then if selected then action(id,{slot=data.rows[selected].slot}) end
   elseif id=='keysReturn' or id=='keysRefresh' then action(id)

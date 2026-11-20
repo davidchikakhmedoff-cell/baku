@@ -84,11 +84,12 @@ handlers['fraction:menu']('invite',payloads.invite);handlers.onClientRender()
 local x,y=(sw-700)/2,(sh-540)/2
 handlers.onClientClick('left','down',x+30,y+220)
 assert(sent[#sent].name=='accept','invite accept button sends server confirmation')
-handlers['fraction:menu']('news',payloads.news);handlers.onClientRender()
-handlers.onClientClick('left','down',x+30,y+60)
-handlers.onClientClick('left','down',x+30,y+350)
+handlers['fraction:menu']('news',payloads.news);draws={};handlers.onClientRender()
+local nx,ny=(sw-660)/2,(sh-(35+32+8+54+10+30+10))/2
+handlers.onClientClick('left','down',nx+30,ny+45)
+handlers.onClientClick('left','down',nx+30,ny+85)
 handlers.onClientCharacter('!');handlers.onClientRender()
-handlers.onClientClick('left','down',x+30,y+425)
+handlers.onClientClick('left','down',nx+30,ny+(35+32+8+54+10+30+10)-25)
 assert(sent[#sent].name=='publish' and sent[#sent].data.text=='Original ad!','edited ad submitted to server')
 local function clickText(needle)
  for _,d in ipairs(draws) do if d.text:find(needle,1,true) then handlers.onClientClick('left','down',(d.x+d.right)/2,(d.y+d.bottom)/2);return end end
@@ -201,3 +202,23 @@ function setElementHealth(e,value) assert(e==localPlayer);e.hp=value end
 source=resourceRoot;handlers['fraction:healthSync'](20);assert(localPlayer.hp==20,'server health correction reaches the actual local ped')
 handlers['fraction:healthSync'](100);assert(localPlayer.hp==100,'successful treatment synchronizes local HP')
 handlers['fraction:healthSync'](999);assert(localPlayer.hp==100 and vitalsRefresh==2,'only valid health changes notify the core HUD')
+
+handlers['fraction:menu']('news',payloads.news);draws={};handlers.onClientRender()
+local pub,rej,closing
+for _,d in ipairs(draws) do if d.text=='Опубликовать' then pub=d elseif d.text=='Отклонить' then rej=d elseif d.text=='Закрыть' then closing=d end end
+assert(pub and rej and closing and pub.y==rej.y and rej.y==closing.y,'news actions share one compact row')
+assert(closing.right-pub.x<660 and closing.bottom-pub.y<=30,'news buttons have no excess vertical padding')
+local queue={rows={}}
+for i=1,12 do queue.rows[i]={id=i,author='Sender'..i,original='Text '..i,edited='Text '..i} end
+handlers['fraction:menu']('news',queue);draws={};handlers.onClientRender()
+handlers.onClientKey('mouse_wheel_down',true);draws={};handlers.onClientRender()
+local eighth=false;for _,d in ipairs(draws) do if d.text=='#8 Sender8: Text 8' then eighth=true end end
+assert(eighth,'compact news queue scrolls beyond seven rows')
+
+local qh=35+7*32+8+54+10+30+10;local qx,qy=math.floor((sw-660)/2),math.floor((sh-qh)/2)
+handlers.onClientClick('left','down',qx+647,qy+50)
+handlers.onClientCursorMove(0,0,qx+647,qy+35+224)
+handlers.onClientClick('left','up',qx+647,qy+35+224)
+draws={};handlers.onClientRender()
+local lastAd=false;for _,d in ipairs(draws) do if d.text=='#12 Sender12: Text 12' then lastAd=true end end
+assert(lastAd,'news scrollbar can be dragged to the last page')

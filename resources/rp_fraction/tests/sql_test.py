@@ -26,7 +26,37 @@ class FractionSQLTests(unittest.TestCase):
         first=self.db.execute("UPDATE fraction_ads SET status='published',editor_id=1 WHERE id=1 AND status='pending'").rowcount
         second=self.db.execute("UPDATE fraction_ads SET status='published',editor_id=2 WHERE id=1 AND status='pending'").rowcount
         self.assertEqual((first,second),(1,0))
-        self.assertEqual((self.money(),self.money(2)),(1150,2000))
+        self.assertEqual((self.money(),self.money(2)),(1080,1850))
+    def test_news_insufficient_funds_rolls_back_everything(self):
+        self.db.execute('UPDATE players SET money=149 WHERE id=2')
+        self.db.execute("INSERT INTO fraction_ads(account_id,author,display_id,original,edited,created_at) VALUES(2,'Author',15,'original','edited',1)")
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute("UPDATE fraction_ads SET status='published',editor_id=1 WHERE id=1 AND status='pending'")
+        self.assertEqual((self.money(),self.money(2)),(1000,149))
+        self.assertEqual(self.db.execute('SELECT status FROM fraction_ads').fetchone()[0],'pending')
+        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM fraction_rewards').fetchone()[0],0)
+
+    def test_news_own_ad_requires_full_price_and_pays_net(self):
+        self.db.execute("INSERT INTO fraction_ads(account_id,author,display_id,original,edited,created_at) VALUES(1,'Author',15,'text','text',1)")
+        self.db.execute("UPDATE fraction_ads SET status='published',editor_id=1 WHERE id=1 AND status='pending'")
+        self.assertEqual(self.money(),930)
+
+    def test_news_submission_cooldown_survives_deletion_and_restart(self):
+        sql="INSERT INTO fraction_ads(account_id,author,display_id,original,edited,created_at) VALUES(2,'Author',15,'text','text',?)"
+        self.db.execute(sql,(1000,))
+        self.db.execute('DELETE FROM fraction_ads')
+        self.db.commit()
+        restored=sqlite3.connect(':memory:');restored.deserialize(self.db.serialize())
+        for statement in SCHEMA: restored.execute(statement)
+        with self.assertRaises(sqlite3.IntegrityError): restored.execute(sql,(1179,))
+        restored.execute(sql,(1180,))
+        self.assertEqual(restored.execute('SELECT submitted_at FROM fraction_ad_cooldowns WHERE account_id=2').fetchone()[0],1180)
+
+    def test_news_rejection_is_free(self):
+        self.db.execute("INSERT INTO fraction_ads(account_id,author,display_id,original,edited,created_at) VALUES(2,'Author',15,'text','text',1)")
+        self.db.execute("UPDATE fraction_ads SET status='rejected',editor_id=1 WHERE id=1")
+        self.assertEqual((self.money(),self.money(2)),(1000,2000))
+
     def test_ticket_insufficient_funds_and_duplicate(self):
         self.db.execute("INSERT INTO fraction_tickets(account_id,officer_id,amount,reason,created_at) VALUES(1,2,1500,'reason',1)")
         with self.assertRaises(sqlite3.IntegrityError):

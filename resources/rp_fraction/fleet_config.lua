@@ -29,7 +29,7 @@ FractionFleetConfig = {
             helipad = false,
             roofDeck = false,
             parking = {
-                { slot=3, x=1163.55, y=-1329.41, z=31.48, rotation=0 },
+                { slot=3, x=1163.55, y=-1320.41, z=31.48, rotation=270 },
             },
         },
         {
@@ -289,8 +289,8 @@ FractionLocationConfig = {
         keysPoint={x=1486.8,y=1511.8,z=1183.15,rotation=0.00},
         dutyPoint={x=1472,y=1505.9,z=1183.2,rotation=0.00},
         outsideSpawn={x=1174.000,y=-1323.3000,z=14.4000,rotation=270.00},
-        roof={triggerRadius=0.9, slot=3, inside={x=1480,y=1512,z=1183.55,rotation=0.00}, outside={x=1169.05,y=-1329.41,z=31.48,rotation=90.00},
-            arrival={x=1172.55,y=-1329.41,z=31.48,rotation=0.00}, returnSpawn={x=1478,y=1506,z=1183.5,rotation=0.00}},
+        roof={triggerRadius=0.9, slot=3, inside={x=1477,y=1514,z=1183.55,rotation=0.00}, outside={x=1164.05,y=-1329.41,z=31.48,rotation=90.00},
+            arrival={x=1164.05,y=-1328,z=31.48,rotation=0.00}, returnSpawn={x=1477,y=1512.5,z=1183.5,rotation=180.00}},
     },
     -- Los Santos Police Department
     [2] = {
