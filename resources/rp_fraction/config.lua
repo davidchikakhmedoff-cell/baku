@@ -25,7 +25,7 @@ local function point(x,y,z,r) return {x=x,y=y,z=z,rotation=r or 0} end
 local mafiaRanks={"Новичок","Боец","Проверенный","Старший боец","Авторитет","Бригадир","Советник","Правая рука","Заместитель босса","Босс"}
 Fractions = {
  [1]={name="Los Santos Hospital",category="state",color={232,91,122},blip={icon=22,size=2},duty=true,
- ranks={"Интерн","Фельдшер","Врач","Старший врач","Заместитель главврача","Главный врач"},skins={274,275,276,274,275,276},
+ ranks={"Интерн","Фельдшер","Врач","Старший врач","Заместитель главврача","Главный врач"},skins={276,276,275,275,71,70},femaleSkins={152,152,145,145,148,91},
  -- Custom hospital model in interior/client.lua; indoor points match its collision floor.
  entrance=point(1172.0,-1323.3,15.4),interior=1,inside=point(1478,1506,1183.5),exit=point(1481,1504,1183.55),dutyPoint=point(1475,1505,1183.5),keysPoint=point(1484,1505,1183.55),roof={inside=point(1480,1512,1183.55),slot=3},
  },

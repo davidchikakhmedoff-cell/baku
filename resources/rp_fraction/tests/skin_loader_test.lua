@@ -40,9 +40,14 @@ for id,name in pairs(expected) do
  assert(SkinConfig.models[id].dff=='skins/'..name..'.dff' and SkinConfig.models[id].txd=='skins/'..name..'.txd','model and texture must use the matching uploaded pair')
  assert(loaded[id],'every configured replacement must load')
 end
+for id,name in pairs({[91]='hls1',[145]='hls3',[152]='hls4'}) do
+ assert(SkinConfig.models[id].dff=='skins/hls/'..name..'.dff' and SkinConfig.models[id].txd=='skins/hls/'..name..'.txd','hospital female model uses uploaded matching asset pair')
+ assert(loaded[id],'hospital replacement loads alongside police models')
+end
+assert(not SkinConfig.models[148],'hospital female deputy keeps requested stock skin 148')
 local initial=loads;retries();commands.checkskins()
 assert(loads==initial and contains('Текущий ID: 151') and contains('151 (skins/pw5.dff): загружен'),'diagnosis reports successful imports without reloading them')
-stop();assert(restored[129] and restored[130] and restored[131] and restored[151])
+stop();assert(restored[129] and restored[130] and restored[131] and restored[151] and restored[91] and restored[145] and restored[152])
 failures.dff='skins/pw2.dff';handlers.onClientResourceStart()
 assert(loaded[129] and not loaded[130] and loaded[131] and errors==1,'one failed asset does not break other models')
 retries();assert(contains('/checkskins'),'permanent failures reported without debugscript')

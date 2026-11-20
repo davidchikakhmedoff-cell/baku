@@ -2,6 +2,9 @@
 -- Add entries/groups here; no server/client code changes are needed.
 SkinConfig={
  models={
+  [91]={txd='skins/hls/hls1.txd',dff='skins/hls/hls1.dff'},
+  [145]={txd='skins/hls/hls3.txd',dff='skins/hls/hls3.dff'},
+  [152]={txd='skins/hls/hls4.txd',dff='skins/hls/hls4.dff'},
   [280]={txd='skins/p1.txd',dff='skins/p1.dff'},
   [281]={txd='skins/p2.txd',dff='skins/p2.dff'},
   [285]={txd='skins/p3.txd',dff='skins/p3.dff'},

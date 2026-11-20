@@ -89,4 +89,10 @@
  <file src="interior/laehospital1.col" />
  <file src="interior/exit_barrier.dff" />
  <file src="interior/exit_barrier.col" />
+ <file src="skins/hls/hls1.dff" />
+ <file src="skins/hls/hls1.txd" />
+ <file src="skins/hls/hls3.dff" />
+ <file src="skins/hls/hls3.txd" />
+ <file src="skins/hls/hls4.dff" />
+ <file src="skins/hls/hls4.txd" />
 </meta>
