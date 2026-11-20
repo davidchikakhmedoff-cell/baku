@@ -22,7 +22,7 @@ local function teleport(p,pos,interior,dimension)
  setPedRotation(p,pos.rotation or 0);setCameraTarget(p,p);return true
 end
 function F.repairInteriorPosition(p)
- -- Migrate saved positions from the removed hospital shell and old News roof.
+ -- Recover saved positions from replaced interiors and obsolete News floor coordinates.
  local russian=Fractions[6]
  if getElementDimension(p)==russian.dimension and getElementInterior(p)~=russian.interior then
   teleport(p,russian.inside,russian.interior,russian.dimension)
@@ -49,7 +49,7 @@ function F.repairInteriorPosition(p)
  local f=Fractions[3]
  if getElementDimension(p)~=f.dimension or getElementInterior(p)~=f.interior then return end
  local x,y,z=getElementPosition(p)
- if math.abs(x-f.inside.x)<35 and math.abs(y-f.inside.y)<35 and z>f.inside.z+3 then
+ if math.abs(x-f.inside.x)<35 and math.abs(y-f.inside.y)<35 and (z<f.inside.z-3 or z>f.inside.z+3) then
   teleport(p,f.inside,f.interior,f.dimension)
  end
 end

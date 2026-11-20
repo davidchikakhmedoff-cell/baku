@@ -134,6 +134,7 @@ FractionFleetConfig = {
         {
             name = "Вертолёты Maverick",
             model = 487,
+            color = {255,255,255,8,18,40},
             rank = 4,
             count = 1,
             helipad = false,
@@ -316,10 +317,10 @@ FractionLocationConfig = {
     [3] = {
         interior=11, dimension=20003,
         entrance={x=1653.96,y=-1655.8,z=22.51,rotation=0.00},
-        inside={x=2003.1178,y=1018.3948,z=33.0080,rotation=0.00},
-        exit={x=2003.1178,y=1015.1948,z=33.0080,rotation=0.00},
-        keysPoint={x=2007.0000,y=1014.7948,z=33.0080,rotation=0.00},
-        dutyPoint={x=2007.0000,y=1018.3948,z=33.0080,rotation=0.00},
+        inside={x=2011.6030,y=1017.0230,z=39.0910,rotation=0.00},
+        exit={x=2011.6030,y=1013.8230,z=39.0910,rotation=0.00},
+        keysPoint={x=2008.4030,y=1017.0230,z=39.0910,rotation=0.00},
+        dutyPoint={x=2014.8030,y=1017.0230,z=39.0910,rotation=0.00},
         outsideSpawn={x=1657.46,y=-1655.8,z=22.51,rotation=0.00},
         roof=false, -- The helicopter is outside; use the main News entrance.
     },

@@ -61,6 +61,7 @@ for slot=1,2 do
  assert(v.model==582 and table.concat(v.colors,',')=='255,255,255,255,255,255','News vans spawn white in both paint channels')
 end
 assert(registered['fraction:3:4'].model==445 and table.concat(registered['fraction:3:4'].colors,',')=='8,18,40,8,18,40','News sedan becomes dark blue Volkswagen Passat CC')
+assert(table.concat(registered['fraction:3:3'].colors,',')=='255,255,255,8,18,40','News Maverick uses white primary and dark blue secondary paint')
 assert(registered['fraction:3:3'].model==487 and registered['fraction:6:5'].model==405,'News helicopter and other faction sedans remain unchanged')
 assert(registered['fraction:5:6'].model==404 and table.concat(registered['fraction:5:6'].colors,',')=='35,5,12,0,0,0','actual Toyota spawn applies group color')
 assert(table.concat(registered['fraction:5:1'].colors,',')=='35,5,12,0,0,0','actual Lexus spawn retains faction default')
