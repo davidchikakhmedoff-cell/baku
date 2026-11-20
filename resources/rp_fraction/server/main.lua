@@ -64,7 +64,9 @@ function F.workSkin(p,m)
 end
 function F.sync(p)
  local m=F.member(p);local f=m and Fractions[m.faction_id]
- setElementData(p,'rp:nametagColor',f and f.color or {255,255,255},true)
+ local colored=f and (f.category=='criminal' or (F.sessions[p] and F.sessions[p].duty))
+ setElementData(p,'rp:nametagColor',colored and f.color or {255,255,255},true)
+ setElementData(p,'rp:factionColor',colored and f.color or false,true)
  setElementData(p,'rp:faction',f and f.name or false,true)
  if f and f.duty and not f.keepOwnSkin and F.sessions[p] and F.sessions[p].duty then setElementModel(p,F.workSkin(p,m)) end
  triggerClientEvent(p,'fraction:state',resourceRoot,m and {id=m.faction_id,rank=m.rank,duty=F.sessions[p] and F.sessions[p].duty or false} or false)
@@ -138,6 +140,7 @@ function F.disconnect(p,resourceStopping)
   if not resourceStopping then FractionDB.exec("DELETE FROM fraction_ads WHERE account_id=? AND status='pending'",id) end
  end
  F.sessions[p],F.invites[p],F.cooldowns[p]=nil,nil,nil
+ if isElement(p) then setElementData(p,'rp:nametagColor',{255,255,255},true);setElementData(p,'rp:factionColor',false,true) end
  if id then F.justice[id]=nil;F.members[id]=nil end
  for target,invite in pairs(F.invites) do if invite.inviter==p then F.invites[target]=nil end end
 end
@@ -181,7 +184,7 @@ end)
 addEventHandler('onResourceStop',resourceRoot,function()
  F.stopping=true
  for p in pairs(F.sessions) do if isElement(p) then F.disconnect(p,true) end end
- for _,p in ipairs(getElementsByType('player')) do setElementData(p,'rp:faction',false,true);setElementData(p,'rp:nametagColor',{255,255,255},true) end
+ for _,p in ipairs(getElementsByType('player')) do setElementData(p,'rp:faction',false,true);setElementData(p,'rp:nametagColor',{255,255,255},true);setElementData(p,'rp:factionColor',false,true) end
  local cars=getResourceFromName('rp_car')
  if cars and FractionDependencies.hasExports('rp_car',{'unregisterFactionVehicle'}) then
   for vehicle in pairs(F.vehicles) do if isElement(vehicle) then exports.rp_car:unregisterFactionVehicle(vehicle) end end

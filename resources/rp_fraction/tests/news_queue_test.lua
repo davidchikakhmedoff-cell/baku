@@ -4,6 +4,8 @@ function getResourceFromName() return {} end
 function getResourceState() return 'running' end
 function getElementsByType() return {player} end
 function getElementData() return true end
+function isElement(p) return p==player end
+function setElementData() end
 exports={rp_core={getAuthPlayerId=function(self,p) return p.id end,
  AuthDBExec=function(self,sql,id) if sql:find('DELETE FROM fraction_ads',1,true) then assert(id,'must not clear whole queue');deleted[id]=true end;return true end,
  AuthDBQuery=function(self,sql)

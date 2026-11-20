@@ -15,12 +15,49 @@ local function withoutColorCodes(text)
     return tostring(text or ""):gsub("#%x%x%x%x%x%x", "")
 end
 
+local function priceNumber(text, prefix)
+    local number = text:match(prefix and "^%$%d+" or "^%d+")
+    if not number then return nil end
+    while true do
+        local tail = text:sub(#number + 1)
+        local group = tail:match("^[ ,]%d%d%d")
+        if not group or tail:sub(#group + 1, #group + 1):match("%d") then break end
+        number = number .. group
+    end
+    local fraction = text:sub(#number + 1):match("^[.,]%d+")
+    if fraction then number = number .. fraction end
+    return number
+end
+
 local function applyHighlights(text)
     text = tostring(text or "")
-    text = text:gsub("(%$%d[%d%s,%.]*)", "#23B1F5%1#FFFFFF")
-    text = text:gsub("(%d[%d%s,%.]*%$)", "#23B1F5%1#FFFFFF")
-    text = text:gsub("(/[%w_]+)", "#23B1F5%1#FFFFFF")
-    return text
+    local result, index = {}, 1
+    while index <= #text do
+        local code = text:sub(index, index + 6)
+        if code:match("^#%x%x%x%x%x%x$") then
+            result[#result + 1] = code
+            index = index + 7
+        else
+            -- Match original text once. Never rescan inserted #23B1F5: its
+            -- last digit followed by $ used to be mistaken for another price.
+            local tail = text:sub(index)
+            local token = priceNumber(tail, true)
+            if not token then
+                local number = priceNumber(tail, false)
+                local suffix = number and tail:sub(#number + 1):match("^ *%$")
+                if suffix then token = number .. suffix end
+            end
+            token = token or tail:match("^/[%w_]+")
+            if token then
+                result[#result + 1] = "#23B1F5" .. token .. "#FFFFFF"
+                index = index + #token
+            else
+                result[#result + 1] = text:sub(index, index)
+                index = index + 1
+            end
+        end
+    end
+    return table.concat(result)
 end
 
 local function stripTrailingDots(text)

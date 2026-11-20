@@ -130,7 +130,7 @@ local function drawScoreboard()
         local textColor = tocolor(255, 255, 255, 255)
         local factionColor = type(row.factionColor) == "table" and row.factionColor or nil
         local nameColor = textColor
-        if not selected and factionColor then
+        if factionColor then
             nameColor = tocolor(factionColor[1] or 255, factionColor[2] or 255, factionColor[3] or 255, 255)
         end
         local rowScale = chatScale
