@@ -308,7 +308,7 @@ end
 local function drawDealership()
     local d = UI.data
     local p = d.parking or {}
-    local x, y, w, h = compactPanel("АВТОСАЛОН", 400, 220)
+    local x, y, w, h = compactPanel("АВТОСАЛОН", 400, 170)
     compactGroup("автомобиль", tostring(d.name or "Автомобиль"), x + s(14), y + s(47), x + s(190))
     compactGroup("цена", CarConfig.formatMoney(d.price), x + s(14), y + s(82), x + s(190))
     compactGroup("макс. скорость", tostring(d.maxSpeed or 0) .. " км/ч", x + s(228), y + s(47), x + w - s(14))
@@ -320,8 +320,10 @@ end
 
 local function drawConfirmPurchase()
     local x, y, w, h = compactPanel("ПОКУПКА АВТОМОБИЛЯ", 400, 170)
-    compactGroup("автомобиль", tostring(UI.data.name or "Автомобиль"), x + s(14), y + s(47), x + s(190))
-    compactGroup("стоимость", CarConfig.formatMoney(UI.data.price), x + s(228), y + s(47), x + w - s(14))
+    local question = "Вы хотите купить\n" .. tostring(UI.data.name or "Автомобиль")
+        .. "\nза " .. CarConfig.formatMoney(UI.data.price) .. "?"
+    dxDrawText(question, x + s(14), y + s(43), x + w - s(14), y + h - s(45),
+        rgba("text"), 1, "default-bold", "center", "center", false, true)
     local buttonY = y + h - s(35)
     compactButton("buy_confirm", "Купить", x + s(5), buttonY, s(110), s(30), true)
     compactButton("back_dealership", "Назад", x + w - s(115), buttonY, s(110), s(30), true)
