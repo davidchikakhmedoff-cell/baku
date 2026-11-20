@@ -87,4 +87,6 @@
  <file src="interior/hospital_lae.txd" />
  <file src="interior/laehospital1.dff" />
  <file src="interior/laehospital1.col" />
+ <file src="interior/exit_barrier.dff" />
+ <file src="interior/exit_barrier.col" />
 </meta>

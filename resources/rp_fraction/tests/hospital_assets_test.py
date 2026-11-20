@@ -98,6 +98,41 @@ class HospitalAssets(unittest.TestCase):
         self.assertEqual(len(referenced), 13)
         self.assertFalse(referenced - textures, 'model references missing textures')
 
+    def test_exit_barrier_assets_match_generator(self):
+        spec = importlib.util.spec_from_file_location('build_barrier', ROOT / 'tools/build_hospital_exit_barrier.py')
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        dff, col = builder.build()
+        self.assertEqual(dff, (ROOT / 'interior/exit_barrier.dff').read_bytes())
+        self.assertEqual(col, (ROOT / 'interior/exit_barrier.col').read_bytes())
+        self.assertEqual(struct.unpack_from('<HHI', col, 72), (0, 1, 0))
+        self.assertEqual(struct.unpack_from('<I', col, 88)[0] + 4, 120)
+        box = struct.unpack_from('<6f', col, 120)
+        self.assertAlmostEqual(box[3] - box[0], 6.4, places=5)
+        self.assertAlmostEqual(box[4] - box[1], 0.4, places=5)
+        self.assertAlmostEqual(box[5] - box[2], 4.2, places=5)
+        vertices = [v for face in visual_triangles(dff) for v in face]
+        for axis in range(3):
+            self.assertAlmostEqual(min(v[axis] for v in vertices), box[axis], places=5)
+            self.assertAlmostEqual(max(v[axis] for v in vertices), box[axis + 3], places=5)
+
+    def test_exit_barrier_blocks_opening_but_keeps_marker_accessible(self):
+        config = (ROOT / 'interior/config.lua').read_text()
+        origin = tuple(map(float, re.search(r'origin=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', config).groups()))
+        offset = tuple(map(float, re.search(r'offset=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', config).groups()))
+        box = struct.unpack_from('<6f', (ROOT / 'interior/exit_barrier.col').read_bytes(), 120)
+        lower = [box[i] + offset[i] for i in range(3)]
+        upper = [box[i+3] + offset[i] for i in range(3)]
+        self.assertLess(lower[0], -23.5)
+        self.assertGreater(upper[0], -18.0)
+        self.assertGreater(lower[1], 0)
+        self.assertLess(upper[1], 3)
+        self.assertLess(lower[2], -17.5)
+        self.assertGreater(upper[2], -13.45)
+        location = (ROOT / 'fleet_config.lua').read_text().split('    -- Los Santos Hospital\n', 1)[1].split('    -- Los Santos Police Department\n', 1)[0]
+        marker = tuple(map(float, re.search(r'exit=\{x=([\d.-]+),y=([\d.-]+),z=([\d.-]+)', location).groups()))
+        self.assertGreater(marker[1] - origin[1] - upper[1], 1.0, 'exit marker remains on lobby side with walking space')
+
     def test_spawn_and_interactions_have_visible_matching_floor(self):
         collision = collision_triangles((ROOT / 'interior/laehospital1.col').read_bytes())
         visual = visual_triangles((ROOT / 'interior/laehospital1.dff').read_bytes())
