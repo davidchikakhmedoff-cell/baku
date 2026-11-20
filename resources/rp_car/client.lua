@@ -275,7 +275,9 @@ local function compactPanel(title, width, height)
     dxDrawRectangle(x, y, w, h, tocolor(0, 0, 0, 230))
     dxDrawRectangle(x + 1, y + 1, w - 2, h - 2, tocolor(0, 0, 0, 130))
     local titleScale = 1
-    dxDrawText(title, x + s(10), y + s(5), x + w - s(10), y + s(36), rgba("text"), titleScale, carMenuFont or "default-bold", "left", "center", true)
+    if title then
+        dxDrawText(title, x + s(10), y + s(5), x + w - s(10), y + s(36), rgba("text"), titleScale, carMenuFont or "default-bold", "left", "center", true)
+    end
     return x, y, w, h
 end
 
@@ -319,10 +321,10 @@ local function drawDealership()
 end
 
 local function drawConfirmPurchase()
-    local x, y, w, h = compactPanel("ПОКУПКА АВТОМОБИЛЯ", 400, 170)
-    local question = "Вы хотите купить\n" .. tostring(UI.data.name or "Автомобиль")
-        .. "\nза " .. CarConfig.formatMoney(UI.data.price) .. "?"
-    dxDrawText(question, x + s(14), y + s(43), x + w - s(14), y + h - s(45),
+    local x, y, w, h = compactPanel(nil, 400, 130)
+    local question = "Вы хотите купить " .. tostring(UI.data.name or "Автомобиль")
+        .. " за " .. CarConfig.formatMoney(UI.data.price) .. "?"
+    dxDrawText(question, x + s(14), y + s(10), x + w - s(14), y + h - s(45),
         rgba("text"), 1, "default-bold", "center", "center", false, true)
     local buttonY = y + h - s(35)
     compactButton("buy_confirm", "Купить", x + s(5), buttonY, s(110), s(30), true)
