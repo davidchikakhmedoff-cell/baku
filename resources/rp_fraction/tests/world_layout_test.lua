@@ -41,17 +41,17 @@ for id,blip in pairs(F.blips) do
 end
 assert(count==6,'six faction map blips')
 local hospital=Fractions[1]
-assert(hospital.interior==1 and hospital.inside.x==1478 and hospital.inside.y==1506 and hospital.inside.z==1183.5,'hospital uses custom shell indoor spawn')
+assert(hospital.interior==1 and hospital.inside.x==1479.4 and hospital.inside.y==1505 and hospital.inside.z==1183.5,'hospital uses custom shell indoor spawn')
 for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':1'];local point=key=='exit' and hospital.exit or (key=='duty' and hospital.dutyPoint or hospital.keysPoint)
  assert(m.interior==1 and m.dimension==hospital.dimension and math.abs(m.z-(point.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'hospital markers use their configured collision floor height')
 end
 local news=Fractions[3]
 -- Use the exact Bike School spawn requested for LS News.
-assert(news.interior==3 and news.inside.x==1494.85 and news.inside.y==1306.47 and math.abs(news.inside.z-1093.29)<0.01,'News uses requested Bike School interior')
+assert(news.interior==3 and news.inside.x==1494.4 and news.inside.y==1305 and math.abs(news.inside.z-1093.29)<0.01,'News uses requested Bike School interior')
 for _,key in ipairs({'exit','duty','keys'}) do
  local m=F.markers[key..':3']
- assert(m.interior==3 and m.dimension==news.dimension and math.abs(m.z-(news.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'News marker is on same floor and dimension')
+ assert(m.interior==3 and m.dimension==news.dimension and math.abs(m.z-((key=='exit' and news.exit or (key=='duty' and news.dutyPoint or news.keysPoint)).z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'News marker is on same floor and dimension')
 end
 local p=element('player',news.entrance.x,news.entrance.y,news.entrance.z)
 source=F.markers['enter:3'];handlers.onMarkerHit(p,true)
@@ -94,6 +94,8 @@ for id,f in pairs(Fractions) do
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
   assert(p.x==f.roof.returnSpawn.x and p.interior==f.interior and p.dimension==f.dimension,'roof return portal restores configured faction interior position')
   F.member=function() return nil end
+  tick=tick+2000;source=roof;handlers.onMarkerHit(p,true)
+  assert(p.x==arrival.x and p.y==arrival.y and p.z==arrival.z and p.dimension==0,'any authenticated visitor can reach the actual roof')
   p.x,p.y,p.z=f.roof.outside.x,f.roof.outside.y,f.roof.outside.z;p.interior,p.dimension=0,0
   tick=tick+2000;source=back;handlers.onMarkerHit(p,true)
   assert(p.interior==f.interior and p.dimension==f.dimension,'dismissal cannot trap a player on a public faction roof')
@@ -210,10 +212,10 @@ end
 print('Public headquarters: all six enter/exit routes accept visitors; faction vehicle keys remain protected')
 
 assert(news.entrance.x==1653.96 and news.entrance.y==-1655.8 and news.entrance.z==22.51,'News entrance uses requested new coordinates')
-assert(news.outsideSpawn.x==1657.46 and news.outsideSpawn.y==-1655.8,'News exit arrival follows relocated HQ')
+assert(news.outsideSpawn.x==1653.96 and news.outsideSpawn.y==-1657.8,'News exit arrival follows relocated HQ')
 assert(#news.vehicles==4 and news.vehicles[3].slot==3,'News relocation retains complete fleet and stable helicopter key')
 for _,v in ipairs(news.vehicles) do
- assert(v.p.x>1650 and v.p.x<1680 and v.p.y<-1655 and v.p.y>-1680,'all News parking positions follow new HQ')
+ assert(v.p.x>1650 and v.p.x<1680 and v.p.y<-1699 and v.p.y>-1720,'all News parking positions follow new HQ')
  assert(not v.helipad and not v.roofDeck,'News does not create artificial helipad or roof deck')
 end
 assert(not news.roof and not F.markers['roof:3'] and not F.markers['roofBack:3'],'News has no redundant roof/interior portal')
@@ -237,3 +239,9 @@ assert(waiting and waiting.pos.x==p.x and waiting.pos.z==p.z,'reconnect at valid
 p.z=hospital.inside.z-5;waiting=nil
 F.repairInteriorPosition(p)
 assert(waiting.pos.x==hospital.inside.x and waiting.pos.z==hospital.inside.z,'players below custom hospital floor recover to safe spawn')
+
+assert(Fractions[3].blip.icon==35,'News uses requested map icon 35')
+for _,v in ipairs(hospital.vehicles) do assert(not v.helipad and not v.roofDeck,'hospital creates no artificial rooftop objects') end
+for _,e in ipairs(elements) do
+ assert(not(e.kind=='object' and math.abs(e.x-1176)<35 and math.abs(e.y+1326)<35),'hospital roof has no generated platform or helipad')
+end

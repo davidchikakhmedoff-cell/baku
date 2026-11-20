@@ -32,7 +32,7 @@ Fractions = {
  [2]={name="Los Santos Police Department",category="state",color={65,130,231},blip={icon=30,size=2},duty=true,
  ranks={"Кадет","Офицер","Старший офицер","Сержант","Лейтенант","Капитан","Майор","Полковник","Заместитель шефа","Шеф полиции"},skins={280,281,281,281,281,285,285,285,283,61},femaleSkins={129,130,130,130,130,131,131,131,150,151},
  entrance=point(1554.9,-1675.5,16.2),interior=6,inside=point(246.8,65.7,1003.6),exit=point(246.5,62.6,1003.6),dutyPoint=point(253.5,68.8,1003.6),keysPoint=point(248.5,70.8,1003.6),armory=point(257.7,69.2,1003.6),jailBooking=point(264.28,77.64,1001.03),roof={inside=point(253.5,64.4,1003.6),slot=17}},
- [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=0,size=2},duty=true,
+ [3]={name="Los Santos News",category="neutral",color={181,163,215},blip={icon=35,size=2},duty=true,keepOwnSkin=true,
  ranks={"Стажёр","Журналист","Редактор","Заместитель директора","Директор"},skins={171,186,187,147,147},
  -- User-selected Bike School interior (3).
  entrance=point(1653.96,-1655.8,22.51),interior=3,inside=point(1494.85,1306.47,1093.29,0),exit=point(1494.85,1303.27,1093.29),dutyPoint=point(1498.05,1306.47,1093.29),keysPoint=point(1491.65,1306.47,1093.29),roof=false,

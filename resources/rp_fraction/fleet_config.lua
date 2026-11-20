@@ -17,8 +17,8 @@ FractionFleetConfig = {
             rank = 1,
             count = 2,
             parking = {
-                { slot=1, x=1180, y=-1338, z=13.7, rotation=270 },
-                { slot=2, x=1180, y=-1344, z=13.7, rotation=270 },
+                { slot=1, x=1178, y=-1339, z=13.7, rotation=270 },
+                { slot=2, x=1177, y=-1308.5, z=13.7, rotation=270 },
             },
         },
         {
@@ -26,19 +26,19 @@ FractionFleetConfig = {
             model = 487,
             rank = 5,
             count = 1,
-            helipad = true,
-            roofDeck = true,
+            helipad = false,
+            roofDeck = false,
             parking = {
                 { slot=3, x=1176, y=-1326, z=26.5, rotation=0 },
             },
         },
         {
             name = "Седаны",
-            model = 405,
+            model = 445,
             rank = 3,
             count = 1,
             parking = {
-                { slot=4, x=1180, y=-1350, z=13.6, rotation=270 },
+                { slot=4, x=1182.5, y=-1332.5, z=13.3, rotation=180 },
             },
         },
     },
@@ -127,8 +127,8 @@ FractionFleetConfig = {
             rank = 2,
             count = 2,
             parking = {
-                { slot=1, x=1663.96, y=-1676.8, z=22.61, rotation=0 },
-                { slot=2, x=1668.96, y=-1676.8, z=22.61, rotation=0 },
+                { slot=1, x=1670.3, y=-1708, z=20.5, rotation=90 },
+                { slot=2, x=1670.3, y=-1704, z=20.5, rotation=90 },
             },
         },
         {
@@ -140,7 +140,7 @@ FractionFleetConfig = {
             helipad = false,
             roofDeck = false,
             parking = {
-                { slot=3, x=1653.96, y=-1669.8, z=22.51, rotation=0 },
+                { slot=3, x=1668.3, y=-1718.5, z=20.5, rotation=90 },
             },
         },
         {
@@ -150,7 +150,7 @@ FractionFleetConfig = {
             rank = 3,
             count = 1,
             parking = {
-                { slot=4, x=1673.96, y=-1676.8, z=22.61, rotation=0 },
+                { slot=4, x=1670.3, y=-1700, z=20.5, rotation=90 },
             },
         },
     },
@@ -282,11 +282,11 @@ FractionLocationConfig = {
     [1] = {
         interior=1, dimension=20001,
         entrance={x=1172.0000,y=-1323.3000,z=15.4000,rotation=0.00},
-        inside={x=1478,y=1506,z=1183.5,rotation=0.00},
-        exit={x=1481,y=1504,z=1183.55,rotation=0.00},
-        keysPoint={x=1484,y=1505,z=1183.55,rotation=0.00},
-        dutyPoint={x=1475,y=1505,z=1183.5,rotation=0.00},
-        outsideSpawn={x=1175.5000,y=-1323.3000,z=15.4000,rotation=0.00},
+        inside={x=1479.4,y=1505,z=1183.5,rotation=0.00},
+        exit={x=1479.4,y=1503.6,z=1183.55,rotation=0.00},
+        keysPoint={x=1486.8,y=1511.8,z=1183.15,rotation=0.00},
+        dutyPoint={x=1472,y=1505.9,z=1183.2,rotation=0.00},
+        outsideSpawn={x=1174.000,y=-1323.3000,z=14.4000,rotation=270.00},
         roof={triggerRadius=0.9, slot=3, inside={x=1480,y=1512,z=1183.55,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
             arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=1478,y=1506,z=1183.5,rotation=0.00}},
     },
@@ -317,11 +317,11 @@ FractionLocationConfig = {
     [3] = {
         interior=3, dimension=20003,
         entrance={x=1653.96,y=-1655.8,z=22.51,rotation=0.00},
-        inside={x=1494.85,y=1306.47,z=1093.29,rotation=0.00},
-        exit={x=1494.85,y=1303.27,z=1093.29,rotation=0.00},
-        keysPoint={x=1491.65,y=1306.47,z=1093.29,rotation=0.00},
-        dutyPoint={x=1498.05,y=1306.47,z=1093.29,rotation=0.00},
-        outsideSpawn={x=1657.46,y=-1655.8,z=22.51,rotation=0.00},
+        inside={x=1494.4,y=1305,z=1093.29,rotation=0.00},
+        exit={x=1494.4,y=1303.67,z=1093.29,rotation=0.00},
+        keysPoint={x=1492.76,y=1308,z=1093,rotation=0.00},
+        dutyPoint={x=1494.57,y=1309.23,z=1093,rotation=0.00},
+        outsideSpawn={x=1653.96,y=-1657.8,z=22.51,rotation=180.00},
         roof=false, -- The helicopter is outside; use the main News entrance.
     },
     -- La Cosa Nostra

@@ -61,3 +61,26 @@ for _,fid in ipairs({4,5,6}) do
  assert(p.model==46 and savedSkin==46 and not F.sessions[p],'mafia resource stop preserves and saves current skin')
 end
 print('Mafia clothing: all three factions preserve current skin through sync, promotion, equipment cleanup and restart')
+
+-- News retains normal clothing during a real shift transition and account save.
+p.logged=true;p.model=46
+F.members[1]={account_id=1,faction_id=3,rank=1,civilian_skin=7,civilian_weapons='[]',duty=0,gear_issued=0}
+F.sessions[p]={account=1,duty=false};F.markers['duty:3']={}
+F.near=function() return true end
+F.jailed=function() return false end
+F.notify=function() end
+F.snapshotWeapons=function() return '[]' end
+function isPedInVehicle() return false end
+FractionDB.change=function() return true end
+F.toggleDuty(p)
+assert(F.sessions[p].duty and F.members[1].duty==1 and p.model==46,'News shift starts without assigning a uniform')
+p.model=12;F.sync(p)
+assert(getCivilianSkin(p)==12,'saving account while News is on shift uses current normal skin')
+source=p;handlers.onPlayerSpawn()
+assert(p.model==12 and F.sessions[p].duty,'News death/respawn preserves shift without changing clothing')
+F.toggleDuty(p)
+assert(not F.sessions[p].duty and p.model==12,'ending News shift does not restore a stale clothing snapshot')
+F.sessions[p].duty=true;F.members[1].duty=1
+F.disconnect(p,true)
+assert(p.model==12,'News restart/disconnect retains personal clothing')
+print('News clothing: actual start/end shift, respawn, save and restart preserve own skin')

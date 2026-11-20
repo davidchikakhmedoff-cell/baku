@@ -118,11 +118,11 @@ local function markerHit(p,matching)
  elseif info.kind=='exit' then teleport(p,f.outsideSpawn or f.entrance,0,0)
  elseif info.kind=='roofBack' then teleport(p,f.roof.returnSpawn or f.inside,f.interior,f.dimension)
  elseif info.kind=='garageBack' then teleport(p,f.garage.returnSpawn or f.inside,f.interior,f.dimension)
- elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
- elseif info.kind=='garage' then F.safeGarageTeleport(p,f.garage.arrival,0,0,f.garage.returnSpawn or f.inside)
  elseif info.kind=='roof' then
   local out=f.roof.outside
   teleport(p,f.roof.arrival or {x=out.x+3.5,y=out.y,z=out.z,rotation=180},0,0)
+ elseif not m or m.faction_id~=info.id then F.notify(p,'Вы не состоите в этой фракции')
+ elseif info.kind=='garage' then F.safeGarageTeleport(p,f.garage.arrival,0,0,f.garage.returnSpawn or f.inside)
  elseif info.kind=='keys' then F.keysMenu(p)
  elseif info.kind=='duty' then triggerClientEvent(p,'fraction:menu',resourceRoot,'duty',{working=F.sessions[p] and F.sessions[p].duty or false,name=f.name,wardrobe=Wardrobe and Wardrobe.supports(info.id) or false})
  elseif info.kind=='armory' then
