@@ -11,10 +11,10 @@ FractionCarConfig={models={[596]={name='Ford Explorer'}}}
 exports={rp_car={getConfiguredVehicleName=function(_,model) return getConfiguredVehicleName(model) end}}
 local name=assert(loadstring(helper..'\nreturn vehicleName'))()
 assert(name({model=579})=='BMW X5M E70','mafia key menu reads the actual dealership name')
-Dealerships[1].vehicles[#Dealerships[1].vehicles+1]={model=400,customName='Catalog 400'}
-assert(name({model=400})=='Catalog 400','catalog additions automatically appear in key menu without duplicate mapping')
-Dealerships[1].vehicles[#Dealerships[1].vehicles].customName='Renamed catalog 400'
-assert(name({model=400})=='Renamed catalog 400','renames propagate to key/menu notifications')
+Dealerships[1].vehicles[#Dealerships[1].vehicles+1]={model=401,customName='Catalog 401'}
+assert(name({model=401})=='Catalog 401','catalog additions automatically appear in key menu without duplicate mapping')
+Dealerships[1].vehicles[#Dealerships[1].vehicles].customName='Renamed catalog 401'
+assert(name({model=401})=='Renamed catalog 401','renames propagate to key/menu notifications')
 assert(name({model=421})=='LEXUX LS 400 XF10' and name({model=404})=='TOYOTA SEQUOIA','mafia menu uses canonical vehicle labels')
 assert(name({model=596})=='Ford Explorer','PD explicit replacement names remain intact')
 assert(getVehicleDisplayName(579,'Personal name')=='Personal name','stored personal names preserved')
@@ -23,3 +23,5 @@ print('Vehicle names: real dealership lookup, automatic additions/renames, facti
 assert(getConfiguredVehicleName(546)=='FORD CROWN VICTORIA' and getConfiguredVehicleName(479)=='HUMMER H2','new canonical model names are shared with dealership')
 assert(name({model=546})=='FORD CROWN VICTORIA' and name({model=479})=='HUMMER H2','La Cosa Nostra keys display canonical sedan/SUV names')
 assert(getVehicleDisplayName(479,'Regina')=='HUMMER H2' and getVehicleDisplayName(546,'Intruder')=='FORD CROWN VICTORIA','stock names do not override custom model names')
+
+assert(getConfiguredVehicleName(400)=='MERCEDES BENZ ML63 W164' and name({model=400})=='MERCEDES BENZ ML63 W164','Russian Mafia Mercedes uses the canonical dealership name')

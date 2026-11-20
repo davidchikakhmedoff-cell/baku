@@ -41,7 +41,7 @@ online={payer};balances={};F.payTicket(payer,10)
 assert(changed==2 and balances[2]==2,'offline issuer balance is still refreshed through existing economy')
 print('Ticket handler: guarded payment, balance sync, issuer notice, duplicates, insufficient funds and ownership passed')
 
--- Real custom-chat command route, including self ticket creation and popup.
+-- Real custom-chat command route: another player receives a ticket and popup.
 local core,fraction={},{}
 function getResourceFromName(name) return name=='rp_core' and core or fraction end
 function getResourceState() return 'running' end
@@ -60,11 +60,11 @@ function getElementType() return 'player' end
 function getElementData(p,key) return key=='auth:loggedIn' end
 function isPedDead() return false end
 function getRealTime() return {hour=12,minute=0,timestamp=1000} end
-F.member=function() return {faction_id=2,rank=10} end
+F.member=function(p) return p==officer and {faction_id=2,rank=10} or nil end
 F.active=function() return true end
 F.throttle=function() return true end
 F.near=function() return true end
-F.player=function(id) return tonumber(id)==1 and payer end
+F.player=function(id) return tonumber(id)==1 and payer or (tonumber(id)==2 and officer) end
 F.now=function() return 1000 end
 local created
 FractionDB.exec=function(sql,owner,issuer,amount,reason)
@@ -73,13 +73,17 @@ FractionDB.exec=function(sql,owner,issuer,amount,reason)
 end
 FractionDB.one=function(sql,owner,issuer)
  assert(sql:find('last_insert_rowid()',1,true),'new ticket identified from actual insert')
- assert(owner==1 and issuer==1);return {id=11}
+ assert(owner==1 and issuer==2);return {id=11}
 end
 dofile('resources/rp_fraction/server/members.lua')
 dofile('resources/rp_core/systems/chat/config.lua')
 dofile('resources/rp_core/systems/chat/server.lua')
-RPChat.processMessage(payer,'/ticket 1 250 Причина штрафа')
-assert(created and created.account_id==1 and created.officer_id==1 and created.amount==250 and created.reason=='Причина штрафа','self ticket reaches SQL through custom chat')
-assert(menu.player==payer and menu.data.id==11 and menu.data.amount==250 and menu.data.reason=='Причина штрафа','self ticket opens matching amount/reason popup')
-menu=nil;RPChat.processMessage(payer,'/ticket 1 -100 test');assert(not menu,'negative fine cannot open payment window')
-print('Ticket issuance: real custom chat bridge, self target, persistence, popup and invalid amount passed')
+RPChat.processMessage(officer,'/ticket 1 250 Причина штрафа')
+assert(created and created.account_id==1 and created.officer_id==2 and created.amount==250 and created.reason=='Причина штрафа','civilian ticket reaches SQL through custom chat')
+assert(menu.player==payer and menu.data.id==11 and menu.data.amount==250 and menu.data.reason=='Причина штрафа','civilian ticket opens matching amount/reason popup')
+menu=nil;RPChat.processMessage(officer,'/ticket 1 -100 test');assert(not menu,'negative fine cannot open payment window')
+print('Ticket issuance: real custom chat bridge, civilian target, persistence, popup and invalid amount passed')
+
+local before=created;menu=nil
+RPChat.processMessage(officer,'/ticket 2 250 Self')
+assert(created==before and not menu,'self ticket cannot reach database or open a popup')

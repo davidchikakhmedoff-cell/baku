@@ -4,6 +4,7 @@
  <include resource="rp_car" />
  <include resource="lexus_ls400" />
  <include resource="toyota_sequoia" />
+ <include resource="mercedes_ml63_w164" />
  <script src="skins/config.lua" type="shared" />
  <script src="cars/config.lua" type="shared" />
  <script src="fleet_config.lua" type="shared" />

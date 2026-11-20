@@ -4,7 +4,8 @@ VehicleModelNames = {
     [421] = "LEXUX LS 400 XF10",
     [404] = "TOYOTA SEQUOIA",
     [546] = "FORD CROWN VICTORIA",
-    [479] = "HUMMER H2"
+    [479] = "HUMMER H2",
+    [400] = "MERCEDES BENZ ML63 W164"
 }
 
 Dealerships = {

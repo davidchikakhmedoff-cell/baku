@@ -23,6 +23,11 @@ local function teleport(p,pos,interior,dimension)
 end
 function F.repairInteriorPosition(p)
  -- Migrate saved positions from the removed hospital shell and old News roof.
+ local russian=Fractions[6]
+ if getElementDimension(p)==russian.dimension and getElementInterior(p)~=russian.interior then
+  teleport(p,russian.inside,russian.interior,russian.dimension)
+  return
+ end
  local mafia=Fractions[4]
  if getElementDimension(p)==mafia.dimension then
   local x,y=getElementPosition(p)
@@ -101,7 +106,6 @@ local function markerHit(p,matching)
  local now=getTickCount();if recent[p] and now-recent[p]<1500 then return end;recent[p]=now
  local f=Fractions[info.id];local m=F.member(p)
  if info.kind=='enter' then
-  if info.id>=4 and (not m or m.faction_id~=info.id) then F.notify(p,'Вход доступен только участникам фракции');return end
   teleport(p,f.inside,f.interior,f.dimension)
  elseif info.kind=='exit' then teleport(p,f.outsideSpawn or f.entrance,0,0)
  elseif info.kind=='roofBack' then teleport(p,f.roof.returnSpawn or f.inside,f.interior,f.dimension)

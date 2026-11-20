@@ -118,17 +118,29 @@ for rank=1,10 do
  setStars(suspect,1);commands.arrest(officer,'arrest','2');assert(F.jailed(suspect)==(rank>=2),'arrest minimum rank 2')
  if rank>=2 then assert(states[2].jail_remaining==300,'manual arrest also uses five minutes per star') end
 end
--- The issuer may target own ID without bypassing duty, rank or station checks.
-officer.rank=9;officer.duty=true;setStars(officer,0);officer.vehicle=nil
-commands.su(officer,'su','1','6','self test');assert(officer.stars==6,'self wanted works and caps at six')
-commands.clearwanted(officer,'clearwanted','1');assert(officer.stars==0,'self clearwanted works')
-commands.cuff(officer,'cuff','1');assert(F.cuffs[officer],'self cuff works')
-commands.cuff(officer,'cuff','1');assert(not F.cuffs[officer],'self uncuff works')
-local count=ticketWrites;commands.ticket(officer,'ticket','1','100','self test');assert(ticketWrites==count+1,'self ticket works')
-commands.su(officer,'su','1','1','self test');commands.arrest(officer,'arrest','1')
-assert(F.jailed(officer) and states[1].jail_remaining==300,'self arrest works with automatic sentence')
-commands.unarrest(officer,'unarrest','1');assert(not F.jailed(officer) and officer.x==Fractions[2].outsideSpawn.x,'leader/deputy can release own test arrest off duty')
-print('LSPD commands: all ten ranks checked for ticket, wanted, cuffs, arrest and megaphone; self actions passed')
+-- Police commands cannot be used on oneself, including cleanup/release commands.
+officer.rank=9;officer.duty=true;setStars(officer,4);officer.vehicle=nil
+local count=ticketWrites
+commands.su(officer,'su','1','1','self test')
+commands.clearwanted(officer,'clearwanted','1')
+commands.cuff(officer,'cuff','1');commands.uncuff(officer,'uncuff','1')
+commands.ticket(officer,'ticket','1','100','self test')
+commands.arrest(officer,'arrest','1');commands.unarrest(officer,'unarrest','1')
+assert(officer.stars==4 and not F.cuffs[officer] and not F.jailed(officer) and ticketWrites==count,'all self-targeted police actions are rejected')
+states[1].jail_remaining=300;F.cuffs[officer]={issuer=officer,controls={}}
+commands.cuff(officer,'cuff','1');commands.uncuff(officer,'uncuff','1');commands.unarrest(officer,'unarrest','1')
+assert(F.cuffs[officer] and states[1].jail_remaining==300,'self cleanup cannot remove existing cuffs or prison time')
+F.clearCuffs(officer);states[1].jail_remaining=0;setStars(officer,0)
+-- A police target is protected even off duty and at the lowest rank.
+suspect.faction,suspect.rank,suspect.duty=2,1,false
+states[2].jail_remaining=0;setStars(suspect,3);atBooking(officer);atBooking(suspect)
+commands.su(officer,'su','2','1','colleague');commands.cuff(officer,'cuff','2');commands.arrest(officer,'arrest','2')
+assert(suspect.stars==3 and not F.cuffs[suspect] and not F.jailed(suspect),'cannot want, cuff or arrest another police member')
+assert(not F.arrest(suspect,15,'direct'),'internal arrest also protects police')
+source=suspect;suspect.dead=true;events.onPlayerWasted(0,officer)
+assert(not F.jailed(suspect),'police killing a wanted colleague does not cause automatic jail')
+suspect.dead=false;suspect.faction=nil
+print('LSPD commands: all ten ranks, self-target rejection and off-duty colleague protection passed')
 
 -- Wanted dispatch reaches every authenticated police member, regardless of shift.
 local offDuty={id=3,faction=2,rank=1,duty=false}

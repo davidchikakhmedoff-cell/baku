@@ -4,8 +4,9 @@ dofile('resources/rp_fraction/fleet_config.lua');dofile('resources/rp_fraction/c
 root,resourceRoot={},{}
 local core,fraction={},{}
 local p={id=87,dynamic=15,['auth:loggedIn']=true,['rp:name']='Self_Test'}
+local q={id=88,dynamic=16,['auth:loggedIn']=true,['rp:name']='Suspect'}
 local row,replies,clock={}, {},10000
-function isElement(e) return e==p end
+function isElement(e) return e==p or e==q end
 function getElementType() return 'player' end
 function getElementData(e,key) return e[key] end
 function setElementData(e,key,value) e[key]=value end
@@ -30,7 +31,7 @@ function takeAllWeapons() end
 function fromJSON() return {} end
 function getTickCount() return clock end
 function getRealTime() return {timestamp=1000,hour=12,minute=0} end
-function getElementsByType() return {p} end
+function getElementsByType() return {p,q} end
 function addEvent() end
 function addEventHandler() end
 function addCommandHandler() end
@@ -46,7 +47,7 @@ function executeCommandHandler() error('arrest must reach its own handler direct
 exports={rp_core={
  getAuthPlayerId=function(_,e) return e.id end,
  getPlayerDynamicID=function(_,e) return e.dynamic end,
- getPlayerByDynamicID=function() return nil end, -- emulate stale native ID lookup
+ getPlayerByDynamicID=function(_,id) return tonumber(id)==16 and q or nil end, -- self lookup remains stale
  sendCoreNotification=function(_,e,text) replies[#replies+1]=text end,
  sendCoreChatMessage=function(_,e,text) replies[#replies+1]=text end
 }}
@@ -73,15 +74,16 @@ local function prepare(dimension,dx,z,working,stars)
  clock=clock+6000;replies={};row={wanted=stars or 1,remaining=0}
  p.x,p.y,p.z=264.28+(dx or 0),77.64,z or 1001.03
  p.interior,p.dimension,p.model,p.stars=6,dimension,280,0
+ q.x,q.y,q.z=p.x,p.y,p.z;q.interior,q.dimension,q.model,q.stars=6,dimension,7,0
  F.sessions[p]={account=87,duty=working~=false};F.justice={};F.cooldowns={}
  F.members[87]={account_id=87,faction_id=2,rank=10,duty=1,civilian_skin=7,civilian_weapons='[]',gear_issued=0}
 end
 for _,dimension in ipairs({0,Fractions[2].dimension,FractionConfig.dimensionBase+100}) do
  prepare(dimension,4)
- RPChat.processMessage(p,'/arrest 15')
- assert(p.dimension==FractionConfig.dimensionBase+100 and row.remaining==300,'self arrest works four metres from actual prison in each supported world')
- assert(p.x==264.28 and p.y==77.64 and p.z==1001.03 and p.rotation==90,'exact requested prison appearance position and heading')
- assert(row.wanted==0 and p.stars==0,'arrest clears persistent and native wanted')
+ RPChat.processMessage(p,'/arrest 16')
+ assert(q.dimension==FractionConfig.dimensionBase+100 and row.remaining==300,'civilian arrest works four metres from actual prison in each supported world')
+ assert(q.x==264.28 and q.y==77.64 and q.z==1001.03 and q.rotation==90,'exact requested prison appearance position and heading')
+ assert(row.wanted==0 and q.stars==0,'arrest clears persistent and native wanted')
  assert(replies[#replies]:find('помещён',1,true),'successful command always replies in visible chat')
 end
 for _,test in ipairs({
@@ -91,25 +93,34 @@ for _,test in ipairs({
  {Fractions[2].dimension,0,1001.03,false,1},
  {Fractions[2].dimension,0,1001.03,true,0}
 }) do
- prepare(unpack(test));RPChat.processMessage(p,'/arrest 15')
+ prepare(unpack(test));RPChat.processMessage(p,'/arrest 16')
  assert(row.remaining==0 and #replies>0,'out of zone, wrong floor/world, off duty and zero wanted always give a reason')
 end
 prepare(Fractions[2].dimension);RPChat.processMessage(p,'/arrest 87')
 assert(row.remaining==0 and replies[#replies]:find('не найден',1,true),'account ID cannot be confused with dynamic ID')
 prepare(Fractions[2].dimension);RPChat.processMessage(p,'/arrest')
 assert(row.remaining==0 and replies[#replies]:find('/arrest ID',1,true),'missing ID gets usage')
-print('Arrest integration: real chat/permissions/geometry, direct dispatch, self ID, exact spawn and all refusal messages passed')
+print('Arrest integration: real chat/permissions/geometry, direct dispatch, target ID, exact spawn and all refusal messages passed')
 
 prepare(Fractions[2].dimension,0,nil,true,4)
-p.stars=4;F.cooldowns[p]={su=clock}
-RPChat.processMessage(p,'/clearwanted 15')
-assert(row.wanted==0 and p.stars==0 and F.wantedLevel(p)==0,'clearwanted reaches real handler from custom chat, survives stale self-ID cache and does not share su cooldown')
+q.stars=4;F.cooldowns[p]={su=clock}
+RPChat.processMessage(p,'/clearwanted 16')
+assert(row.wanted==0 and q.stars==0 and F.wantedLevel(q)==0,'clearwanted reaches real handler from custom chat, survives custom ID lookup and does not share su cooldown')
 prepare(Fractions[2].dimension,0,nil,true,4);F.members[87].rank=8
-RPChat.processMessage(p,'/clearwanted 15');assert(row.wanted==4,'rank below deputy still cannot clear wanted')
+RPChat.processMessage(p,'/clearwanted 16');assert(row.wanted==4,'rank below deputy still cannot clear wanted')
 prepare(Fractions[2].dimension,0,nil,false,4)
-RPChat.processMessage(p,'/clearwanted 15');assert(row.wanted==4,'off-duty clearwanted rejected')
+RPChat.processMessage(p,'/clearwanted 16');assert(row.wanted==4,'off-duty clearwanted rejected')
 prepare(Fractions[2].dimension,0,nil,true,4)
 local putId
 F.commandPutCar=function(actor,id) assert(actor==p);putId=id end
 RPChat.processMessage(p,'/putcar 2');assert(putId=='2','custom chat dispatches putcar directly without native execution')
-print('Police chat: clearwanted persistence/self ID/separate cooldown/rank/duty and putcar direct dispatch passed')
+print('Police chat: clearwanted persistence/target ID/separate cooldown/rank/duty and putcar direct dispatch passed')
+
+prepare(Fractions[2].dimension,0,nil,true,4)
+RPChat.processMessage(p,'/arrest 15')
+assert(row.remaining==0 and replies[#replies]:find('самому себе',1,true),'real chat route rejects self arrest explicitly')
+RPChat.processMessage(p,'/clearwanted 15')
+assert(row.wanted==4 and replies[#replies]:find('самому себе',1,true),'real chat route rejects self clearwanted even with stale lookup')
+F.members[88]={account_id=88,faction_id=2,rank=1,duty=0}
+RPChat.processMessage(p,'/arrest 16')
+assert(row.remaining==0 and replies[#replies]:find('сотрудника LSPD',1,true),'real chat route rejects arrest of off-duty colleague')

@@ -178,3 +178,25 @@ assert(p.x==mafia.inside.x+1,'current TransFender residents are not moved')
 p.interior=1;p.dimension=0;p.x,p.y,p.z=1405.312,-8.2928,1000.913
 F.repairInteriorPosition(p)
 assert(p.x==1405.312 and p.dimension==0,'warehouse players outside faction dimension are not moved')
+
+local russian=Fractions[6]
+assert(russian.interior==2 and russian.inside.x==1204.66 and russian.inside.y==-13.54 and russian.inside.z==1000.92,'Russian Mafia uses requested Pig Pen coordinates')
+for _,key in ipairs({'exit','keys','armory'}) do
+ assert(F.markers[key..':6'].interior==2 and F.markers[key..':6'].dimension==20006,'Russian Mafia interactions moved to isolated Pig Pen interior')
+end
+p.interior=12;p.dimension=20006;p.x,p.y,p.z=2324.5,-1147.1,1050.7
+F.repairInteriorPosition(p)
+assert(p.interior==2 and p.x==russian.inside.x and p.z==russian.inside.z,'saved Russian Mafia visitors migrate from old interior')
+F.member=function() return nil end
+local denied=0
+F.notify=function() denied=denied+1 end
+for id,f in ipairs(Fractions) do
+ tick=tick+2000;p.interior=0;p.dimension=0;p.x,p.y,p.z=f.entrance.x,f.entrance.y,f.entrance.z
+ source=F.markers['enter:'..id];handlers.onMarkerHit(p,true)
+ assert(p.interior==f.interior and p.dimension==f.dimension and p.x==f.inside.x,'nonmember may enter any faction HQ')
+ tick=tick+2000;source=F.markers['keys:'..id];handlers.onColShapeHit(p,true)
+ assert(denied==id,'visitors cannot obtain faction vehicle keys')
+ tick=tick+2000;source=F.markers['exit:'..id];handlers.onMarkerHit(p,true)
+ assert(p.interior==0 and p.dimension==0 and p.x==(f.outsideSpawn or f.entrance).x,'visitors can leave every faction HQ')
+end
+print('Public headquarters: all six enter/exit routes accept visitors; faction vehicle keys remain protected')

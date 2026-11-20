@@ -242,7 +242,7 @@ FractionFleetConfig = {
         },
         {
             name = "Внедорожники",
-            model = 579,
+            model = 400,
             rank = 4,
             count = 3,
             parking = {
@@ -345,12 +345,12 @@ FractionLocationConfig = {
     },
     -- Russian Mafia
     [6] = {
-        interior=12, dimension=20006,
+        interior=2, dimension=20006,
         entrance={x=2421.58,y=-1219.93,z=25.51,rotation=0.00},
-        inside={x=2324.5000,y=-1147.1000,z=1050.7000,rotation=0.00},
-        exit={x=2324.5000,y=-1150.4000,z=1050.7000,rotation=0.00},
-        keysPoint={x=2321.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
-        armory={x=2327.0000,y=-1147.1000,z=1050.7000,rotation=0.00},
+        inside={x=1204.66,y=-13.54,z=1000.92,rotation=0.00},
+        exit={x=1204.66,y=-16.74,z=1000.92,rotation=0.00},
+        keysPoint={x=1207.66,y=-13.54,z=1000.92,rotation=0.00},
+        armory={x=1201.66,y=-13.54,z=1000.92,rotation=0.00},
         outsideSpawn={x=2425.08,y=-1219.93,z=25.51,rotation=0.00},
     },
 }

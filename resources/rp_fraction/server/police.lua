@@ -22,10 +22,18 @@ function F.clearCuffs(p,issuerLeaving)
   for _,target in ipairs(clear) do F.clearCuffs(target) end
  end
 end
+local function policeTargetError(p,target,action)
+ if target==p then return 'Нельзя применять полицейские команды к самому себе' end
+ local member=F.member(target)
+ if member and member.faction_id==2 and (action=='su' or action=='cuff' or action=='arrest') then
+  return 'Нельзя объявлять в розыск, арестовывать или надевать наручники на сотрудника LSPD'
+ end
+end
 local function policeTarget(p,id,action,rank,resolved)
  if not F.active(p,2,rank or 2) then F.notify(p,'Нужен '..(rank or 2)..' ранг LSPD и активная смена. В КПЗ полицейские действия недоступны');return end
  local target=resolved or F.player(id)
  if not F.account(target) or isPedDead(target) or not F.near(p,target) then F.notify(p,'Игрок должен находиться рядом и быть жив');return end
+ local denied=policeTargetError(p,target,action);if denied then F.notify(p,denied);return end
  if not F.throttle(p,action) then F.notify(p,'Подождите перед повторным использованием команды');return end
  return target
 end
@@ -145,6 +153,8 @@ function F.applyJustice(p)
  if not F.applyJail(p,false) then F.syncWanted(p) end
 end
 function F.arrest(target,minutes,reason,keepDuty)
+ local member=F.member(target)
+ if member and member.faction_id==2 then return false end
  local s=F.state(target);if not s or tonumber(s.jail_remaining)>0 then return false end
  if not FractionDB.exec('UPDATE fraction_state SET jail_remaining=?,jail_reason=?,last_jail=? WHERE account_id=?',minutes*60,reason,F.now(),F.account(target)) then return false end
  s.jail_remaining=minutes*60;s.jail_reason=reason
@@ -181,6 +191,7 @@ function F.commandArrest(p,id)
  local target
  if tonumber(exports.rp_core:getPlayerDynamicID(p))==id then target=p else target=F.player(id) end
  if not F.account(target) then arrestReply(p,'Игрок с таким игровым ID не найден');return end
+ local denied=policeTargetError(p,target,'arrest');if denied then arrestReply(p,denied);return end
  if isPedDead(target) then arrestReply(p,'Нельзя оформить арест погибшего игрока');return end
  if not F.near(p,target) then arrestReply(p,'Игрок должен находиться рядом с вами у КПЗ');return end
  local inside,reason,distance=F.atJailBooking(p)
@@ -191,7 +202,7 @@ function F.commandArrest(p,id)
  end
  if F.jailed(target) then arrestReply(p,'Этот игрок уже находится в КПЗ');return end
  local stars=F.wantedLevel(target)
- if stars<1 then arrestReply(p,'У игрока нет розыска. Для проверки на себе сначала используйте /su ID 1 тест');return end
+ if stars<1 then arrestReply(p,'У игрока нет розыска');return end
  if not F.throttle(p,'arrest') then arrestReply(p,'Подождите перед повторным арестом');return end
  local minutes=math.min(FractionConfig.jail.max,stars*FractionConfig.jail.perStar)
  if not F.arrest(target,minutes,'Арест по уровню розыска') then arrestReply(p,'Не удалось сохранить арест. Повторите команду');return end
@@ -211,7 +222,9 @@ addCommandHandler('unarrest',function(p,_,id)
  local member=F.member(p)
  if not F.account(p) or not member or member.faction_id~=2 or member.rank<#Fractions[2].ranks-1 then F.notify(p,'Освобождение доступно только лидеру и заместителю LSPD');return end
  if not F.throttle(p,'unarrest') then return end
- local target=F.player(id);local state=F.account(target) and F.state(target)
+ local target=F.player(id)
+ if target==p then F.notify(p,'Нельзя применять полицейские команды к самому себе');return end
+ local state=F.account(target) and F.state(target)
  if not state or tonumber(state.jail_remaining)<=0 then F.notify(p,'Игрок не находится в КПЗ');return end
  if not FractionDB.change("UPDATE fraction_state SET jail_remaining=0,jail_reason='' WHERE account_id=? AND jail_remaining>0",F.account(target)) then F.notify(p,'Не удалось освободить игрока');return end
  state.jail_remaining=0;state.jail_reason=''
