@@ -41,10 +41,10 @@ for id,blip in pairs(F.blips) do
 end
 assert(count==6,'six faction map blips')
 local hospital=Fractions[1]
-assert(hospital.interior==3 and hospital.inside.x==830.6016 and hospital.inside.y==5.9404 and hospital.inside.z==1004.1797,'hospital uses requested Inside Track Betting coordinates')
+assert(hospital.interior==1 and hospital.inside.x==1478 and hospital.inside.y==1506 and hospital.inside.z==1183.5,'hospital uses custom shell indoor spawn')
 for _,key in ipairs({'exit','duty','keys'}) do
- local m=F.markers[key..':1']
- assert(m.interior==3 and m.dimension==hospital.dimension and math.abs(m.z-(hospital.inside.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'hospital markers use the stock interior floor')
+ local m=F.markers[key..':1'];local point=key=='exit' and hospital.exit or (key=='duty' and hospital.dutyPoint or hospital.keysPoint)
+ assert(m.interior==1 and m.dimension==hospital.dimension and math.abs(m.z-(point.z+(key=='exit' and 0.7 or FractionConfig.interactionIconZOffset)))<0.01,'hospital markers use their configured collision floor height')
 end
 local news=Fractions[3]
 -- Use the exact Bike School spawn requested for LS News.
@@ -69,10 +69,13 @@ assert(p.z==39.1,'repair does not move unrelated exterior players')
 tick=12000
 p.x,p.y,p.z=hospital.entrance.x,hospital.entrance.y,hospital.entrance.z
 source=F.markers['enter:1'];handlers.onMarkerHit(p,true)
-assert(p.interior==3 and p.dimension==hospital.dimension and p.x==830.6016 and p.y==5.9404,'real hospital entrance uses requested stock interior')
+assert(p.interior==1 and p.dimension==hospital.dimension and p.x==hospital.inside.x and p.y==hospital.inside.y,'real hospital entrance reaches custom shell')
 p.x,p.y,p.z=5000,4992,1001.2;p.interior=1
 F.repairInteriorPosition(p)
-assert(p.interior==3 and p.x==830.6016 and p.z==1004.1797,'saved old hospital positions migrate to stock interior')
+assert(p.interior==1 and p.x==hospital.inside.x and p.z==hospital.inside.z,'saved old hospital shell positions migrate to custom interior')
+p.x,p.y,p.z=830.6016,5.9404,1004.1797;p.interior=3
+F.repairInteriorPosition(p)
+assert(p.interior==1 and p.x==hospital.inside.x,'saved Inside Track visitors migrate to custom hospital')
 for id,f in pairs(Fractions) do
  assert(not F.markers['desk:'..id] and F.markers['keys:'..id],'composition markers replaced with key desks')
  assert(F.markers['keys:'..id].kind=='colshape','key icon uses invisible interaction sphere')
@@ -223,3 +226,14 @@ for _,e in ipairs(elements) do
  assert(not(e.kind=='object' and math.abs(e.x-741)<40 and math.abs(e.y+1348)<40),'no artificial helicopter objects remain at old News location')
 end
 print('News relocation: entrance, exit, all four vehicles, single exterior entrance and removal of old helicopter deck verified')
+
+HospitalInteriorConfig={}
+local waiting
+function getPedRotation(e) return e.rotation or 0 end
+F.safeTeleport=function(player,pos,interior,dimension) waiting={pos=pos,interior=interior,dimension=dimension};return true end
+p.interior,p.dimension=1,hospital.dimension;p.x,p.y,p.z=hospital.inside.x+1,hospital.inside.y,hospital.inside.z
+F.repairInteriorPosition(p)
+assert(waiting and waiting.pos.x==p.x and waiting.pos.z==p.z,'reconnect at valid custom hospital position waits for collision without resetting saved position')
+p.z=hospital.inside.z-5;waiting=nil
+F.repairInteriorPosition(p)
+assert(waiting.pos.x==hospital.inside.x and waiting.pos.z==hospital.inside.z,'players below custom hospital floor recover to safe spawn')

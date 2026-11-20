@@ -280,15 +280,15 @@ FractionFleetConfig = {
 FractionLocationConfig = {
     -- Los Santos Hospital
     [1] = {
-        interior=3, dimension=20001,
+        interior=1, dimension=20001,
         entrance={x=1172.0000,y=-1323.3000,z=15.4000,rotation=0.00},
-        inside={x=830.6016,y=5.9404,z=1004.1797,rotation=0.00},
-        exit={x=834.0016,y=5.9404,z=1004.1797,rotation=0.00},
-        keysPoint={x=827.0016,y=5.9404,z=1004.1797,rotation=0.00},
-        dutyPoint={x=830.6016,y=10.3404,z=1004.1797,rotation=0.00},
+        inside={x=1478,y=1506,z=1183.5,rotation=0.00},
+        exit={x=1481,y=1504,z=1183.55,rotation=0.00},
+        keysPoint={x=1484,y=1505,z=1183.55,rotation=0.00},
+        dutyPoint={x=1475,y=1505,z=1183.5,rotation=0.00},
         outsideSpawn={x=1175.5000,y=-1323.3000,z=15.4000,rotation=0.00},
-        roof={triggerRadius=0.9, slot=3, inside={x=834.0016,y=10.3404,z=1004.1797,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
-            arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=830.6016,y=5.9404,z=1004.1797,rotation=0.00}},
+        roof={triggerRadius=0.9, slot=3, inside={x=1480,y=1512,z=1183.55,rotation=0.00}, outside={x=1181.5000,y=-1326.0000,z=26.5000,rotation=90.00},
+            arrival={x=1185.0000,y=-1326.0000,z=26.5000,rotation=0.00}, returnSpawn={x=1478,y=1506,z=1183.5,rotation=0.00}},
     },
     -- Los Santos Police Department
     [2] = {

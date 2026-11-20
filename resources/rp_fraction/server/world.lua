@@ -40,9 +40,13 @@ function F.repairInteriorPosition(p)
  end
  local hospital=Fractions[1]
  if getElementDimension(p)==hospital.dimension then
-  local x,y=getElementPosition(p)
-  if getElementInterior(p)~=hospital.interior or (math.abs(x-5000)<40 and math.abs(y-5000)<40) then
+  local x,y,z=getElementPosition(p)
+  if getElementInterior(p)~=hospital.interior or (math.abs(x-5000)<40 and math.abs(y-5000)<40) or z<hospital.inside.z-2 then
    teleport(p,hospital.inside,hospital.interior,hospital.dimension)
+  elseif HospitalInteriorConfig and F.safeTeleport then
+   -- On reconnect/restart keep the saved position, but wait for the client
+   -- to reload the custom collision before allowing the player to move.
+   teleport(p,{x=x,y=y,z=z,rotation=getPedRotation(p)},hospital.interior,hospital.dimension)
   end
   return
  end

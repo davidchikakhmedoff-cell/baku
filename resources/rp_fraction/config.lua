@@ -26,8 +26,8 @@ local mafiaRanks={"Новичок","Боец","Проверенный","Стар
 Fractions = {
  [1]={name="Los Santos Hospital",category="state",color={232,91,122},blip={icon=22,size=2},duty=true,
  ranks={"Интерн","Фельдшер","Врач","Старший врач","Заместитель главврача","Главный врач"},skins={274,275,276,274,275,276},
- -- User-selected stock Inside Track Betting interior; no custom shell.
- entrance=point(1172.0,-1323.3,15.4),interior=3,inside=point(830.6016,5.9404,1004.1797),exit=point(834.0016,5.9404,1004.1797),dutyPoint=point(830.6016,10.3404,1004.1797),keysPoint=point(827.0016,5.9404,1004.1797),roof={inside=point(834.0016,10.3404,1004.1797),slot=3},
+ -- Custom hospital model in interior/client.lua; indoor points match its collision floor.
+ entrance=point(1172.0,-1323.3,15.4),interior=1,inside=point(1478,1506,1183.5),exit=point(1481,1504,1183.55),dutyPoint=point(1475,1505,1183.5),keysPoint=point(1484,1505,1183.55),roof={inside=point(1480,1512,1183.55),slot=3},
  },
  [2]={name="Los Santos Police Department",category="state",color={65,130,231},blip={icon=30,size=2},duty=true,
  ranks={"Кадет","Офицер","Старший офицер","Сержант","Лейтенант","Капитан","Майор","Полковник","Заместитель шефа","Шеф полиции"},skins={280,281,281,281,281,285,285,285,283,61},femaleSkins={129,130,130,130,130,131,131,131,150,151},
