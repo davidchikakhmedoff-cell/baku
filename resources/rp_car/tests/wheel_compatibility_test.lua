@@ -1,4 +1,6 @@
 dofile('resources/rp_car/handling/base.lua')
+-- This suite exercises the retained donor profiles; direct mesh sizes have their own suite.
+VehicleHandling={[404]=VehicleHandling[404],[479]=VehicleHandling[479]}
 root,resourceRoot={},{}
 local handlers,timer,calls={},nil,{}
 local toyota={state='loaded'}

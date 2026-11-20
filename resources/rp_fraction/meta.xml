@@ -75,4 +75,10 @@
  <file src="cars/prepared/597.txd" />
  <file src="cars/prepared/598.dff" />
  <file src="cars/prepared/598.txd" />
+ <file src="cars/ambulance/ambulance.dff" />
+ <file src="cars/ambulance/ambulance.txd" />
+ <file src="cars/news/newsvan.dff" />
+ <file src="cars/news/newsvan.txd" />
+ <file src="cars/copbike/copbike.dff" />
+ <file src="cars/copbike/copbike.txd" />
 </meta>

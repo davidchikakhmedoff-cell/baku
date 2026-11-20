@@ -2,6 +2,14 @@
     <info author="OpenAI" name="RP Car" version="1.0.0" type="script" />
     <min_mta_version client="1.5.6-9.18728" server="1.5.2-9.07903" />
 
+    <include resource="aston_martin_db9" />
+    <include resource="bmw_f12" />
+    <include resource="bmw_i8" />
+    <include resource="ford_taurus" />
+    <include resource="mercedes_sprinter" />
+    <include resource="skoda_octavia_universal" />
+    <include resource="volkswagen_passat_cc" />
+
     <script src="interaction_shared.lua" type="shared" />
     <script src="config.lua" type="shared" />
     <script src="dealerships.lua" type="shared" />

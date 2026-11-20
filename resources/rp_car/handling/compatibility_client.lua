@@ -19,7 +19,7 @@ local function update()
  timer=nil
  if stopping then return end
  for model,config in pairs(VehicleHandling or {}) do
-  if config.wheelSizeFromModel then
+  if config.wheelSizeFromModel or type(config.wheelSize)=='table' then
    local resource=config.modelResource and getResourceFromName(config.modelResource)
    local active=not config.modelResource or (resource and getResourceState(resource)=='running')
    if type(getVehicleModelWheelSize)~='function' or type(setVehicleModelWheelSize)~='function' then
@@ -29,9 +29,13 @@ local function update()
     end
    elseif active then
     originals[model]=originals[model] or sizes(model)
-    local reference=config.wheelSizeFromModel
-    donors[reference]=donors[reference] or sizes(reference)
-    apply(model,donors[reference])
+    local values=config.wheelSize
+    if config.wheelSizeFromModel then
+     local reference=config.wheelSizeFromModel
+     donors[reference]=donors[reference] or sizes(reference)
+     values=donors[reference]
+    end
+    apply(model,values)
    elseif originals[model] then apply(model,originals[model]) end
   end
  end

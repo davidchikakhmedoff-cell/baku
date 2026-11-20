@@ -19,6 +19,57 @@ VehicleHandling = {
         suspensionLowerLimitOffset = -0.04, -- Small lift relative to the donor suspension.
         wheelSizeFromModel = 579
     },
+    -- Physical axle diameters measured from the uploaded DFF wheel meshes.
+    [602] = {
+        name = "ASTON MARTIN DB9",
+        wheelSize = {front_axle=0.758, rear_axle=0.758},
+        modelResource = "aston_martin_db9"
+    },
+    [480] = {
+        name = "BMW F12",
+        wheelSize = {front_axle=0.806, rear_axle=0.806},
+        modelResource = "bmw_f12"
+    },
+    [451] = {
+        name = "BMW I8",
+        wheelSize = {front_axle=0.756, rear_axle=0.756},
+        modelResource = "bmw_i8"
+    },
+    [550] = {
+        name = "FORD TAURUS",
+        wheelSize = {front_axle=0.758, rear_axle=0.758},
+        modelResource = "ford_taurus"
+    },
+    [413] = {
+        name = "MERCEDES SPRINTER",
+        wheelSize = {front_axle=0.788, rear_axle=0.788},
+        modelResource = "mercedes_sprinter"
+    },
+    [458] = {
+        name = "SKODA OCTAVIA UNIVERSAL",
+        wheelSize = {front_axle=0.742, rear_axle=0.742},
+        modelResource = "skoda_octavia_universal"
+    },
+    [445] = {
+        name = "VOLKSWAGEN PASSAT CC",
+        wheelSize = {front_axle=0.782, rear_axle=0.782},
+        modelResource = "volkswagen_passat_cc"
+    },
+    [416] = {
+        name = "AMBULANCE",
+        wheelSize = {front_axle=0.788, rear_axle=0.788},
+        modelResource = "rp_fraction"
+    },
+    [582] = {
+        name = "NEWS CAR",
+        wheelSize = {front_axle=0.766, rear_axle=0.766},
+        modelResource = "rp_fraction"
+    },
+    [523] = {
+        name = "HPV1000",
+        wheelSize = {front_axle=0.680, rear_axle=0.680},
+        modelResource = "rp_fraction"
+    },
     -- Shared by dealership/personal cars and faction fleet registration.
     [421] = {
         name = "LEXUX LS 400 XF10",

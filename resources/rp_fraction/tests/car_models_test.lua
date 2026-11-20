@@ -1,6 +1,7 @@
 dofile('resources/rp_fraction/cars/config.lua');dofile('resources/rp_fraction/cars/patterns.lua')
 assert(FractionCarConfig.models[596].dff=='cars/prepared/596.dff' and not FractionCarConfig.models[599],'Explorer replaces copcarla patrol cars and leaves Police Ranger stock')
 assert(FractionCarConfig.models[497].dff=='cars/vert_pd/vert_pd.dff','PD helicopter only')
+assert(FractionCarConfig.models[416].dff=='cars/ambulance/ambulance.dff' and FractionCarConfig.models[582].dff=='cars/news/newsvan.dff' and FractionCarConfig.models[523].dff=='cars/copbike/copbike.dff','uploaded service replacements keep original faction fleet IDs')
 local P=FractionSirenPatterns
 local fixture={references={colors={blue={red=2,green=96,blue=255,alpha=128}}},states={emergency={
  ['1']={color='blue',state=1,pattern={100,100}},['2']={color={red=255,green=0,blue=0},state=0,pattern={100,200,100}},
@@ -38,7 +39,7 @@ function destroyElement(e) e.dead=true end
 function engineLoadTXD() return element('txd') end
 function engineImportTXD() return true end
 function engineLoadDFF() return element('dff') end
-function engineReplaceModel(_,id) assert(id==596 or id==597 or id==598 or id==497);return true end
+function engineReplaceModel(_,id) assert(id==596 or id==597 or id==598 or id==497 or id==416 or id==582 or id==523);return true end
 function engineRestoreModel(id) restored[id]=true end
 function fileOpen(path) return assert(io.open('resources/rp_fraction/'..path,'rb')) end
 function fileGetSize(f) local n=f:seek('end');f:seek('set');return n end
@@ -84,7 +85,7 @@ car.blown=false;tick();car.dimension=1;tick();car.siren=false;car.dimension=0;ti
 assert(palette[1][4]==0 and applied==1 and removed==0,'invisible/distant cars retain an unlit mask shader so encoded textures never appear raw')
 source=car;handlers.onClientElementStreamOut();assert(removed==1,'stream out detaches shader')
 car.blown=false;handlers.onClientElementStreamIn();tick();assert(applied==2,'stream in restores animation')
-handlers.onClientResourceStop();assert(restored[596] and restored[597] and restored[598] and restored[497],'restore both stock models on stop')
+handlers.onClientResourceStop();assert(restored[596] and restored[597] and restored[598] and restored[497] and restored[416] and restored[582] and restored[523],'restore both stock models on stop')
 for _,e in ipairs(elements) do assert(e.dead,'all graphics elements and timer must be released') end
 shaderFail=true;handlers.onClientResourceStart();timers[#timers].fn();timers[#timers].fn()
 assert(chatErrors==1,'shader failure is visible in chat once without debugscript')

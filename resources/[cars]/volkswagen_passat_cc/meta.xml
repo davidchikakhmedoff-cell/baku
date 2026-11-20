@@ -1,5 +1,6 @@
 <meta>
-  <script src="client.lua" type="client"/>
-  <file src="vehicle.dff"/>
-  <file src="vehicle.txd"/>
+    <info name="VOLKSWAGEN PASSAT CC" type="script" version="1.0.0" />
+    <script src="client.lua" type="client" cache="false" />
+    <file src="vehicle.dff" />
+    <file src="vehicle.txd" />
 </meta>

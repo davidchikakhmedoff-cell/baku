@@ -5,7 +5,16 @@ VehicleModelNames = {
     [404] = "TOYOTA SEQUOIA",
     [546] = "FORD CROWN VICTORIA",
     [479] = "HUMMER H2",
-    [400] = "MERCEDES BENZ ML63 W164"
+    [400] = "MERCEDES BENZ ML63 W164",
+    [602] = "ASTON MARTIN DB9",
+    [480] = "BMW F12",
+    [451] = "BMW I8",
+    [550] = "FORD TAURUS",
+    [413] = "MERCEDES SPRINTER",
+    [458] = "SKODA OCTAVIA UNIVERSAL",
+    [445] = "VOLKSWAGEN PASSAT CC",
+    [416] = "AMBULANCE",
+    [582] = "NEWS CAR"
 }
 
 Dealerships = {
