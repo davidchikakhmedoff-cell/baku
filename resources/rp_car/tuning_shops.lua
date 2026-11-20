@@ -31,36 +31,6 @@ TuningShops = {
     }
 }
 
-TestTuningShop = {
-    position = { x = 548.80, y = -1275.30, z = 16.90, size = 3.2, interior = 0, dimension = 0 },
-    returnPosition = { x = 548.80, y = -1281.20, z = 16.90, rotation = 180, interior = 0, dimension = 0 }
-}
-
-TuningShops[#TuningShops + 1] = {
-    id = 99,
-    type = "all",
-    name = "Тестовое тюнинг-ателье",
-    marker = {
-        x = TestTuningShop.position.x,
-        y = TestTuningShop.position.y,
-        z = TestTuningShop.position.z,
-        size = TestTuningShop.position.size,
-        interior = TestTuningShop.position.interior,
-        dimension = TestTuningShop.position.dimension
-    },
-    blip = { x = TestTuningShop.position.x, y = TestTuningShop.position.y, z = TestTuningShop.position.z + 1, icon = 27, size = 2, color = {79, 195, 247, 255}, visibleDistance = 250 },
-    enterPoint = { x = TestTuningShop.position.x, y = TestTuningShop.position.y, z = TestTuningShop.position.z, rotation = 0, interior = 0, dimension = 0 },
-    exitPoint = {
-        x = TestTuningShop.returnPosition.x,
-        y = TestTuningShop.returnPosition.y,
-        z = TestTuningShop.returnPosition.z,
-        rotation = TestTuningShop.returnPosition.rotation,
-        interior = TestTuningShop.returnPosition.interior,
-        dimension = TestTuningShop.returnPosition.dimension
-    },
-    distance = 5
-}
-
 function getTuningShopById(id)
     id = tonumber(id)
     for _, shop in ipairs(TuningShops or {}) do

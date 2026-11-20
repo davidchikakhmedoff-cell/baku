@@ -14,61 +14,76 @@ VehicleModelNames = {
     [458] = "SKODA OCTAVIA UNIVERSAL",
     [445] = "VOLKSWAGEN PASSAT CC",
     [416] = "AMBULANCE",
-    [582] = "NEWS CAR"
+    [582] = "NEWS CAR",
+    [405] = "BMW E60",
+    [436] = "MERCEDES CLK 55",
+    [477] = "MERCEDES C63 COUPE"
 }
 
+-- Prices below are provisional and can be changed per offer.
+-- Keep dealership/offer IDs stable: the first five European offers retain their IDs.
+local function point(x,y,z,rotation)
+    return {x=x,y=y,z=z,rotation=rotation or 0,interior=0,dimension=0}
+end
+local function offer(id,model,price,maxSpeed,x,y,z,rotation,name)
+    return {id=id,model=model,customName=assert(name or VehicleModelNames[model]),price=price,maxSpeed=maxSpeed,
+        position=point(x,y,z,rotation)}
+end
 Dealerships = {
     {
-        id = 1,
-        name = "Автосалон Лос-Сантос",
-        blipIcon = 55,
-        blipSize = 2,
-        blipColor = {79, 195, 247, 255},
-        blipVisibleDistance = 250,
-        playerSpawn = { x = 562.2, y = -1292.8, z = 17.2, rotation = 0, interior = 0, dimension = 0 },
-        purchasedVehicleSpawn = { x = 562.12, y = -1246.21, z = 16.77, rotation = 300, interior = 0, dimension = 0 },
-        cancelExitPosition = { x = 562.2, y = -1292.8, z = 17.2, rotation = 0, interior = 0, dimension = 0 },
-        vehicles = {
-            {
-                id = 1,
-                model = 560,
-                customName = "BMW M5 F90",
-                price = 540000,
-                maxSpeed = 270,
-                position = { x = 562.5, y = -1291.2, z = 17.1, rotation = 360, interior = 0, dimension = 0 }
-            },
-            {
-                id = 2,
-                model = 579,
-                customName = "BMW X5M E70",
-                price = 500000,
-                maxSpeed = 220,
-                position = { x = 558.5, y = -1290.7, z = 17.09, rotation = 360, interior = 0, dimension = 0 }
-            },
-            {
-                id = 3,
-                model = 529,
-                customName = "BMW M5 F10",
-                price = 430000,
-                maxSpeed = 250,
-                position = { x = 554.5, y = -1291, z = 17.12, rotation = 360, interior = 0, dimension = 0 }
-            },
-            {
-                id = 4,
-                model = 547,
-                customName = "BMW M3 E46",
-                price = 160000,
-                maxSpeed = 190,
-                position = { x = 550.5, y = -1291, z = 17.1, rotation = 360, interior = 0, dimension = 0 }
-            },
-            {
-                id = 5,
-                model = 411,
-                customName = "AUDI R8",
-                price = 670000,
-                maxSpeed = 300,
-                position = { x = 566, y = -1281, z = 16.85, rotation = 102, interior = 0, dimension = 0 }
-            }
+        id=1, region="europe", name="Автосалон европейских автомобилей",
+        blipIcon=55,blipSize=2,blipColor={79,195,247,255},blipVisibleDistance=250,
+        playerSpawn=point(562.2,-1292.8,17.2,0),
+        purchasedVehicleSpawn=point(562.12,-1246.21,16.77,300),
+        cancelExitPosition=point(562.2,-1292.8,17.2,0),
+        vehicles={
+            offer(1,560,540000,270,562.5,-1291.2,17.1,0,"BMW M5 F90"), -- BMW M5 F90
+            offer(2,579,500000,220,558.5,-1290.7,17.09,0,"BMW X5M E70"), -- BMW X5M E70
+            offer(3,529,430000,250,554.5,-1291,17.12,0,"BMW M5 F10"), -- BMW M5 F10
+            offer(4,547,160000,190,550.5,-1291,17.1,0,"BMW M3 E46"), -- BMW M3 E46
+            offer(5,411,670000,300,566,-1281,16.85,102,"AUDI R8"), -- AUDI R8
+            offer(6,405,220000,250,546.5,-1273,16.9,0), -- BMW E60
+            offer(7,436,190000,240,550.5,-1273,16.9,0), -- MERCEDES CLK 55
+            offer(8,477,460000,280,554.5,-1273,16.9,0), -- MERCEDES C63 COUPE
+            offer(9,400,360000,250,558.5,-1273,16.9,0), -- MERCEDES BENZ ML63 W164
+            offer(10,413,120000,165,562.5,-1273,16.9,0), -- MERCEDES SPRINTER
+            offer(11,602,650000,300,546.5,-1265,16.9,0), -- ASTON MARTIN DB9
+            offer(12,480,420000,260,550.5,-1265,16.9,0), -- BMW F12
+            offer(13,451,800000,280,554.5,-1265,16.9,0), -- BMW I8
+            offer(14,458,110000,210,558.5,-1265,16.9,0), -- SKODA OCTAVIA UNIVERSAL
+            offer(15,445,170000,230,562.5,-1265,16.9,0), -- VOLKSWAGEN PASSAT CC
+        }
+    },
+    {
+        id=2, region="america", name="Автосалон американских автомобилей",
+        blipIcon=55,blipSize=2,blipColor={79,195,247,255},blipVisibleDistance=250,
+        playerSpawn=point(2126.56,1398.25,10.81,0),
+        purchasedVehicleSpawn=point(2135.56,1398.25,10.81,180),
+        cancelExitPosition=point(2126.56,1398.25,10.81,180),
+        vehicles={
+            offer(1,550,180000,220,2119.5,1405,10.9,180), -- FORD TAURUS
+            offer(2,546,150000,210,2124,1405,10.9,180), -- FORD CROWN VICTORIA
+            offer(3,479,320000,180,2128.5,1405,10.9,180), -- HUMMER H2
+        }
+    },
+    {
+        id=3, region="russia", name="Автосалон российских автомобилей",
+        blipIcon=55,blipSize=2,blipColor={79,195,247,255},blipVisibleDistance=250,
+        playerSpawn=point(-1957.25,296.4,35.47,180), -- Wang Cars, San Fierro
+        purchasedVehicleSpawn=point(-1946,274,35.47,180),
+        cancelExitPosition=point(-1957.25,296.4,35.47,180),
+        -- No Russian replacement models have been uploaded yet.
+        vehicles={}
+    },
+    {
+        id=4, region="asia", name="Автосалон азиатских автомобилей",
+        blipIcon=55,blipSize=2,blipColor={79,195,247,255},blipVisibleDistance=250,
+        playerSpawn=point(-1658.6,1206,7.25,270), -- Otto's Autos, San Fierro
+        purchasedVehicleSpawn=point(-1651,1207.5,7.25,180),
+        cancelExitPosition=point(-1658.6,1206,7.25,270),
+        vehicles={
+            offer(1,421,140000,230,-1666,1213,7.3,270), -- LEXUX LS 400 XF10 (configured name)
+            offer(2,404,290000,210,-1666,1220,7.3,270), -- TOYOTA SEQUOIA
         }
     }
 }

@@ -2,6 +2,7 @@ local recoverPlayerVehicleParking
 local resourceStopping = false
 local waitingForPropertyServices = false
 local showcaseByElement = {}
+local emptyDealershipMarkers = {}
 local personalByElement = {}
 local elementByVehicleId = {}
 local personalRuntimeByElement = {}
@@ -1135,12 +1136,27 @@ local function finishExplodedPersonalVehicle(vehicleId, explodedVehicle)
 end
 
 local function spawnShowcases()
+    for _, marker in ipairs(emptyDealershipMarkers) do if isElement(marker) then destroyElement(marker) end end
+    emptyDealershipMarkers = {}
     for vehicle in pairs(showcaseByElement) do
         if isElement(vehicle) then destroyElement(vehicle) end
     end
     showcaseByElement = {}
 
     for _, dealership in ipairs(Dealerships or {}) do
+        if #(dealership.vehicles or {}) == 0 and dealership.playerSpawn then
+            local p = dealership.playerSpawn
+            local marker = createMarker(p.x,p.y,p.z-1,"cylinder",1.5,79,195,247,115)
+            if marker then
+                setElementInterior(marker,p.interior or 0);setElementDimension(marker,p.dimension or 0)
+                emptyDealershipMarkers[#emptyDealershipMarkers+1] = marker
+                addEventHandler("onMarkerHit",marker,function(player,matchingDimension)
+                    if matchingDimension and isLogged(player) and not isPedInVehicle(player) then
+                        notify(player,"В этом автосалоне пока нет автомобилей в продаже.",false)
+                    end
+                end)
+            end
+        end
         for _, config in ipairs(dealership.vehicles or {}) do
             local p = config.position or {}
             local vehicle = createVehicle(config.model, p.x, p.y, p.z, 0, 0, p.rotation or 0)

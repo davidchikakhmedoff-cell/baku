@@ -3,11 +3,22 @@
     <min_mta_version client="1.5.6-9.18728" server="1.5.2-9.07903" />
 
     <include resource="aston_martin_db9" />
+    <include resource="audi_r8" />
+    <include resource="bmw_e46" />
+    <include resource="bmw_e60" />
+    <include resource="bmw_e70" />
+    <include resource="bmw_f10" />
     <include resource="bmw_f12" />
+    <include resource="bmw_f90" />
     <include resource="bmw_i8" />
     <include resource="ford_taurus" />
+    <include resource="lexus_ls400" />
+    <include resource="mercedes_c63_coupe" />
+    <include resource="mercedes_clk_55" />
+    <include resource="mercedes_ml63_w164" />
     <include resource="mercedes_sprinter" />
     <include resource="skoda_octavia_universal" />
+    <include resource="toyota_sequoia" />
     <include resource="volkswagen_passat_cc" />
 
     <script src="interaction_shared.lua" type="shared" />
