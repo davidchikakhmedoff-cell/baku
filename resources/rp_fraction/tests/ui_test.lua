@@ -15,6 +15,8 @@ function destroyElement() end
 function isElement(e) return type(e)=='table' end
 function addEvent() end
 function addEventHandler(name,element,fn) handlers[name]=fn end
+local vitalsRefresh=0
+function triggerEvent(event,element) assert(event=='rp:hud:refreshLocalVitals' and element==localPlayer);vitalsRefresh=vitalsRefresh+1 end
 function triggerServerEvent(event,element,name,data) sent[#sent+1]={name=name,data=data} end
 function tocolor(r,g,b,a) return r*1000000+g*1000+b end
 function getCursorPosition() return false end
@@ -198,4 +200,4 @@ for _,d in ipairs(draws) do assert(d.text~='САМОЛЕЧЕНИЕ','successful 
 function setElementHealth(e,value) assert(e==localPlayer);e.hp=value end
 source=resourceRoot;handlers['fraction:healthSync'](20);assert(localPlayer.hp==20,'server health correction reaches the actual local ped')
 handlers['fraction:healthSync'](100);assert(localPlayer.hp==100,'successful treatment synchronizes local HP')
-handlers['fraction:healthSync'](999);assert(localPlayer.hp==100,'invalid health values ignored')
+handlers['fraction:healthSync'](999);assert(localPlayer.hp==100 and vitalsRefresh==2,'only valid health changes notify the core HUD')

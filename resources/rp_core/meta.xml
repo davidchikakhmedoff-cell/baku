@@ -65,6 +65,7 @@
     <export function="getAuthAccountName" type="server" />
     <export function="setAuthPlayerHouseId" type="server" />
     <export function="addAuthAccountMoney" type="server" />
+    <export function="updatePlayerHUD" type="server" />
     <export function="getAuthPlayerBalance" type="server" />
     <export function="giveAuthPlayerMoney" type="server" />
     <export function="takeAuthPlayerMoney" type="server" />

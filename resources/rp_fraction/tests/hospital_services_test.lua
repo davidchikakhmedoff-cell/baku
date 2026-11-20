@@ -3,6 +3,8 @@ root,resourceRoot={},{}
 local f=Fractions[1]
 local p={id=1,alive=true,hp=20,money=1000,x=f.selfHealPoint.x,y=f.selfHealPoint.y,z=f.selfHealPoint.z,interior=f.interior,dimension=f.dimension}
 local players={p};local menu,closed,charged=nil,0,0
+local hudUpdates={}
+exports={rp_core={updatePlayerHUD=function(_,player) hudUpdates[#hudUpdates+1]=player.hp end}}
 Fraction={ready=true,markers={['selfHeal:1']={}},sessions={}}
 local F=Fraction
 function getElementsByType() return players end
@@ -63,7 +65,7 @@ assert(p.hp==20 and p.money==750,'healing waits for death-spawn transition to co
 local q=players[1];q.x,q.y,q.z=f.respawnPoint.x,f.respawnPoint.y,f.respawnPoint.z;q.interior,q.dimension=f.interior,f.dimension
 assert(completeHospitalRespawn(q) and q.afterSpawn and q.prepared.rotation==180,'death completion installs collision-ready health callback and reapplies 180-degree heading')
 q.hp=100;q.afterSpawn(q,true)
-assert(q.hp==20,'late default spawn initialization is overwritten only after player is ready')
+assert(q.hp==20 and hudUpdates[#hudUpdates]==20,'final death HP is pushed to HUD after player is ready')
 -- Real remote action route must not discard treatment because another menu
 -- recently used the shared UI cooldown.
 q.x,q.y,q.z=f.selfHealPoint.x,f.selfHealPoint.y,f.selfHealPoint.z;q.hp=20;q.money=1000
@@ -73,4 +75,4 @@ local handler=assert(loadstring('local F=Fraction;return function(action,data)\n
 source=resourceRoot;client=q
 F.throttle=function(_,action) return action~='ui' end
 handler('selfHeal',{price=0,health=999})
-assert(q.hp==100 and q.money==750,'real UI event uses dedicated healing throttle and server price')
+assert(q.hp==100 and q.money==750 and hudUpdates[#hudUpdates]==100,'treatment pushes resulting 100 HP to HUD')

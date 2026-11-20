@@ -32,6 +32,7 @@ addEvent('fraction:healthSync',true)
 addEventHandler('fraction:healthSync',resourceRoot,function(health)
  if source~=resourceRoot or type(health)~='number' or (health~=20 and health~=100) then return end
  setElementHealth(localPlayer,health)
+ triggerEvent('rp:hud:refreshLocalVitals',localPlayer)
 end)
 addEvent('fraction:closeSelfHeal',true)
 addEventHandler('fraction:closeSelfHeal',resourceRoot,function() if window=='selfHeal' then close() end end)

@@ -372,11 +372,19 @@ addEventHandler("auth:loggedOut", resourceRoot, function()
 end)
 
 local function updateLocalVitals()
+    local accountId = tonumber(getElementData(localPlayer, "auth:playerId"))
+    if hud.initialized and accountId and tonumber(hud.data.player.accountId) ~= accountId then return end
     applyFlatUpdate({
         health = math.max(0, math.min(100, getElementHealth(localPlayer) or 0)),
         armor = math.max(0, math.min(100, getPedArmor(localPlayer) or 0))
     })
 end
+
+-- Local-only notification from resources that explicitly synchronize native HP.
+addEvent("rp:hud:refreshLocalVitals", false)
+addEventHandler("rp:hud:refreshLocalVitals", root, function()
+    if source == localPlayer then updateLocalVitals() end
+end)
 
 local function updateLocalWeapon()
     refreshLocalWeaponNow()

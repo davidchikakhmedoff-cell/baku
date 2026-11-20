@@ -24,6 +24,7 @@ function F.selfHeal(p)
  if not F.charge(p,FractionConfig.selfHealPrice) then F.notify(p,'Недостаточно денег для самолечения');return end
  setElementHealth(p,100)
  triggerClientEvent(p,'fraction:healthSync',resourceRoot,100)
+ exports.rp_core:updatePlayerHUD(p)
  triggerClientEvent(p,'fraction:closeSelfHeal',resourceRoot)
  F.notify(p,'Вы вылечились. Списано $'..FractionConfig.selfHealPrice,true)
 end
@@ -63,6 +64,7 @@ function completeHospitalRespawn(p)
    if F.account(player) and not isPedDead(player) and not F.jailed(player) then
     setElementHealth(player,20)
     triggerClientEvent(player,'fraction:healthSync',resourceRoot,20)
+    exports.rp_core:updatePlayerHUD(player)
    end
   end)
 end
