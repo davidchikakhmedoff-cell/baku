@@ -1,3 +1,4 @@
+local addCommandHandler = FractionCommands and FractionCommands.add or addCommandHandler
 local F=Fraction
 addCommandHandler('heal',function(p,_,id)
  if not F.active(p,1) or not F.throttle(p,'heal') then return end

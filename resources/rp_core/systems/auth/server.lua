@@ -323,7 +323,7 @@ end
 
 local function setSessionData(player, row)
     local rpName = row.rp_name
-    setElementData(player, "auth:loggedIn", true, false)
+    setElementData(player, "auth:loggedIn", true, true)
     setElementData(player, "auth:rpName", rpName, false)
     setElementData(player, "auth:playerId", row.id, false)
     setElementData(player, "auth:houseId", tonumber(row.house_id) or 0, true)
@@ -335,7 +335,7 @@ local protectedSessionKeys={['auth:playerId']=true,['auth:loggedIn']=true,['auth
 addEventHandler('onElementDataChange',root,function(key,oldValue)
     if not client or not protectedSessionKeys[key] then return end
     if oldValue==nil then removeElementData(source,key)
-    else setElementData(source,key,oldValue,key=='auth:houseId') end
+    else setElementData(source,key,oldValue,key=='auth:houseId' or key=='auth:loggedIn') end
 end,true,'high+100')
 
 function getAuthPlayerId(player)

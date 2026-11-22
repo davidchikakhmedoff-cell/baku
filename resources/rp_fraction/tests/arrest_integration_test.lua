@@ -35,6 +35,7 @@ function getElementsByType() return {p,q} end
 function addEvent() end
 function addEventHandler() end
 function addCommandHandler() end
+dofile('resources/rp_fraction/server/commands.lua')
 function triggerClientEvent() end
 function getResourceFromName(name) return name=='rp_core' and core or fraction end
 function getResourceState() return 'running' end
@@ -112,6 +113,7 @@ prepare(Fractions[2].dimension,0,nil,false,4)
 RPChat.processMessage(p,'/clearwanted 16');assert(row.wanted==4,'off-duty clearwanted rejected')
 prepare(Fractions[2].dimension,0,nil,true,4)
 local putId
+dofile('resources/rp_fraction/server/police_transport.lua')
 F.commandPutCar=function(actor,id) assert(actor==p);putId=id end
 RPChat.processMessage(p,'/putcar 2');assert(putId=='2','custom chat dispatches putcar directly without native execution')
 print('Police chat: clearwanted persistence/target ID/separate cooldown/rank/duty and putcar direct dispatch passed')

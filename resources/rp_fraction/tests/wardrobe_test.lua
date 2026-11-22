@@ -25,6 +25,7 @@ function getRealTime() return {timestamp=1000} end
 function addEvent() end
 function addEventHandler(name,_,fn) events[name]=fn end
 function addCommandHandler() end
+dofile('resources/rp_fraction/server/commands.lua')
 function triggerClientEvent(target,event,source,kind,data)
  if event=='fraction:menu' then menus[target]={kind=kind,data=data} end
 end

@@ -1,3 +1,4 @@
+local addCommandHandler = FractionCommands and FractionCommands.add or addCommandHandler
 local F=Fraction
 local function radio(p,command,...)
  if not F.account(p) then return end

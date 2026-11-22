@@ -90,6 +90,9 @@ function RPBans.isPlayerBanned(rpName, serial)
 end
 
 function RPBans.banPlayer(target, admin, duration, unit, reason)
+    if hasObjectPermissionTo and not hasObjectPermissionTo(getThisResource(), "function.kickPlayer", false) then
+        return false, "rp_core: нет ACL-права kickPlayer. В консоли хостинга: aclrequest allow rp_core all"
+    end
     if not isElement(target) or getElementType(target) ~= "player" then return false, "Player not found." end
     RPBansDB.init()
 
@@ -111,8 +114,7 @@ function RPBans.banPlayer(target, admin, duration, unit, reason)
 
     if not ok then return false, "Could not save ban." end
     RPBans.logAction("ban", admin, targetName, targetSerial, targetId, reason, "unit=" .. tostring(unit) .. "; duration=" .. tostring(duration))
-    kickPlayer(target, admin, reason)
-    return true
+    return kickPlayer(target, admin, reason)
 end
 
 function RPBans.unbanPlayerByIdentity(rpName, serial, admin, reason)

@@ -1,3 +1,4 @@
+local addCommandHandler = FractionCommands and FractionCommands.add or addCommandHandler
 local F=Fraction
 F.justice={}
 function F.state(p)

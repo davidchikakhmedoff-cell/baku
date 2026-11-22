@@ -19,6 +19,7 @@ F.endDuty=function() end
 F.clearCuffs=function() end
 F.revokeDriver=function() end
 function addCommandHandler(name,fn) commands[name]=fn end
+dofile('resources/rp_fraction/server/commands.lua')
 function addEvent() end
 function addEventHandler() end
 function getElementModel() return 0 end

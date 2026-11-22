@@ -30,3 +30,15 @@ assert(player['auth:houseId']==7,'legitimate server updates remain supported')
 client=attacker;change('ordinary:key',nil,123)
 assert(player['ordinary:key']==123,'unrelated element data remains supported')
 print('Auth security: client identity/session forgery rejected; server updates preserved')
+
+-- Public authentication state is needed by independently downloaded client resources.
+local file=assert(io.open('resources/rp_core/systems/auth/server.lua'));local code=file:read('*a');file:close()
+local setter=assert(code:match('(local function setSessionData.-\nend)'))
+local replicated={}
+function setElementData(p,key,value,sync) p[key]=value;replicated[key]=sync end
+local login=assert(loadstring(setter..'\nreturn setSessionData'))()
+login(player,{id=10,rp_name='Test_Player',house_id=5})
+assert(replicated['auth:loggedIn']==true,'login status reaches real remote clients')
+assert(replicated['auth:playerId']==false,'private account identity stays server-side')
+client=attacker;change('auth:loggedIn',true,false)
+assert(player['auth:loggedIn']==true and replicated['auth:loggedIn']==true,'forged login edits restore the authoritative public value')

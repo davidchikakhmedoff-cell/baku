@@ -20,6 +20,7 @@ end
 function getElementData(p,key) return p[key] end
 function getElementsByType() return people end
 function addCommandHandler(name,fn) commands[name]=fn end
+dofile('resources/rp_fraction/server/commands.lua')
 -- Use the real core delivery API: the standard MTA chat is hidden in game.
 local coreResource,fractionResource={},{}
 root,resourceRoot={},coreResource

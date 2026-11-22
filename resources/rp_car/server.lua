@@ -1,3 +1,20 @@
+-- Keep console and DX-chat commands on the same permission-checked handlers.
+local nativeAddCommandHandler = addCommandHandler
+local carCommandHandlers = {}
+local function addCommandHandler(name, handler, ...)
+    carCommandHandlers[name] = handler
+    return nativeAddCommandHandler(name, handler, ...)
+end
+function executeCarCommand(player, command, args)
+    if sourceResource ~= getResourceFromName("rp_core") then return false end
+    local handler = carCommandHandlers[command]
+    if not handler or not isElement(player) or getElementData(player,"auth:loggedIn") ~= true then return false end
+    local words = {}
+    for word in tostring(args or ""):gmatch("%S+") do words[#words + 1] = word end
+    handler(player, command, unpack(words))
+    return true
+end
+
 local recoverPlayerVehicleParking
 local resourceStopping = false
 local waitingForPropertyServices = false

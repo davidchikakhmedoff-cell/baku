@@ -25,6 +25,7 @@ FractionDB={
 exports={rp_core={getAuthPlayerBalance=function(_,p) return p.money end}}
 function addEvent() end
 function addCommandHandler(name,fn) commands[name]=fn end
+dofile('resources/rp_fraction/server/commands.lua')
 function addEventHandler() end
 function triggerClientEvent(player,event,source,kind,data)
  if event=='fraction:menu' and kind=='ticket' then menu={player=player,data=data} end

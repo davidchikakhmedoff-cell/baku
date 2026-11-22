@@ -274,6 +274,14 @@ function RPChatClient.addMessage(payload)
     end
 end
 
+-- Native outputChatBox messages (SMS, /f and model-loader diagnostics) must
+-- reach the DX chat too: the standard GTA chat is hidden by this resource.
+function RPChatClient.receiveNativeMessage(text,r,g,b)
+    cancelEvent()
+    RPChatClient.addMessage({type="native",text=tostring(text or ""),color={r or 255,g or 255,b or 255}})
+end
+addEventHandler("onClientChatMessage",root,RPChatClient.receiveNativeMessage)
+
 function RPChatClient.setVisible(state)
     RPChatClient.visible = state and true or false
 end

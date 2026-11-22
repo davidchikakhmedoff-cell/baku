@@ -86,6 +86,9 @@ local function applyAdminConfig(adminsTable, sourceName)
 end
 
 function reloadAdminConfig()
+    if hasObjectPermissionTo and not hasObjectPermissionTo(getThisResource(), "function.loadstring", false) then
+        return false, "rp_core: нет ACL-права loadstring. В консоли хостинга: aclrequest allow rp_core all"
+    end
     if not fileExists(ADMIN_CONFIG_PATH) then
         AdminCore.configLoaded = false
         AdminCore.configError = "Config file not found: " .. ADMIN_CONFIG_PATH
@@ -309,7 +312,7 @@ addEventHandler("onResourceStart", resourceRoot, function()
     applyAdminConfig(Admins, "meta startup")
 end)
 
-addCommandHandler("reloadadmins", function(player)
+function reloadAdminsCommand(player)
     if player and isElement(player) and not AdminCore.hasPermission(player, "adminCommands") then
         denyPanel(player, "permission=adminCommands", AdminCore.getRPName(player))
         return
@@ -322,7 +325,8 @@ addCommandHandler("reloadadmins", function(player)
     else
         logAdminConfig(text, ok and 3 or 1)
     end
-end)
+end
+addCommandHandler("reloadadmins", reloadAdminsCommand)
 
 addEvent("admin:requestPanel", true)
 addEventHandler("admin:requestPanel", root, function()

@@ -48,6 +48,7 @@
     <script src="systems/chat/server.lua" type="server" />
     <script src="systems/admin/reports/server.lua" type="server" />
     <script src="systems/chat/commands.lua" type="server" />
+    <script src="systems/diagnostics/server.lua" type="server" />
     <script src="systems/testbot/server.lua" type="server" />
 
     <export function="isPlayerBanned" type="server" />
@@ -81,4 +82,8 @@
     <export function="getActiveUIName" type="client" />
     <export function="isAnyBlockingUIOpen" type="client" />
     <export function="isTextInputActive" type="client" />
+    <aclrequest>
+        <right name="function.kickPlayer" access="true" />
+        <right name="function.loadstring" access="true" />
+    </aclrequest>
 </meta>

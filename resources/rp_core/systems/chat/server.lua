@@ -233,6 +233,15 @@ local function handleFractionCommand(player,command,args)
     return false
 end
 
+local function handleCarCommand(player,command,args)
+    local resource=getResourceFromName('rp_car')
+    if not resource or getResourceState(resource)~='running' then return false end
+    for _,name in ipairs(getResourceExportedFunctions(resource) or {}) do
+        if name=='executeCarCommand' then return call(resource,name,player,command,args)==true end
+    end
+    return false
+end
+
 function RPChat.processMessage(player, message)
     if not isElement(player) or not isLoggedIn(player) then return end
 
@@ -251,7 +260,7 @@ function RPChat.processMessage(player, message)
         local def = cmd and RPChat.commands[cmd]
         if def then
             def.handler(player, args)
-        elseif not handleFractionCommand(player,cmd,args) then
+        elseif not handleFractionCommand(player,cmd,args) and not handleCarCommand(player,cmd,args) then
             RPChat.sendSystem(player, "Неизвестная команда.", false)
         end
         return

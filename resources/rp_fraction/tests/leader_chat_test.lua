@@ -15,6 +15,7 @@ local commands,notifications={},{}
 function addEvent() end
 function addEventHandler() end
 function addCommandHandler(name,fn) commands[name]=fn end
+dofile('resources/rp_fraction/server/commands.lua')
 function isElement(p) return type(p)=='table' and p.id~=nil end
 function getElementType() return 'player' end
 function getElementData(p,key) return p[key] end

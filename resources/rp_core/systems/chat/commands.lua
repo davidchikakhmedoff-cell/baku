@@ -299,3 +299,7 @@ registerChatCommand("coords", function(player)
     local _,_,rotation=getElementRotation(player)
     RPChat.send(player,{type="normal",text=string.format("x=%.4f, y=%.4f, z=%.4f, rotation=%.2f | interior=%d, dimension=%d",x,y,z,rotation,getElementInterior(player),getElementDimension(player)),color=ChatConfig.colors.system})
 end)
+
+registerChatCommand("rphealth", function(player) runHostingChecks(player) end)
+
+registerChatCommand("reloadadmins", function(player) reloadAdminsCommand(player) end)

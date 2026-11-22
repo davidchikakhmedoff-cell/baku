@@ -1,3 +1,4 @@
+local addCommandHandler = FractionCommands and FractionCommands.add or addCommandHandler
 local F=Fraction
 function F.membersMenu(p)
  local m=F.member(p);if not m then return end
@@ -107,26 +108,25 @@ local chatCommands={invite=true,acceptfraction=true,declinefraction=true,uninvit
 function executeFractionCommand(p,command,args)
  if sourceResource~=getResourceFromName('rp_core') or not chatCommands[command] then return false end
  if not F.account(p) then F.notify(p,'Система фракций ещё не готова. Дождитесь загрузки зависимостей');return true end
- if command=='arrest' then
-  F.commandArrest(p,type(args)=='string' and args:match('^%s*(%S+)') or nil)
- elseif command=='clearwanted' then
-  F.commandClearWanted(p,type(args)=='string' and args:match('^%s*(%S+)') or nil)
- elseif command=='putcar' then
-  F.commandPutCar(p,type(args)=='string' and args:match('^%s*(%S+)') or nil)
- elseif executeCommandHandler(command,p,type(args)=='string' and args or '')==false then
+ if not FractionCommands.execute(p,command,args) then
   F.notify(p,'Не удалось выполнить /'..command..'. Проверьте обновление rp_fraction')
  end
  return true
 end
+local uiActions={accept=true,decline=true,duty=true,wardrobeOpen=true,members=true,keysTake=true,keysReturn=true,keysRefresh=true,armory=true,news=true,publish=true,reject=true,payticket=true}
 addEvent('fraction:action',true)
 addEventHandler('fraction:action',resourceRoot,function(action,data)
- local p=client;if not p or source~=resourceRoot or not F.account(p) or type(action)~='string' then return end
+ local p=client;if not p or source~=resourceRoot or type(action)~='string' then return end
+ if not F.account(p) then F.notify(p,'Система фракций ещё загружается. Повторите действие через несколько секунд');return end
  if action=='selfHeal' then F.selfHeal(p);return end
  if action=='keysClose' then F.keyMenus[p]=nil;return end
  data=type(data)=='table' and data or {}
  if action=='wardrobeClose' then Wardrobe.close(p,data.token);return end
  if action=='wardrobeWear' then Wardrobe.wear(p,data);return end
- if not F.throttle(p,'ui') then return end
+ if not uiActions[action] then return end
+ if not F.throttle(p,'ui:'..action) then
+  F.notify(p,'Подождите секунду перед повторным действием');return
+ end
  if action=='accept' then F.respondInvite(p,true)
  elseif action=='decline' then F.respondInvite(p,false)
 

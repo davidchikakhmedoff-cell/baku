@@ -355,11 +355,13 @@ function AdminActions.weapon(admin, target, data)
 end
 
 function AdminActions.kick(admin, target, data)
+    if hasObjectPermissionTo and not hasObjectPermissionTo(getThisResource(), "function.kickPlayer", false) then
+        return false, "rp_core: нет ACL-права kickPlayer. В консоли хостинга: aclrequest allow rp_core all"
+    end
     local reason = cleanReason(data and data.reason, "Причина не указана")
     logAction("kick", admin, target, reason, "")
     outputDebugString(string.format("[AdminKick] admin=%s target=%s reason=%s time=%s", adminName(admin), targetName(target), reason, os.date("%Y-%m-%d %H:%M:%S", getRealTime().timestamp)), 3)
-    kickPlayer(target, admin, reason)
-    return true
+    return kickPlayer(target, admin, reason)
 end
 
 function AdminActions.ban(admin, target, data)
